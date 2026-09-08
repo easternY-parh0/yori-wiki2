@@ -271,7 +271,7 @@
 		gap: 7px;
 		margin-bottom: 24px;
 		color: var(--text-muted);
-		font-size: 13px;
+		font-size: 14px;
 	}
 
 	.breadcrumb a:hover {
@@ -300,7 +300,7 @@
 		align-items: center;
 		gap: 10px;
 		color: var(--text-muted);
-		font-size: 12px;
+		font-size: 14px;
 	}
 
 	.category {
@@ -358,7 +358,7 @@
 
 	.author-info span {
 		color: var(--text-muted);
-		font-size: 12px;
+		font-size: 14px;
 	}
 
 	.more-button {
@@ -410,7 +410,7 @@
 	}
 
 	.image-placeholder span {
-		font-size: 13px;
+		font-size: 14px;
 	}
 
 	.post-content > p {
@@ -456,7 +456,7 @@
 	.tip-box p {
 		margin: 0;
 		color: var(--text-subtle);
-		font-size: 13px;
+		font-size: 14px;
 		line-height: 1.75;
 	}
 
@@ -480,7 +480,7 @@
 		border-radius: 8px;
 		background: transparent;
 		color: var(--text-muted);
-		font-size: 13px;
+		font-size: 14px;
 		cursor: pointer;
 	}
 
@@ -512,7 +512,7 @@
 
 	.comments-heading span {
 		color: var(--accent);
-		font-size: 11px;
+		font-size: 14px;
 		font-weight: 800;
 		letter-spacing: .08em;
 	}
@@ -578,7 +578,7 @@
 	.comment-submit span {
 		margin-right: auto;
 		color: var(--text-muted);
-		font-size: 11px;
+		font-size: 14px;
 	}
 
 	.comment-submit button {
@@ -587,7 +587,7 @@
 		border-radius: 7px;
 		background: var(--primary);
 		color: #0f172a;
-		font-size: 12px;
+		font-size: 14px;
 		font-weight: 700;
 		cursor: pointer;
 	}
@@ -627,7 +627,7 @@
 
 	.comment-meta span {
 		color: var(--text-muted);
-		font-size: 11px;
+		font-size: 14px;
 	}
 
 	.comment-body p {
@@ -649,7 +649,7 @@
 		border: 0;
 		background: transparent;
 		color: var(--text-muted);
-		font-size: 11px;
+		font-size: 14px;
 		cursor: pointer;
 	}
 
@@ -666,7 +666,7 @@
 		align-items: center;
 		gap: 6px;
 		color: var(--text-muted);
-		font-size: 13px;
+		font-size: 14px;
 	}
 
 	.back-link a:hover {
@@ -714,7 +714,7 @@
 		}
 
 		.breadcrumb {
-			font-size: 12px;
+			font-size: 14px;
 		}
 
 		.post {
@@ -740,7 +740,7 @@
 		}
 
 		.image-placeholder span {
-			font-size: 11px;
+			font-size: 14px;
 		}
 
 		.post-content > p {
@@ -753,7 +753,7 @@
 		}
 
 		.tip-box p {
-			font-size: 12px;
+			font-size: 14px;
 		}
 
 		.post-footer {
@@ -770,7 +770,7 @@
 		}
 
 		.comment-input textarea {
-			font-size: 13px;
+			font-size: 14px;
 		}
 	}
 </style>

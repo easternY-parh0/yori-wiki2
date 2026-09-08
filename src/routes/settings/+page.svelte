@@ -279,7 +279,7 @@
 	.section-label,
 	.danger-label {
 		color: var(--accent);
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 800;
 		letter-spacing: .1em;
 	}
@@ -293,7 +293,7 @@
 	.settings-header p {
 		margin: 0;
 		color: var(--text-muted);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.settings-layout {
@@ -320,7 +320,7 @@
 		padding: 10px 11px;
 		border-radius: 9px;
 		color: var(--text-subtle);
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 650;
 	}
 
@@ -375,14 +375,14 @@
 
 	.card-heading h2 {
 		margin: 0 0 4px;
-		font-size: 13px;
+		font-size: 14px;
 		letter-spacing: -.03em;
 	}
 
 	.card-heading p {
 		margin: 0;
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.form-list,
@@ -409,14 +409,14 @@
 	.option-row strong {
 		display: block;
 		margin-bottom: 4px;
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 700;
 	}
 
 	.form-row span,
 	.option-row span {
 		color: var(--text-muted);
-		font-size: 7px;
+		font-size: 14px;
 	}
 
 	.input-wrap input {
@@ -428,7 +428,7 @@
 		background: var(--surface-subtle);
 		color: var(--text);
 		font: inherit;
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.input-wrap input:focus {
@@ -446,7 +446,7 @@
 	.danger-button {
 		border-radius: 8px;
 		padding: 9px 13px;
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 700;
 		cursor: pointer;
 	}
@@ -563,12 +563,12 @@
 
 	.link-list strong {
 		margin-bottom: 4px;
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.link-list span {
 		color: var(--text-muted);
-		font-size: 7px;
+		font-size: 14px;
 	}
 
 	.link-list svg {
@@ -588,13 +588,13 @@
 
 	.danger-card h2 {
 		margin: 6px 0;
-		font-size: 12px;
+		font-size: 14px;
 	}
 
 	.danger-card p {
 		margin: 0;
 		color: var(--text-muted);
-		font-size: 7px;
+		font-size: 14px;
 	}
 
 	.danger-label {
@@ -658,7 +658,7 @@
 	.modal p {
 		margin: 0;
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 		line-height: 1.7;
 	}
 

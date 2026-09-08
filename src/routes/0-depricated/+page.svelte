@@ -727,7 +727,7 @@
 
 		background: #fff5cf;
 
-		font-size: 12px;
+		font-size: 14px;
 		font-weight: 750;
 	}
 
@@ -792,7 +792,7 @@
 
 		color: #b09663;
 
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 850;
 		letter-spacing: 0.15em;
 	}
@@ -896,7 +896,7 @@
 		background: #44372d;
 		color: white;
 
-		font-size: 13px;
+		font-size: 14px;
 		font-weight: 750;
 	}
 
@@ -905,7 +905,7 @@
 
 		color: #a39179;
 
-		font-size: 10px;
+		font-size: 14px;
 		text-align: center;
 	}
 
@@ -964,7 +964,7 @@
 
 		color: #987c41;
 
-		font-size: 11px;
+		font-size: 14px;
 		font-weight: 750;
 	}
 
@@ -1037,7 +1037,7 @@
 
 		color: #44372d;
 
-		font-size: 13px;
+		font-size: 14px;
 	}
 
 	.main-search input::placeholder {
@@ -1055,7 +1055,7 @@
 		background: #ffd34f;
 		color: #4a3b20;
 
-		font-size: 13px;
+		font-size: 14px;
 		font-weight: 800;
 	}
 
@@ -1072,7 +1072,7 @@
 
 		margin-top: 13px;
 
-		font-size: 10px;
+		font-size: 14px;
 	}
 
 	.popular-search > span {
@@ -1131,7 +1131,7 @@
 
 		color: #a88e55;
 
-		font-size: 11px;
+		font-size: 14px;
 		font-weight: 700;
 		text-align: center;
 	}
@@ -1143,7 +1143,7 @@
 
 		color: #c0ad82;
 
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 500;
 	}
 
@@ -1174,7 +1174,7 @@
 	}
 
 	.floating-card strong {
-		font-size: 10px;
+		font-size: 14px;
 	}
 
 	.floating-card small {
@@ -1182,7 +1182,7 @@
 
 		color: #9a8b7a;
 
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.floating-card-top {
@@ -1243,7 +1243,7 @@
 
 		color: #ba963b;
 
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 850;
 		letter-spacing: 0.16em;
 	}
@@ -1261,7 +1261,7 @@
 	.more-link {
 		color: #9a8051;
 
-		font-size: 11px;
+		font-size: 14px;
 		font-weight: 700;
 	}
 
@@ -1319,7 +1319,7 @@
 	}
 
 	.category-card strong {
-		font-size: 12px;
+		font-size: 14px;
 	}
 
 	/* ==================== RECIPE ==================== */
@@ -1373,7 +1373,7 @@
 	.image-placeholder {
 		color: #ad965f;
 
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.favorite {
@@ -1407,7 +1407,7 @@
 
 		color: #b79241;
 
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.recipe-body h3 {
@@ -1422,7 +1422,7 @@
 
 		color: #9b8d7c;
 
-		font-size: 10px;
+		font-size: 14px;
 		line-height: 1.55;
 	}
 
@@ -1436,7 +1436,7 @@
 
 		color: #a4937e;
 
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	/* ==================== REFRIGERATOR ==================== */
@@ -1479,7 +1479,7 @@
 
 		color: #806a42;
 
-		font-size: 12px;
+		font-size: 14px;
 		line-height: 1.7;
 	}
 
@@ -1503,7 +1503,7 @@
 
 		color: #6e5933;
 
-		font-size: 10px;
+		font-size: 14px;
 	}
 
 	.ingredient-list button:hover {
@@ -1528,7 +1528,7 @@
 		background: #44372d;
 		color: white;
 
-		font-size: 11px;
+		font-size: 14px;
 		font-weight: 750;
 	}
 
@@ -1566,7 +1566,7 @@
 	}
 
 	.fridge-placeholder > span {
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.ingredient-bubble {
@@ -1627,7 +1627,7 @@
 	.recent-number {
 		color: #c5aa6c;
 
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 800;
 	}
 
@@ -1650,19 +1650,19 @@
 	.recent-thumbnail small {
 		color: #bfa66d;
 
-		font-size: 6px;
+		font-size: 14px;
 	}
 
 	.recent-info > span {
 		color: #c19c50;
 
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.recent-info h3 {
 		margin: 4px 0 3px;
 
-		font-size: 13px;
+		font-size: 14px;
 	}
 
 	.recent-info p {
@@ -1670,7 +1670,7 @@
 
 		color: #a49482;
 
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.recent-meta {
@@ -1681,7 +1681,7 @@
 
 		color: #9f907d;
 
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.recent-arrow {
@@ -1723,7 +1723,7 @@
 	.panel-header > a {
 		color: #9a8051;
 
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 700;
 	}
 
@@ -1754,13 +1754,13 @@
 
 		color: #b29968;
 
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.wiki-tag {
 		color: #c29835;
 
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 850;
 		letter-spacing: 0.1em;
 	}
@@ -1776,14 +1776,14 @@
 
 		color: #968775;
 
-		font-size: 10px;
+		font-size: 14px;
 		line-height: 1.7;
 	}
 
 	.wiki-feature a {
 		color: #b3831e;
 
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 750;
 	}
 
@@ -1824,7 +1824,7 @@
 
 		color: #544538;
 
-		font-size: 11px;
+		font-size: 14px;
 		font-weight: 700;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -1835,7 +1835,7 @@
 
 		color: #ad9d8b;
 
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.community-item > span {
@@ -1888,7 +1888,7 @@
 
 		color: #806d51;
 
-		font-size: 11px;
+		font-size: 14px;
 	}
 
 	.dark-button {
@@ -1903,7 +1903,7 @@
 		background: #44372d;
 		color: white;
 
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 750;
 	}
 
@@ -1934,7 +1934,7 @@
 
 		color: #ae9564;
 
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	/* ==================== FOOTER ==================== */
@@ -1968,7 +1968,7 @@
 
 		color: #a3927e;
 
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.footer-links {
@@ -1984,13 +1984,13 @@
 	.footer-links a {
 		color: #9b876a;
 
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	footer small {
 		color: #b3a28e;
 
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	/* ==================== RESPONSIVE ==================== */
@@ -2063,7 +2063,7 @@
 		}
 
 		.hero p {
-			font-size: 12px;
+			font-size: 14px;
 		}
 
 		.hero-photo {
