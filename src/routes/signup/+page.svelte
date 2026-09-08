@@ -1,4 +1,20 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { authPost } from '$lib/auth';
+	let pending = $state(false);
+	let checking = $state(false);
+	let message = $state('');
+	let emailMessage = $state('');
+	async function checkEmail() {
+		if (checking) return;
+		checking = true;
+		const checkedEmail = email;
+		try {
+			const result = await authPost<{ available: boolean }>('check-email', { email });
+			if (email === checkedEmail) emailMessage = result.available ? '사용 가능한 이메일입니다.' : '이미 사용 중인 이메일입니다.';
+		} catch (error) { if (email === checkedEmail) emailMessage = error instanceof Error ? error.message : '확인에 실패했습니다.'; }
+		finally { checking = false; }
+	}
 	let showPassword = $state(false);
 	let showPasswordConfirm = $state(false);
 
@@ -9,10 +25,22 @@
 	let agreeTerms = $state(false);
 	let agreePrivacy = $state(false);
 
-	function handleSignup(event: SubmitEvent) {
+	async function handleSignup(event: SubmitEvent) {
 		event.preventDefault();
-		alert('회원가입 기능은 추후 연결됩니다.');
+		if (pending) return;
+		message = '';
+		if (!/^[가-힣a-zA-Z0-9]{2,20}$/.test(nickname.trim())) { message = '닉네임 형식을 확인해주세요.'; return; }
+		if (password.length < 8 || password.length > 128 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) { message = '비밀번호는 8~128자이며 영문과 숫자를 포함해야 합니다.'; return; }
+		if (password !== passwordConfirm) { message = '비밀번호 확인이 일치하지 않습니다.'; return; }
+		if (!agreeTerms || !agreePrivacy) { message = '필수 약관에 모두 동의해주세요.'; return; }
+		pending = true;
+		try {
+			await authPost('signup', { email, nickname, password, passwordConfirm, agreeTerms, agreePrivacy });
+			await goto('/login?registered=1');
+		} catch (error) { message = error instanceof Error ? error.message : '회원가입에 실패했습니다.'; }
+		finally { pending = false; }
 	}
+
 </script>
 
 <svelte:head>
@@ -87,11 +115,12 @@
 					<div class="field">
 						<label for="email">이메일 <b>*</b></label>
 						<div class="input-with-button">
-							<input id="email" type="email" bind:value={email} placeholder="example@email.com" required />
-							<button type="button">중복 확인</button>
+							<input id="email" type="email" bind:value={email} oninput={() => (emailMessage = "")} autocomplete="email" maxlength="254" placeholder="example@email.com" required />
+							<button type="button" onclick={checkEmail} disabled={checking || pending}>{checking ? "확인 중…" : "중복 확인"}</button>
 						</div>
 					</div>
 
+					{#if emailMessage}<p role="status">{emailMessage}</p>{/if}
 					<div class="field">
 						<label for="nickname">닉네임 <b>*</b></label>
 						<input id="nickname" type="text" bind:value={nickname} maxlength="20" placeholder="사용할 닉네임을 입력해주세요." required />
@@ -101,7 +130,7 @@
 					<div class="field">
 						<label for="password">비밀번호 <b>*</b></label>
 						<div class="password-input">
-							<input id="password" type={showPassword ? 'text' : 'password'} bind:value={password} placeholder="비밀번호를 입력해주세요." required />
+							<input id="password" type={showPassword ? 'text' : 'password'} bind:value={password} autocomplete="new-password" minlength="8" maxlength="128" placeholder="비밀번호를 입력해주세요." required />
 							<button type="button" aria-label="비밀번호 표시" onclick={() => (showPassword = !showPassword)}>
 								{#if showPassword}
 									<svg viewBox="0 0 24 24">
@@ -118,13 +147,13 @@
 								{/if}
 							</button>
 						</div>
-						<small>8자 이상, 영문과 숫자를 포함해주세요.</small>
+						<small>8~128자, 영문과 숫자를 포함해주세요.</small>
 					</div>
 
 					<div class="field">
 						<label for="password-confirm">비밀번호 확인 <b>*</b></label>
 						<div class="password-input">
-							<input id="password-confirm" type={showPasswordConfirm ? 'text' : 'password'} bind:value={passwordConfirm} placeholder="비밀번호를 다시 입력해주세요." required />
+							<input id="password-confirm" type={showPasswordConfirm ? 'text' : 'password'} bind:value={passwordConfirm} autocomplete="new-password" maxlength="128" placeholder="비밀번호를 다시 입력해주세요." required />
 							<button type="button" aria-label="비밀번호 표시" onclick={() => (showPasswordConfirm = !showPasswordConfirm)}>
 								{#if showPasswordConfirm}
 									<svg viewBox="0 0 24 24">
@@ -145,7 +174,7 @@
 
 					<div class="agreements">
 						<label class="agreement all">
-							<input type="checkbox" bind:checked={agreeTerms} />
+							<input type="checkbox" checked={agreeTerms && agreePrivacy} onchange={(event) => { agreeTerms = event.currentTarget.checked; agreePrivacy = event.currentTarget.checked; }} />
 							<span class="checkmark"></span>
 							<strong>약관 전체 동의</strong>
 						</label>
@@ -153,22 +182,23 @@
 						<div class="agreement-divider"></div>
 
 						<label class="agreement">
-							<input type="checkbox" bind:checked={agreeTerms} />
+							<input type="checkbox" bind:checked={agreeTerms} required />
 							<span class="checkmark"></span>
 							<span>서비스 이용약관 동의 <b>(필수)</b></span>
-							<a href="/terms">보기</a>
+							<a href="/terms" target="_blank" rel="noopener">보기</a>
 						</label>
 
 						<label class="agreement">
-							<input type="checkbox" bind:checked={agreePrivacy} />
+							<input type="checkbox" bind:checked={agreePrivacy} required />
 							<span class="checkmark"></span>
 							<span>개인정보 처리방침 동의 <b>(필수)</b></span>
-							<a href="/privacy">보기</a>
+							<a href="/privacy" target="_blank" rel="noopener">보기</a>
 						</label>
 					</div>
 
-					<button class="signup-button" type="submit">
-						회원가입
+					{#if message}<p role="alert">{message}</p>{/if}
+					<button class="signup-button" type="submit" disabled={pending}>
+						{pending ? "가입 중…" : "회원가입"}
 						<svg viewBox="0 0 24 24">
 							<path d="M5 12h14" />
 							<path d="M13 6l6 6-6 6" />
@@ -294,7 +324,7 @@
 
 	.intro-label {
 		color: var(--accent);
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 800;
 	}
 
@@ -312,7 +342,7 @@
 	.signup-intro > p {
 		margin: 0;
 		color: var(--text-subtle);
-		font-size: 11px;
+		font-size: 14px;
 		line-height: 1.8;
 	}
 
@@ -347,7 +377,7 @@
 	}
 
 	.intro-points span {
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 700;
 	}
 
@@ -372,7 +402,7 @@
 	.card-heading p {
 		margin: 0;
 		color: var(--text-muted);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.signup-card form {
@@ -388,7 +418,7 @@
 	}
 
 	.field label {
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 700;
 	}
 
@@ -405,7 +435,7 @@
 		outline: 0;
 		background: var(--surface-subtle);
 		color: var(--text);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.field input:focus {
@@ -419,7 +449,7 @@
 
 	.field small {
 		color: var(--text-muted);
-		font-size: 7px;
+		font-size: 14px;
 	}
 
 	.input-with-button {
@@ -437,7 +467,7 @@
 		border-radius: 9px;
 		background: var(--surface);
 		color: var(--text-subtle);
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 700;
 		cursor: pointer;
 		white-space: nowrap;
@@ -496,7 +526,7 @@
 		gap: 8px;
 		min-height: 27px;
 		color: var(--text-subtle);
-		font-size: 8px;
+		font-size: 14px;
 		cursor: pointer;
 	}
 
@@ -533,7 +563,7 @@
 
 	.agreement.all {
 		color: var(--text);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.agreement.all .checkmark {
@@ -555,7 +585,7 @@
 	.agreement a {
 		margin-left: auto;
 		color: var(--text-muted);
-		font-size: 7px;
+		font-size: 14px;
 		text-decoration: underline;
 	}
 
@@ -571,7 +601,7 @@
 		border-radius: 9px;
 		background: var(--primary);
 		color: #0f172a;
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 800;
 		cursor: pointer;
 	}
@@ -589,7 +619,7 @@
 	.login-link {
 		margin-top: 20px;
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 		text-align: center;
 	}
 

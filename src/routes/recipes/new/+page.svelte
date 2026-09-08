@@ -395,7 +395,7 @@
 		gap: 7px;
 		padding-top: 28px;
 		color: var(--text-muted);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.breadcrumb a:hover {
@@ -417,7 +417,7 @@
 
 	.heading-label {
 		color: var(--accent);
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 800;
 	}
 
@@ -435,7 +435,7 @@
 	.page-heading p {
 		margin: 0;
 		color: var(--text-subtle);
-		font-size: 11px;
+		font-size: 14px;
 	}
 
 	.heading-icon {
@@ -482,7 +482,7 @@
 		border-radius: 10px;
 		background: var(--primary);
 		color: #0f172a;
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 850;
 	}
 
@@ -495,7 +495,7 @@
 	.section-heading p {
 		margin: 0;
 		color: var(--text-muted);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.image-upload {
@@ -533,13 +533,13 @@
 	}
 
 	.upload-content strong {
-		font-size: 10px;
+		font-size: 14px;
 	}
 
 	.upload-content span,
 	.upload-content small {
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.upload-button {
@@ -548,7 +548,7 @@
 		border-radius: 8px;
 		background: var(--surface);
 		color: var(--text-subtle);
-		font-size: 8px;
+		font-size: 14px;
 		cursor: pointer;
 	}
 
@@ -575,7 +575,7 @@
 
 	.field > span,
 	.tag-label > span {
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 700;
 	}
 
@@ -594,7 +594,7 @@
 		outline: 0;
 		background: var(--surface-subtle);
 		color: var(--text);
-		font-size: 10px;
+		font-size: 14px;
 	}
 
 	.field input,
@@ -639,7 +639,7 @@
 		top: 50%;
 		right: 13px;
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 		transform: translateY(-50%);
 	}
 
@@ -661,7 +661,7 @@
 		padding: 10px 12px;
 		background: var(--surface-subtle);
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.ingredient-row {
@@ -705,7 +705,7 @@
 		border-radius: 8px;
 		background: var(--surface-green);
 		color: var(--accent);
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 700;
 		cursor: pointer;
 	}
@@ -740,7 +740,7 @@
 		border-radius: 11px;
 		background: var(--surface-yellow);
 		color: var(--accent);
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 850;
 	}
 
@@ -758,7 +758,7 @@
 		background: var(--surface-subtle);
 		color: var(--text);
 		padding: 12px;
-		font-size: 10px;
+		font-size: 14px;
 		resize: vertical;
 		line-height: 1.7;
 	}
@@ -779,7 +779,7 @@
 		border-radius: 10px;
 		background: var(--surface-subtle);
 		color: var(--text-muted);
-		font-size: 7px;
+		font-size: 14px;
 		cursor: pointer;
 	}
 
@@ -810,7 +810,7 @@
 
 	.tag-label small {
 		color: var(--text-muted);
-		font-size: 7px;
+		font-size: 14px;
 	}
 
 	.tag-input {
@@ -830,7 +830,7 @@
 		border-radius: 8px;
 		background: var(--accent);
 		color: #fff;
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 700;
 		cursor: pointer;
 	}
@@ -847,7 +847,7 @@
 		border-radius: 7px;
 		background: var(--surface-green);
 		color: var(--accent);
-		font-size: 7px;
+		font-size: 14px;
 		font-weight: 650;
 	}
 
@@ -876,7 +876,7 @@
 		align-items: center;
 		justify-content: center;
 		border-radius: 9px;
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 700;
 		cursor: pointer;
 	}
@@ -988,7 +988,7 @@
 		}
 
 		.page-heading p {
-			font-size: 9px;
+			font-size: 14px;
 			line-height: 1.6;
 		}
 
@@ -1016,7 +1016,7 @@
 
 		.ingredient-row input {
 			padding: 0 8px;
-			font-size: 8px;
+			font-size: 14px;
 		}
 
 		.step-row {
@@ -1027,7 +1027,7 @@
 		.step-number {
 			width: 34px;
 			height: 34px;
-			font-size: 8px;
+			font-size: 14px;
 		}
 
 		.step-content textarea {

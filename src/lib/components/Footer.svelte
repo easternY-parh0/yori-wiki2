@@ -70,7 +70,7 @@
 	.footer-brand p {
 		margin: 7px 0 0;
 		color: var(--text-muted);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.footer-links {
@@ -82,7 +82,7 @@
 
 	.footer-links a {
 		color: var(--text-subtle);
-		font-size: 9px;
+		font-size: 14px;
 		transition: color .15s ease;
 	}
 
@@ -101,7 +101,7 @@
 		flex-wrap: wrap;
 		gap: 6px 18px;
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 		line-height: 1.6;
 	}
 
@@ -112,7 +112,7 @@
 		gap: 20px;
 		margin-top: 18px;
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	@media (max-width: 700px) {

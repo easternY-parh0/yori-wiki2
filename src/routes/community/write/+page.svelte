@@ -320,7 +320,7 @@
 
 	.back-link {
 		color: var(--text-muted);
-		font-size: 12px;
+		font-size: 14px;
 	}
 
 	.back-link:hover {
@@ -348,7 +348,7 @@
 		border-bottom: 2px solid transparent;
 		background: transparent;
 		color: var(--text-muted);
-		font-size: 13px;
+		font-size: 14px;
 		white-space: nowrap;
 		cursor: pointer;
 	}
@@ -434,7 +434,7 @@
 		border-radius: 3px;
 		background: transparent;
 		color: var(--text-subtle);
-		font-size: 13px;
+		font-size: 14px;
 		cursor: pointer;
 	}
 
@@ -455,7 +455,7 @@
 		border-radius: 3px;
 		background: transparent;
 		color: var(--text-muted);
-		font-size: 11px;
+		font-size: 14px;
 		cursor: pointer;
 	}
 
@@ -557,7 +557,7 @@
 		background: var(--surface-subtle);
 		color: var(--accent);
 		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-		font-size: 13px;
+		font-size: 14px;
 	}
 
 	.markdown :global(a) {
@@ -589,7 +589,7 @@
 	.markdown-help > span {
 		color: var(--accent);
 		font-family: ui-monospace, monospace;
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 700;
 	}
 
@@ -598,7 +598,7 @@
 		border: 0;
 		background: transparent;
 		color: var(--text-muted);
-		font-size: 10px;
+		font-size: 14px;
 		cursor: pointer;
 	}
 
@@ -608,7 +608,7 @@
 
 	.count {
 		color: var(--text-muted);
-		font-size: 10px;
+		font-size: 14px;
 	}
 
 	.attachment {
@@ -626,12 +626,12 @@
 	}
 
 	.attachment-head strong {
-		font-size: 12px;
+		font-size: 14px;
 	}
 
 	.attachment-head span {
 		color: var(--text-muted);
-		font-size: 10px;
+		font-size: 14px;
 	}
 
 	.upload {
@@ -646,7 +646,7 @@
 		border-radius: 4px;
 		background: var(--surface-subtle);
 		color: var(--text-muted);
-		font-size: 11px;
+		font-size: 14px;
 		cursor: pointer;
 	}
 
@@ -666,7 +666,7 @@
 		gap: 7px;
 		margin-top: 14px;
 		color: var(--text-muted);
-		font-size: 11px;
+		font-size: 14px;
 	}
 
 	.notice svg {
@@ -682,7 +682,7 @@
 		border-radius: 4px;
 		background: var(--surface-yellow);
 		color: var(--text);
-		font-size: 12px;
+		font-size: 14px;
 	}
 
 	.form-bottom {
@@ -708,7 +708,7 @@
 		justify-content: center;
 		padding: 0 15px;
 		border-radius: 4px;
-		font-size: 12px;
+		font-size: 14px;
 		font-weight: 650;
 		cursor: pointer;
 		box-sizing: border-box;
@@ -775,11 +775,11 @@
 		}
 
 		.board-title {
-			font-size: 12px;
+			font-size: 14px;
 		}
 
 		.back-link {
-			font-size: 11px;
+			font-size: 14px;
 		}
 
 		.write-wrap {
@@ -797,7 +797,7 @@
 		.category-tabs button {
 			height: 40px;
 			padding: 0 10px;
-			font-size: 11px;
+			font-size: 14px;
 		}
 
 		form {
@@ -832,7 +832,7 @@
 
 		.editor textarea {
 			padding: 15px;
-			font-size: 13px;
+			font-size: 14px;
 		}
 
 		.preview {

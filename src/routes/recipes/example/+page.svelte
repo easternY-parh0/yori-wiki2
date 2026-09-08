@@ -467,7 +467,7 @@
 		gap: 6px;
 		padding: 28px 0 18px;
 		color: var(--text-muted);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.breadcrumb a:hover {
@@ -494,7 +494,7 @@
 		border-radius: 22px;
 		background: var(--surface-yellow);
 		color: var(--accent);
-		font-size: 10px;
+		font-size: 14px;
 	}
 
 	.hero-content {
@@ -506,7 +506,7 @@
 
 	.category {
 		color: var(--accent);
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 800;
 	}
 
@@ -521,7 +521,7 @@
 		max-width: 500px;
 		margin: 0;
 		color: var(--text-subtle);
-		font-size: 11px;
+		font-size: 14px;
 		line-height: 1.75;
 	}
 
@@ -557,13 +557,13 @@
 	}
 
 	.author strong {
-		font-size: 10px;
+		font-size: 14px;
 	}
 
 	.author span {
 		margin-top: 3px;
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.recipe-stats {
@@ -580,7 +580,7 @@
 		align-items: center;
 		gap: 6px;
 		color: var(--text-subtle);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.recipe-stats svg {
@@ -605,7 +605,7 @@
 		border-radius: 9px;
 		background: var(--surface);
 		color: var(--text-subtle);
-		font-size: 9px;
+		font-size: 14px;
 		cursor: pointer;
 	}
 
@@ -662,7 +662,7 @@
 
 	.section-title span:first-child {
 		color: var(--accent);
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 800;
 	}
 
@@ -677,7 +677,7 @@
 		align-items: center;
 		gap: 7px;
 		color: var(--text-muted);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.servings button {
@@ -715,7 +715,7 @@
 
 	.ingredient-group h3 {
 		margin: 0 0 12px;
-		font-size: 11px;
+		font-size: 14px;
 	}
 
 	.ingredient {
@@ -724,7 +724,7 @@
 		justify-content: space-between;
 		padding: 11px 0;
 		border-top: 1px solid var(--border);
-		font-size: 10px;
+		font-size: 14px;
 	}
 
 	.ingredient span {
@@ -755,7 +755,7 @@
 		border-radius: 50%;
 		background: var(--primary);
 		color: #0f172a;
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 800;
 	}
 
@@ -773,7 +773,7 @@
 		border-radius: 13px;
 		background: var(--surface-yellow);
 		color: var(--accent);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.step-body h3 {
@@ -785,7 +785,7 @@
 	.step-body p {
 		margin: 0;
 		color: var(--text-subtle);
-		font-size: 10px;
+		font-size: 14px;
 		line-height: 1.75;
 	}
 
@@ -809,13 +809,13 @@
 	.tip-box p {
 		margin: 0;
 		color: var(--text-subtle);
-		font-size: 10px;
+		font-size: 14px;
 		line-height: 1.7;
 	}
 
 	.comment-count {
 		color: var(--text-muted);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.comment-form {
@@ -832,7 +832,7 @@
 		outline: 0;
 		background: transparent;
 		color: var(--text);
-		font-size: 10px;
+		font-size: 14px;
 		line-height: 1.6;
 	}
 
@@ -848,7 +848,7 @@
 		padding-top: 9px;
 		border-top: 1px solid var(--border);
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.comment-form a {
@@ -884,19 +884,19 @@
 	}
 
 	.comment-body strong {
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.comment-body span {
 		margin-left: 7px;
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.comment-body p {
 		margin: 7px 0 0;
 		color: var(--text-subtle);
-		font-size: 9px;
+		font-size: 14px;
 		line-height: 1.5;
 	}
 
@@ -915,7 +915,7 @@
 
 	.sidebar-card h3 {
 		margin: 0 0 14px;
-		font-size: 12px;
+		font-size: 14px;
 	}
 
 	.info-row {
@@ -924,7 +924,7 @@
 		justify-content: space-between;
 		padding: 12px 0;
 		border-top: 1px solid var(--border);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.info-row span {
@@ -959,13 +959,13 @@
 	}
 
 	.sidebar-register strong {
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.sidebar-register small {
 		margin-top: 3px;
 		color: var(--text-muted);
-		font-size: 7px;
+		font-size: 14px;
 		line-height: 1.4;
 	}
 
