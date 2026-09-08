@@ -1,4 +1,4 @@
-:root {
+:global(:root) {
     --background: #ffffff;
     --surface: #ffffff;
     --surface-subtle: #f8fafc;
@@ -64,6 +64,14 @@ a {
 }
 
 button,
-input {
+input,
+select,
+textarea {
     font: inherit;
+}
+
+input,
+select,
+textarea {
+	color: var(--text);
 }

@@ -134,7 +134,6 @@
 	</div>
 
 	<div class="header-actions">
-		<a href="/search" class="login-button">탐색</a>
 		<button class="theme-button" type="button" aria-label="다크모드 전환" onclick={toggleTheme}>
             {#if darkMode}
                 <svg viewBox="0 0 24 24">
@@ -148,6 +147,8 @@
             {/if}
         </button>
 
+		<a href="/search" class="login-button">탐색</a>
+
 		{#if page.data.user}
 		<span>{page.data.user.nickname}님</span>
 		<button type="button" class="login-button" onclick={logout} disabled={logoutPending}>로그아웃</button>
@@ -157,48 +158,6 @@
 </header>
 
 <style>
-	:global(:root) {
-		--background: #fff;
-		--surface: #fff;
-		--surface-subtle: #f8fafc;
-		--surface-yellow: #fefce8;
-		--surface-green: #f7fee7;
-		--primary: #facc15;
-		--accent: #65a30d;
-		--text: #0f172a;
-		--text-subtle: #64748b;
-		--text-muted: #94a3b8;
-		--border: #e2e8f0;
-		--overlay: rgba(15, 23, 42, 0.25);
-	}
-
-	:global(:root.dark-theme) {
-		--background: #0f172a;
-		--surface: #1e293b;
-		--surface-subtle: #172235;
-		--surface-yellow: #292614;
-		--surface-green: #172414;
-		--primary: #facc15;
-		--accent: #84cc16;
-		--text: #f8fafc;
-		--text-subtle: #94a3b8;
-		--text-muted: #94a3b8;
-		--border: #334155;
-		--overlay: rgba(2, 6, 23, 0.72);
-		color-scheme: dark;
-	}
-
-	:global(body) {
-		margin: 0;
-		background: var(--background);
-		color: var(--text);
-	}
-
-	:global(a) {
-		color: inherit;
-		text-decoration: none;
-	}
-
 	svg {
 		fill: none;
 		stroke: currentColor;
@@ -409,13 +368,13 @@
 	}
 
 	.profile-text strong {
-		font-size: 14px;
+		font-size: 11px;
 	}
 
 	.profile-text span {
 		margin-top: 3px;
 		color: var(--text-muted);
-		font-size: 14px;
+		font-size: 8px;
 	}
 
 	.profile-arrow {
@@ -437,7 +396,7 @@
 		gap: 13px;
 		padding: 12px 13px;
 		border-radius: 11px;
-		font-size: 14px;
+		font-size: 13px;
 		font-weight: 650;
 	}
 
@@ -464,7 +423,7 @@
 		border-radius: 9px;
 		background: var(--surface-subtle);
 		color: var(--text-subtle);
-		font-size: 14px;
+		font-size: 9px;
 		font-weight: 650;
 		text-align: center;
 	}
