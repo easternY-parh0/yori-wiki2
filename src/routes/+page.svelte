@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import heroImg from '$lib/assets/image/hero.jpg';
 
 	let currentBanner = $state(0);
 
@@ -105,7 +106,7 @@
 			</div>
 
 			<div class="hero-image">
-				<span>대표 이미지 영역</span>
+				<img src={heroImg} alt="대표 이미지" />
 			</div>
 		</section>
 
@@ -249,82 +250,6 @@
 </div>
 
 <style>
-	:global(:root) {
-		--background: #ffffff;
-		--surface: #ffffff;
-		--surface-subtle: #f8fafc;
-		--surface-yellow: #fefce8;
-		--surface-green: #f7fee7;
-		--primary: #facc15;
-		--accent: #65a30d;
-		--text: #0f172a;
-		--text-subtle: #64748b;
-		--text-muted: #94a3b8;
-		--border: #e2e8f0;
-		--border-green: #d9f99d;
-		--border-accent: #a3e635;
-		--overlay: rgba(15, 23, 42, 0.25);
-		--shadow-card: rgba(15, 23, 42, 0.07);
-		--shadow-menu: rgba(15, 23, 42, 0.1);
-		--shadow-search: rgba(15, 23, 42, 0.06);
-	}
-
-	:global(:root.dark-theme) {
-		--background: #0f172a;
-		--surface: #1e293b;
-		--surface-subtle: #172235;
-		--surface-yellow: #292614;
-		--surface-green: #172414;
-		--primary: #facc15;
-		--accent: #84cc16;
-		--text: #f8fafc;
-		--text-subtle: #94a3b8;
-		--text-muted: #94a3b8;
-		--border: #334155;
-		--border-green: #365314;
-		--border-accent: #65a30d;
-		--overlay: rgba(2, 6, 23, 0.72);
-		--shadow-card: rgba(0, 0, 0, 0.22);
-		--shadow-menu: rgba(0, 0, 0, 0.35);
-		--shadow-search: rgba(0, 0, 0, 0.2);
-	}
-
-	:global(html),
-	:global(body) {
-		margin: 0;
-		padding: 0;
-		background: var(--background);
-		color: var(--text);
-	}
-
-	:global(html) {
-		color-scheme: light;
-	}
-
-	:global(html.dark-theme) {
-		background: #0f172a;
-		color-scheme: dark;
-	}
-
-	:global(body.dark-theme) {
-		background: #0f172a;
-		color: #f8fafc;
-	}
-
-	:global(*) {
-		box-sizing: border-box;
-	}
-
-	:global(a) {
-		color: inherit;
-		text-decoration: none;
-	}
-
-	:global(button),
-	:global(input) {
-		font: inherit;
-	}
-
 	.page {
 		min-height: 100vh;
 		background: var(--background);
@@ -545,16 +470,11 @@
 		cursor: pointer;
 	}
 
-	.hero-image {
-		height: 355px;
-		display: grid;
-		place-items: center;
-		border: 1.5px dashed var(--primary);
-		border-radius: 30px;
-		background: var(--surface-yellow);
-		color: var(--accent);
-		font-size: 11px;
-	}
+	.hero-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    }
 
 	section:not(.banner-section) {
 		margin-top: 65px;
