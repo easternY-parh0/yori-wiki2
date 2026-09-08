@@ -1,5 +1,9 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { goto, invalidateAll } from '$app/navigation';
+	import { page } from '$app/state';
+	import { authPost } from '$lib/auth';
+	let pending = $state(false);
+	let message = $state('');
 
 	let showPassword = $state(false);
 	let rememberMe = $state(false);
@@ -7,14 +11,18 @@
 	let email = $state('');
 	let password = $state('');
 
-	function login() {
-		// 실제 로그인 API 연결 예정
-		console.log({
-			email,
-			password,
-			rememberMe
-		});
+	async function login() {
+		if (pending) return;
+		pending = true;
+		message = '';
+		try {
+			await authPost('login', { email, password, rememberMe });
+			await invalidateAll();
+			await goto('/');
+		} catch (error) { message = error instanceof Error ? error.message : '로그인에 실패했습니다.'; }
+		finally { pending = false; }
 	}
+
 </script>
 
 <svelte:head>
@@ -61,6 +69,8 @@
 					<p>요리위키 계정으로 로그인하세요.</p>
 				</div>
 
+				{#if page.url.searchParams.get('registered') === '1'}<p role="status">회원가입이 완료되었습니다. 로그인해주세요.</p>{/if}
+				{#if message}<p role="alert">{message}</p>{/if}
 				<form onsubmit={(event) => { event.preventDefault(); login(); }}>
 					<div class="field">
 						<label for="email">이메일</label>
@@ -134,7 +144,7 @@
 						<span>로그인 상태 유지</span>
 					</label>
 
-					<button class="submit-button" type="submit">
+					<button class="submit-button" type="submit" disabled={pending}>
 						로그인
 						<svg viewBox="0 0 24 24" aria-hidden="true">
 							<path d="M5 12h14" />
@@ -292,7 +302,7 @@
 	.login-intro > p {
 		margin: 0;
 		color: var(--text-subtle);
-		font-size: 12px;
+		font-size: 14px;
 		line-height: 1.85;
 	}
 
@@ -302,7 +312,7 @@
 		gap: 9px;
 		margin-top: 30px;
 		color: var(--text-muted);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.intro-line span {
@@ -332,7 +342,7 @@
 	.card-heading p {
 		margin: 0;
 		color: var(--text-subtle);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	form {
@@ -350,7 +360,7 @@
 	.field > label,
 	.field-label label {
 		color: var(--text);
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 700;
 	}
 
@@ -362,7 +372,7 @@
 
 	.field-label a {
 		color: var(--accent);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.input-wrap {
@@ -397,7 +407,7 @@
 		outline: 0;
 		background: transparent;
 		color: var(--text);
-		font-size: 11px;
+		font-size: 14px;
 	}
 
 	.input-wrap input::placeholder {
@@ -432,7 +442,7 @@
 		gap: 8px;
 		width: fit-content;
 		color: var(--text-subtle);
-		font-size: 9px;
+		font-size: 14px;
 		cursor: pointer;
 	}
 
@@ -478,7 +488,7 @@
 		border-radius: 10px;
 		background: var(--primary);
 		color: #0f172a;
-		font-size: 11px;
+		font-size: 14px;
 		font-weight: 800;
 		cursor: pointer;
 		transition: background-color .15s ease;
@@ -515,7 +525,7 @@
 		padding: 0 10px;
 		background: var(--surface);
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.signup {
@@ -523,7 +533,7 @@
 		align-items: center;
 		justify-content: center;
 		gap: 6px;
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.signup span {
@@ -540,7 +550,7 @@
 		padding-top: 15px;
 		border-top: 1px solid var(--border);
 		color: var(--text-muted);
-		font-size: 7px;
+		font-size: 14px;
 		line-height: 1.5;
 		text-align: center;
 	}

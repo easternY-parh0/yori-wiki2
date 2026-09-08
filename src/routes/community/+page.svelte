@@ -414,7 +414,7 @@
 	.page-heading p {
 		margin: 0;
 		color: var(--text-subtle);
-		font-size: 12px;
+		font-size: 14px;
 	}
 
 	.write-button {
@@ -425,7 +425,7 @@
 		border-radius: 10px;
 		background: var(--primary);
 		color: #0f172a;
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 750;
 		white-space: nowrap;
 	}
@@ -453,7 +453,7 @@
 
 	.hero-label {
 		color: var(--accent);
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 800;
 	}
 
@@ -471,7 +471,7 @@
 	.community-hero p {
 		margin: 0;
 		color: var(--text-subtle);
-		font-size: 10px;
+		font-size: 14px;
 		line-height: 1.7;
 	}
 
@@ -483,7 +483,7 @@
 		border-radius: 19px;
 		background: var(--surface);
 		color: var(--accent);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.board-section {
@@ -502,7 +502,7 @@
 		border-radius: 999px;
 		background: var(--surface);
 		color: var(--text-subtle);
-		font-size: 10px;
+		font-size: 14px;
 		cursor: pointer;
 	}
 
@@ -538,7 +538,7 @@
 	.section-title p {
 		margin: 5px 0 0;
 		color: var(--text-muted);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.popular-grid {
@@ -571,13 +571,13 @@
 
 	.popular-content > span {
 		color: var(--accent);
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 750;
 	}
 
 	.popular-content h3 {
 		margin: 6px 0 9px;
-		font-size: 12px;
+		font-size: 14px;
 		line-height: 1.5;
 	}
 
@@ -585,11 +585,11 @@
 		display: flex;
 		gap: 8px;
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.popular-content small {
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.popular-card > svg {
@@ -615,7 +615,7 @@
 		display: block;
 		margin-top: 5px;
 		color: var(--text-muted);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.sort-area select {
@@ -625,7 +625,7 @@
 		border-radius: 8px;
 		background: var(--surface);
 		color: var(--text);
-		font-size: 9px;
+		font-size: 14px;
 		outline: 0;
 	}
 
@@ -658,7 +658,7 @@
 		outline: 0;
 		background: transparent;
 		color: var(--text);
-		font-size: 10px;
+		font-size: 14px;
 	}
 
 	.community-search input::placeholder {
@@ -672,7 +672,7 @@
 		border-radius: 8px;
 		background: var(--primary);
 		color: #0f172a;
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 750;
 		cursor: pointer;
 	}
@@ -697,7 +697,7 @@
 	.table-head {
 		padding: 12px 14px;
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 650;
 		background: var(--surface-subtle);
 		border-bottom: 1px solid var(--border);
@@ -707,7 +707,7 @@
 		min-height: 66px;
 		padding: 8px 14px;
 		border-bottom: 1px solid var(--border);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.post-row:hover {
@@ -720,7 +720,7 @@
 		border-radius: 6px;
 		background: var(--surface-green);
 		color: var(--accent);
-		font-size: 7px;
+		font-size: 14px;
 		font-weight: 750;
 	}
 
@@ -731,7 +731,7 @@
 	.post-title strong {
 		display: block;
 		overflow: hidden;
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 650;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -741,13 +741,13 @@
 		display: block;
 		margin-top: 4px;
 		color: var(--text-muted);
-		font-size: 7px;
+		font-size: 14px;
 	}
 
 	.post-row > span:not(.post-category) {
 		color: var(--text-muted);
 		text-align: center;
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.pagination-section {
@@ -771,7 +771,7 @@
 		border-radius: 9px;
 		background: var(--surface);
 		color: var(--text-subtle);
-		font-size: 10px;
+		font-size: 14px;
 		cursor: pointer;
 	}
 
@@ -800,7 +800,7 @@
 	.pagination span {
 		padding: 0 5px;
 		color: var(--text-muted);
-		font-size: 10px;
+		font-size: 14px;
 	}
 
 	.community-cta {
@@ -817,7 +817,7 @@
 
 	.community-cta > div > span {
 		color: var(--accent);
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 800;
 	}
 
@@ -831,7 +831,7 @@
 	.community-cta p {
 		margin: 0;
 		color: var(--text-subtle);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.cta-button {
@@ -842,7 +842,7 @@
 		border-radius: 9px;
 		background: var(--accent);
 		color: #fff;
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 750;
 		white-space: nowrap;
 	}
@@ -934,7 +934,7 @@
 
 		.board-tabs button {
 			padding: 8px 11px;
-			font-size: 9px;
+			font-size: 14px;
 		}
 
 		.post-toolbar {
@@ -956,11 +956,11 @@
 		}
 
 		.post-category {
-			font-size: 6px;
+			font-size: 14px;
 		}
 
 		.post-title strong {
-			font-size: 9px;
+			font-size: 14px;
 		}
 
 		.community-cta {

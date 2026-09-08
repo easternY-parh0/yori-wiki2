@@ -95,14 +95,14 @@
 				<h1>오늘은 무엇을<br /><span>만들어 볼까요?</span></h1>
 				<p>요리와 식재료에 대한 정보를 찾아보고<br />나만의 레시피를 공유해보세요.</p>
 
-				<div class="search-box">
+				<form class="search-box" action="/search" method="GET">
 					<svg viewBox="0 0 24 24" aria-hidden="true">
 						<circle cx="10.5" cy="10.5" r="6" />
 						<path d="M15 15l5 5" />
 					</svg>
-					<input type="text" placeholder="요리 이름이나 재료를 검색하세요" />
-					<button type="button">검색</button>
-				</div>
+					<input name="q" type="search" maxlength="100" aria-label="요리 검색어" placeholder="요리 이름이나 재료를 검색하세요" />
+					<button type="submit">검색</button>
+				</form>
 			</div>
 
 			<div class="hero-image">
@@ -291,7 +291,7 @@
 		place-items: center;
 		background: var(--surface-subtle);
 		color: var(--text-muted);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.banner-content {
@@ -307,7 +307,7 @@
 		border-radius: 999px;
 		background: var(--primary);
 		color: #0f172a;
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 800;
 	}
 
@@ -320,7 +320,7 @@
 	.banner-content p {
 		margin: 0 0 17px;
 		color: var(--text-subtle);
-		font-size: 10px;
+		font-size: 14px;
 	}
 
 	.banner-button {
@@ -329,7 +329,7 @@
 		border-radius: 9px;
 		background: var(--accent);
 		color: #fff;
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 700;
 	}
 
@@ -416,7 +416,7 @@
 	.hero p {
 		margin: 0;
 		color: var(--text-subtle);
-		font-size: 13px;
+		font-size: 14px;
 		line-height: 1.8;
 	}
 
@@ -451,7 +451,7 @@
 		outline: 0;
 		background: transparent;
 		color: var(--text);
-		font-size: 12px;
+		font-size: 14px;
 	}
 
 	.search-box input::placeholder {
@@ -465,7 +465,7 @@
 		border-radius: 10px;
 		background: var(--primary);
 		color: #0f172a;
-		font-size: 11px;
+		font-size: 14px;
 		font-weight: 750;
 		cursor: pointer;
 	}
@@ -495,7 +495,7 @@
 
 	.section-title > a {
 		color: var(--accent);
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 700;
 	}
 
@@ -533,11 +533,11 @@
 		border-radius: 14px;
 		background: var(--surface-yellow);
 		color: var(--accent);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.category strong {
-		font-size: 11px;
+		font-size: 14px;
 	}
 
 	.recipe-grid {
@@ -569,7 +569,7 @@
 		place-items: center;
 		background: var(--surface-yellow);
 		color: var(--accent);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.bookmark {
@@ -604,7 +604,7 @@
 
 	.tag {
 		color: var(--accent);
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 750;
 	}
 
@@ -619,7 +619,7 @@
 	.recent-recipe p {
 		margin: 0 0 13px;
 		color: var(--text-subtle);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.recipe-meta {
@@ -628,7 +628,7 @@
 		padding-top: 10px;
 		border-top: 1px solid var(--border);
 		color: var(--text-subtle);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.recommend-section {
@@ -644,7 +644,7 @@
 
 	.recommend-label {
 		color: var(--accent);
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 800;
 	}
 
@@ -658,7 +658,7 @@
 	.recommend-copy p {
 		margin: 0 0 20px;
 		color: var(--text-subtle);
-		font-size: 11px;
+		font-size: 14px;
 		line-height: 1.7;
 	}
 
@@ -668,7 +668,7 @@
 		border-radius: 9px;
 		background: var(--accent);
 		color: #fff;
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 700;
 	}
 
@@ -680,7 +680,7 @@
 		border-radius: 20px;
 		background: var(--surface);
 		color: var(--accent);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.recent-grid {
@@ -700,7 +700,7 @@
 		place-items: center;
 		background: var(--surface-yellow);
 		color: var(--accent);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.recent-info {
@@ -711,7 +711,7 @@
 
 	.recent-author {
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.register-section {
@@ -732,7 +732,7 @@
 
 	.register-label {
 		color: var(--accent);
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 800;
 	}
 
@@ -746,7 +746,7 @@
 	.register-content p {
 		margin: 0 0 20px;
 		color: var(--text-subtle);
-		font-size: 10px;
+		font-size: 14px;
 		line-height: 1.7;
 	}
 
@@ -759,7 +759,7 @@
 		border-radius: 10px;
 		background: var(--primary);
 		color: #0f172a;
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 750;
 		transition: .18s ease;
 	}
@@ -783,7 +783,7 @@
 		border-radius: 18px;
 		background: var(--surface-green);
 		color: var(--accent);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.bottom-grid {
@@ -806,7 +806,7 @@
 		border-radius: 14px;
 		background: var(--surface-yellow);
 		color: var(--accent);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.wiki-text h3 {
@@ -817,7 +817,7 @@
 	.wiki-text p {
 		margin: 0;
 		color: var(--text-subtle);
-		font-size: 9px;
+		font-size: 14px;
 		line-height: 1.7;
 	}
 
@@ -844,7 +844,7 @@
 	.post strong {
 		display: block;
 		overflow: hidden;
-		font-size: 10px;
+		font-size: 14px;
 		font-weight: 650;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -854,7 +854,7 @@
 		display: block;
 		margin-top: 4px;
 		color: var(--text-subtle);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.post svg {

@@ -310,7 +310,7 @@
 
 	.section-label {
 		color: var(--accent);
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 800;
 		letter-spacing: .1em;
 	}
@@ -324,7 +324,7 @@
 	.hero p {
 		margin: 0;
 		color: var(--text-muted);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.hero-icon {
@@ -368,7 +368,7 @@
 		border-radius: 999px;
 		background: var(--surface);
 		color: var(--text-subtle);
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 650;
 		cursor: pointer;
 	}
@@ -414,7 +414,7 @@
 		background: transparent;
 		color: var(--text);
 		font: inherit;
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.search-box input::placeholder {
@@ -445,7 +445,7 @@
 
 	.section-heading span {
 		color: var(--accent);
-		font-size: 7px;
+		font-size: 14px;
 		font-weight: 750;
 	}
 
@@ -535,7 +535,7 @@
 		border-radius: 4px;
 		background: var(--surface-green);
 		color: var(--accent);
-		font-size: 6px;
+		font-size: 14px;
 		font-weight: 750;
 	}
 
@@ -556,14 +556,14 @@
 
 	.notice-meta b {
 		color: var(--accent);
-		font-size: 6px;
+		font-size: 14px;
 		font-weight: 800;
 	}
 
 	.notice-info strong {
 		display: block;
 		overflow: hidden;
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 650;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -571,7 +571,7 @@
 
 	.notice-date {
 		color: var(--text-muted);
-		font-size: 7px;
+		font-size: 14px;
 		text-align: right;
 	}
 
@@ -602,7 +602,7 @@
 		border-radius: 8px;
 		background: var(--surface-subtle);
 		color: var(--text-subtle);
-		font-size: 8px;
+		font-size: 14px;
 		line-height: 1.8;
 	}
 
@@ -635,13 +635,13 @@
 
 	.empty h3 {
 		margin: 0 0 6px;
-		font-size: 11px;
+		font-size: 14px;
 	}
 
 	.empty p {
 		margin: 0 0 15px;
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.empty button {
@@ -650,7 +650,7 @@
 		border-radius: 8px;
 		background: var(--primary);
 		color: #0f172a;
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 700;
 		cursor: pointer;
 	}
@@ -671,7 +671,7 @@
 		border-radius: 7px;
 		background: transparent;
 		color: var(--text-subtle);
-		font-size: 8px;
+		font-size: 14px;
 		cursor: pointer;
 	}
 
@@ -739,7 +739,7 @@
 		}
 
 		.notice-info strong {
-			font-size: 8px;
+			font-size: 14px;
 		}
 	}
 </style>

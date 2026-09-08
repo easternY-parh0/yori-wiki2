@@ -212,7 +212,7 @@
 	.section-label,
 	.count-label {
 		color: var(--accent);
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 800;
 		letter-spacing: .1em;
 	}
@@ -226,7 +226,7 @@
 	.hero p {
 		margin: 0;
 		color: var(--text-muted);
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.hero-icon {
@@ -275,7 +275,7 @@
 		background: transparent;
 		color: var(--text);
 		font: inherit;
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.search-box input::placeholder {
@@ -320,7 +320,7 @@
 		border-radius: 999px;
 		background: var(--surface);
 		color: var(--text-subtle);
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 650;
 		cursor: pointer;
 	}
@@ -358,7 +358,7 @@
 		border: 0;
 		background: transparent;
 		color: var(--accent);
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 700;
 		cursor: pointer;
 	}
@@ -398,12 +398,12 @@
 		border-radius: 5px;
 		background: var(--surface-green);
 		color: var(--accent);
-		font-size: 7px;
+		font-size: 14px;
 		font-weight: 750;
 	}
 
 	.question strong {
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 650;
 	}
 
@@ -437,7 +437,7 @@
 	.answer p {
 		margin: 0;
 		color: var(--text-subtle);
-		font-size: 8px;
+		font-size: 14px;
 		line-height: 1.8;
 	}
 
@@ -470,13 +470,13 @@
 
 	.empty h3 {
 		margin: 0 0 6px;
-		font-size: 11px;
+		font-size: 14px;
 	}
 
 	.empty p {
 		margin: 0 0 15px;
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.empty button {
@@ -485,7 +485,7 @@
 		border-radius: 8px;
 		background: var(--primary);
 		color: #0f172a;
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 700;
 		cursor: pointer;
 	}
@@ -528,11 +528,11 @@
 	.contact-card span {
 		margin-bottom: 3px;
 		color: var(--text-muted);
-		font-size: 7px;
+		font-size: 14px;
 	}
 
 	.contact-card strong {
-		font-size: 9px;
+		font-size: 14px;
 	}
 
 	.contact-card a {
@@ -540,7 +540,7 @@
 		border-radius: 8px;
 		background: var(--accent);
 		color: #fff;
-		font-size: 8px;
+		font-size: 14px;
 		font-weight: 700;
 		white-space: nowrap;
 	}

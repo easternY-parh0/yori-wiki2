@@ -112,40 +112,40 @@
 	main{min-height:calc(100vh - 68px);padding:60px 24px 100px}
 	.document{width:min(760px,100%);margin:0 auto}
 	.document-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-	.label{padding:5px 8px;border-radius:5px;background:var(--surface-green);color:var(--accent);font-size:8px;font-weight:800;letter-spacing:.08em}
-	.date{color:var(--text-muted);font-size:8px}
+	.label{padding:5px 8px;border-radius:5px;background:var(--surface-green);color:var(--accent);font-size:14px;font-weight:800;letter-spacing:.08em}
+	.date{color:var(--text-muted);font-size:14px}
 	h1{margin:0;font-size:36px;letter-spacing:-.07em}
-	.lead{margin:13px 0 30px;color:var(--text-subtle);font-size:11px;line-height:1.8}
+	.lead{margin:13px 0 30px;color:var(--text-subtle);font-size:14px;line-height:1.8}
 	.summary{display:grid;grid-template-columns:repeat(3,1fr);margin-bottom:35px;border:1px solid var(--border);border-radius:14px;overflow:hidden}
 	.summary div{padding:17px;border-right:1px solid var(--border);background:var(--surface)}
 	.summary div:last-child{border-right:0}
 	.summary strong,.summary span{display:block}
-	.summary strong{margin-bottom:6px;font-size:9px}
-	.summary span{color:var(--text-muted);font-size:8px}
+	.summary strong{margin-bottom:6px;font-size:14px}
+	.summary span{color:var(--text-muted);font-size:14px}
 	.toc{display:flex;flex-direction:column;gap:5px;margin-bottom:55px;padding:20px;border:1px solid var(--border);border-radius:14px;background:var(--surface-subtle)}
-	.toc strong{margin-bottom:7px;font-size:10px}
-	.toc a{color:var(--text-subtle);font-size:9px}
+	.toc strong{margin-bottom:7px;font-size:14px}
+	.toc a{color:var(--text-subtle);font-size:14px}
 	.toc a:hover{color:var(--accent)}
 	section{scroll-margin-top:100px;padding:0 0 37px;margin-bottom:37px;border-bottom:1px solid var(--border)}
 	h2{display:flex;align-items:center;gap:11px;margin:0 0 15px;font-size:17px;letter-spacing:-.045em}
-	h2 span{color:var(--accent);font-size:9px}
-	section p{margin:0 0 11px;color:var(--text-subtle);font-size:10px;line-height:1.9}
+	h2 span{color:var(--accent);font-size:14px}
+	section p{margin:0 0 11px;color:var(--text-subtle);font-size:14px;line-height:1.9}
 	section p:last-child{margin-bottom:0}
 	.info-table{margin-top:17px;border:1px solid var(--border);border-radius:10px;overflow:hidden}
-	.info-table div{display:grid;grid-template-columns:1fr 2fr;padding:12px 14px;border-bottom:1px solid var(--border);font-size:8px}
+	.info-table div{display:grid;grid-template-columns:1fr 2fr;padding:12px 14px;border-bottom:1px solid var(--border);font-size:14px}
 	.info-table div:last-child{border-bottom:0}
 	.info-table .table-head{background:var(--surface-subtle);color:var(--text-muted);font-weight:700}
 	.info-table strong{font-weight:700}
 	.info-table span{color:var(--text-subtle)}
-	ul{margin:15px 0 0;padding-left:18px;color:var(--text-subtle);font-size:9px;line-height:2}
+	ul{margin:15px 0 0;padding-left:18px;color:var(--text-subtle);font-size:14px;line-height:2}
 	.contact-card{display:flex;align-items:center;gap:13px;margin-top:18px;padding:15px;border:1px solid var(--border);border-radius:11px;background:var(--surface-subtle)}
 	.contact-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:9px;background:var(--surface-green);color:var(--accent)}
 	.contact-icon svg{width:19px;height:19px}
 	.contact-card strong,.contact-card span{display:block}
-	.contact-card strong{margin-bottom:5px;font-size:9px}
-	.contact-card span{margin-top:2px;color:var(--text-muted);font-size:8px}
+	.contact-card strong{margin-bottom:5px;font-size:14px}
+	.contact-card span{margin-top:2px;color:var(--text-muted);font-size:14px}
 	.notice-box{display:flex;align-items:flex-start;gap:10px;padding:15px;border-radius:11px;background:var(--surface-yellow);color:var(--text-subtle)}
 	.notice-box svg{width:17px;height:17px;flex-shrink:0;color:var(--accent)}
-	.notice-box p{margin:0;font-size:8px;line-height:1.7}
+	.notice-box p{margin:0;font-size:14px;line-height:1.7}
 	@media(max-width:600px){main{padding:35px 16px 70px}.document-top{align-items:flex-start;gap:15px}h1{font-size:30px}.summary{grid-template-columns:1fr}.summary div{border-right:0;border-bottom:1px solid var(--border)}.summary div:last-child{border-bottom:0}}
 </style>

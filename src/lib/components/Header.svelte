@@ -1,4 +1,15 @@
 <script lang="ts">
+	import { page } from '$app/state';
+	import { invalidateAll, goto } from '$app/navigation';
+	import { authPost } from '$lib/auth';
+	let logoutPending = $state(false);
+	let authError = $state('');
+	async function logout() {
+		logoutPending = true;
+		try { await authPost('logout', {}); await invalidateAll(); closeMenu(); await goto('/login'); }
+		catch (error) { authError = error instanceof Error ? error.message : '로그아웃에 실패했습니다.'; }
+		finally { logoutPending = false; }
+	}
 	let {
 		darkMode = false,
 		toggleTheme
@@ -49,7 +60,7 @@
 		</div>
 
 		<div class="profile-text">
-			<strong>사용자님</strong>
+			<strong>{page.data.user?.nickname ?? "방문자"}님</strong>
 			<span>마이페이지</span>
 		</div>
 
@@ -59,6 +70,7 @@
 	</a>
 
 	<nav>
+		<a href="/search" onclick={closeMenu}>요리 탐색</a>
 		<a href="/" onclick={closeMenu}>
 			<svg viewBox="0 0 24 24">
 				<path d="M3 11.5L12 4l9 7.5M5.5 10v9h13v-9" />
@@ -122,6 +134,7 @@
 	</div>
 
 	<div class="header-actions">
+		<a href="/search" class="login-button">탐색</a>
 		<button class="theme-button" type="button" aria-label="다크모드 전환" onclick={toggleTheme}>
             {#if darkMode}
                 <svg viewBox="0 0 24 24">
@@ -135,7 +148,11 @@
             {/if}
         </button>
 
-		<a href="/login" class="login-button">로그인</a>
+		{#if page.data.user}
+		<span>{page.data.user.nickname}님</span>
+		<button type="button" class="login-button" onclick={logout} disabled={logoutPending}>로그아웃</button>
+		{:else}<a href="/login" class="login-button">로그인</a>{/if}
+		{#if authError}<span role="alert">{authError}</span>{/if}
 	</div>
 </header>
 
@@ -290,7 +307,7 @@
 		border-radius: 999px;
 		background: var(--primary);
 		color: #0f172a;
-		font-size: 11px;
+		font-size: 14px;
 		font-weight: 750;
 	}
 
@@ -392,13 +409,13 @@
 	}
 
 	.profile-text strong {
-		font-size: 11px;
+		font-size: 14px;
 	}
 
 	.profile-text span {
 		margin-top: 3px;
 		color: var(--text-muted);
-		font-size: 8px;
+		font-size: 14px;
 	}
 
 	.profile-arrow {
@@ -420,7 +437,7 @@
 		gap: 13px;
 		padding: 12px 13px;
 		border-radius: 11px;
-		font-size: 13px;
+		font-size: 14px;
 		font-weight: 650;
 	}
 
@@ -447,7 +464,7 @@
 		border-radius: 9px;
 		background: var(--surface-subtle);
 		color: var(--text-subtle);
-		font-size: 9px;
+		font-size: 14px;
 		font-weight: 650;
 		text-align: center;
 	}
