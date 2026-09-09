@@ -1,252 +1,251 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import heroImg from '$lib/assets/image/hero.jpg';
+    import { onMount } from 'svelte';
+    import heroImg from '$lib/assets/image/hero.jpg';
 
-	let currentBanner = $state(0);
+    let currentBanner = $state(0);
 
-	const categories = ['한식', '중식', '일식', '양식', '베이킹', '간식'];
+    const categories = ['한식', '중식', '일식', '양식', '베이킹', '간식'];
 
-	const banners = [
-		{ title: '요리위키 배너 이미지', description: '배너 설명이 들어가는 영역입니다.' },
-		{ title: '새로운 레시피 배너', description: '새롭게 추가된 콘텐츠를 소개하는 영역입니다.' },
-		{ title: '요리위키 공지 배너', description: '서비스 공지나 이벤트를 표시할 수 있습니다.' }
-	];
+    const banners = [
+        { title: '요리위키 배너 이미지', description: '배너 설명이 들어가는 영역입니다.' },
+        { title: '새로운 레시피 배너', description: '새롭게 추가된 콘텐츠를 소개하는 영역입니다.' },
+        { title: '요리위키 공지 배너', description: '서비스 공지나 이벤트를 표시할 수 있습니다.' }
+    ];
 
-	const popularRecipes = ['레시피 제목', '레시피 제목', '레시피 제목', '레시피 제목'];
-	const recentRecipes = ['새로 등록된 레시피', '새로 등록된 레시피', '새로 등록된 레시피'];
+    const popularRecipes = ['레시피 제목', '레시피 제목', '레시피 제목', '레시피 제목'];
+    const recentRecipes = ['새로 등록된 레시피', '새로 등록된 레시피', '새로 등록된 레시피'];
 
-	const posts = [
-		'커뮤니티 게시글 제목이 들어갑니다.',
-		'커뮤니티 게시글 제목이 들어갑니다.',
-		'커뮤니티 게시글 제목이 들어갑니다.',
-		'커뮤니티 게시글 제목이 들어갑니다.'
-	];
+    const posts = [
+        '커뮤니티 게시글 제목이 들어갑니다.',
+        '커뮤니티 게시글 제목이 들어갑니다.',
+        '커뮤니티 게시글 제목이 들어갑니다.',
+        '커뮤니티 게시글 제목이 들어갑니다.'
+    ];
 
-	let bannerTimer: ReturnType<typeof setInterval>;
+    let bannerTimer: ReturnType<typeof setInterval>;
 
-	onMount(() => {
+    onMount(() => {
+        bannerTimer = setInterval(() => {
+            nextBanner();
+        }, 5000);
 
-		bannerTimer = setInterval(() => {
-			nextBanner();
-		}, 5000);
+        return () => {
+            clearInterval(bannerTimer);
+        };
+    });
 
-		return () => {
-			clearInterval(bannerTimer);
-		};
-	});
+    function nextBanner() {
+        currentBanner = (currentBanner + 1) % banners.length;
+    }
 
-	function nextBanner() {
-		currentBanner = (currentBanner + 1) % banners.length;
-	}
+    function previousBanner() {
+        currentBanner = (currentBanner - 1 + banners.length) % banners.length;
+    }
 
-	function previousBanner() {
-		currentBanner = (currentBanner - 1 + banners.length) % banners.length;
-	}
-
-	function selectBanner(index: number) {
-		currentBanner = index;
-	}
+    function selectBanner(index: number) {
+        currentBanner = index;
+    }
 </script>
 
 <svelte:head>
-	<title>요리위키</title>
-	<meta name="description" content="누구나 찾고 공유하는 요리 레시피 위키" />
+    <title>요리위키</title>
+    <meta name="description" content="누구나 찾고 공유하는 요리 레시피 위키" />
 </svelte:head>
 
 <div class="page">
-	<main>
-		<!-- 상단 배너 -->
-		<section class="banner-section">
-			<div class="banner">
-				<div class="banner-image">
-					<span>배너 이미지 영역</span>
-				</div>
+    <main>
+        <section class="banner-section">
+            <div class="banner">
+                <div class="banner-image">
+                    <span>배너 이미지 영역</span>
+                </div>
 
-				<div class="banner-content">
-					<span class="banner-label">요리위키</span>
-					<h2>{banners[currentBanner].title}</h2>
-					<p>{banners[currentBanner].description}</p>
-					<a href="/recipes" class="banner-button">자세히 보기</a>
-				</div>
+                <div class="banner-content">
+                    <h2>{banners[currentBanner].title}</h2>
+                    <p>{banners[currentBanner].description}</p>
+                    <a href="/recipes" class="banner-button">자세히 보기</a>
+                </div>
 
-				<div class="banner-controls">
-					<button type="button" aria-label="이전 배너" onclick={previousBanner}>
+                <div class="banner-controls">
+                    <button type="button" aria-label="이전 배너" onclick={previousBanner}>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <button type="button" aria-label="다음 배너" onclick={nextBanner}>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="banner-indicators">
+                    {#each banners as _, index}
+                        <button class:active={currentBanner === index} type="button" aria-label={`${index + 1}번 배너`} aria-current={currentBanner === index} onclick={() => selectBanner(index)}></button>
+                    {/each}
+                </div>
+            </div>
+        </section>
+
+		<div class="hero-wrapper">
+			<section class="hero">
+				<div class="hero-content">
+					<h1>오늘은 무엇을<br /><span>만들어 볼까요?</span></h1>
+					<p>요리와 식재료에 대한 정보를 찾아보고<br />나만의 레시피를 공유해보세요.</p>
+
+					<form class="search-box" action="/search" method="GET">
 						<svg viewBox="0 0 24 24" aria-hidden="true">
-							<path d="M15 18l-6-6 6-6" />
+							<circle cx="10.5" cy="10.5" r="6" />
+							<path d="M15 15l5 5" />
 						</svg>
-					</button>
-					<button type="button" aria-label="다음 배너" onclick={nextBanner}>
-						<svg viewBox="0 0 24 24" aria-hidden="true">
-							<path d="M9 18l6-6-6-6" />
-						</svg>
-					</button>
+						<input name="q" type="search" maxlength="100" aria-label="요리 검색어" placeholder="요리 이름이나 재료를 검색하세요" />
+						<button type="submit">검색</button>
+					</form>
 				</div>
 
-				<div class="banner-indicators">
-					{#each banners as _, index}
-						<button class:active={currentBanner === index} type="button" aria-label={`${index + 1}번 배너`} aria-current={currentBanner === index} onclick={() => selectBanner(index)}></button>
-					{/each}
+				<div class="hero-image-container">
+					<img src={heroImg} alt="대표 이미지" />
+					<div class="gradient-overlay"></div>
 				</div>
-			</div>
-		</section>
+			</section>
+		</div>
 
-		<section class="hero">
-			<div class="hero-content">
-				<h1>오늘은 무엇을<br /><span>만들어 볼까요?</span></h1>
-				<p>요리와 식재료에 대한 정보를 찾아보고<br />나만의 레시피를 공유해보세요.</p>
+        <section>
+            <div class="section-title">
+                <h2>카테고리</h2>
+                <a href="/categories">전체보기</a>
+            </div>
 
-				<form class="search-box" action="/search" method="GET">
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<circle cx="10.5" cy="10.5" r="6" />
-						<path d="M15 15l5 5" />
-					</svg>
-					<input name="q" type="search" maxlength="100" aria-label="요리 검색어" placeholder="요리 이름이나 재료를 검색하세요" />
-					<button type="submit">검색</button>
-				</form>
-			</div>
+            <div class="category-grid">
+                {#each categories as category}
+                    <a href="/categories" class="category">
+                        <div class="category-image"><span>이미지</span></div>
+                        <strong>{category}</strong>
+                    </a>
+                {/each}
+            </div>
+        </section>
 
-			<div class="hero-image">
-				<img src={heroImg} alt="대표 이미지" />
-			</div>
-		</section>
+        <section>
+            <div class="section-title">
+                <h2>인기 레시피</h2>
+                <a href="/recipes">전체보기</a>
+            </div>
 
-		<section>
-			<div class="section-title">
-				<h2>카테고리</h2>
-				<a href="/categories">전체보기</a>
-			</div>
+            <div class="recipe-grid">
+                {#each popularRecipes as recipe}
+                    <a href="/recipes/example" class="recipe">
+                        <div class="recipe-image">
+                            <span>이미지 영역</span>
+                            <button class="bookmark" type="button" aria-label="즐겨찾기" onclick={(event) => event.preventDefault()}>
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M6 4h12v17l-6-4-6 4z" />
+                                </svg>
+                            </button>
+                        </div>
 
-			<div class="category-grid">
-				{#each categories as category}
-					<a href="/categories" class="category">
-						<div class="category-image"><span>이미지</span></div>
-						<strong>{category}</strong>
-					</a>
-				{/each}
-			</div>
-		</section>
+                        <div class="recipe-info">
+                            <span class="tag">한식</span>
+                            <h3>{recipe}</h3>
+                            <p>레시피 설명이 들어가는 영역입니다.</p>
+                            <div class="recipe-meta"><span>조리시간 30분</span><span>조회 128</span></div>
+                        </div>
+                    </a>
+                {/each}
+            </div>
+        </section>
 
-		<section>
-			<div class="section-title">
-				<h2>인기 레시피</h2>
-				<a href="/recipes">전체보기</a>
-			</div>
+        <section class="recommend-section">
+            <div class="recommend-copy">
+                <span class="recommend-label">오늘의 추천</span>
+                <h2>오늘은 이런 요리<br />어떠세요?</h2>
+                <p>현재 인기 있는 레시피를 바탕으로<br />오늘 만들어보기 좋은 요리를 추천합니다.</p>
+                <a href="/recipes/recommended" class="primary-button">추천 레시피 보기</a>
+            </div>
 
-			<div class="recipe-grid">
-				{#each popularRecipes as recipe}
-					<a href="/recipes/example" class="recipe">
-						<div class="recipe-image">
-							<span>이미지 영역</span>
-							<button class="bookmark" type="button" aria-label="즐겨찾기" onclick={(event) => event.preventDefault()}>
-								<svg viewBox="0 0 24 24" aria-hidden="true">
-									<path d="M6 4h12v17l-6-4-6 4z" />
-								</svg>
-							</button>
-						</div>
+            <div class="recommend-image">
+                <span>추천 이미지 영역</span>
+            </div>
+        </section>
 
-						<div class="recipe-info">
-							<span class="tag">한식</span>
-							<h3>{recipe}</h3>
-							<p>레시피 설명이 들어가는 영역입니다.</p>
-							<div class="recipe-meta"><span>조리시간 30분</span><span>조회 128</span></div>
-						</div>
-					</a>
-				{/each}
-			</div>
-		</section>
+        <section>
+            <div class="section-title">
+                <h2>최근 등록된 레시피</h2>
+                <a href="/recipes?sort=recent">전체보기</a>
+            </div>
 
-		<section class="recommend-section">
-			<div class="recommend-copy">
-				<span class="recommend-label">오늘의 추천</span>
-				<h2>오늘은 이런 요리<br />어떠세요?</h2>
-				<p>현재 인기 있는 레시피를 바탕으로<br />오늘 만들어보기 좋은 요리를 추천합니다.</p>
-				<a href="/recipes/recommended" class="primary-button">추천 레시피 보기</a>
-			</div>
+            <div class="recent-grid">
+                {#each recentRecipes as recipe, index}
+                    <a href="/recipes/example" class="recent-recipe">
+                        <div class="recent-image"><span>이미지</span></div>
+                        <div class="recent-info">
+                            <span class="tag">NEW</span>
+                            <h3>{recipe}</h3>
+                            <p>새롭게 등록된 레시피 설명입니다.</p>
+                            <span class="recent-author">작성자 · 사용자</span>
+                        </div>
+                    </a>
+                {/each}
+            </div>
+        </section>
 
-			<div class="recommend-image">
-				<span>추천 이미지 영역</span>
-			</div>
-		</section>
+        <section class="register-section">
+            <div class="register-content">
+                <span class="register-label">레시피 공유</span>
+                <h2>나만 알고 있는<br />레시피를 공유해보세요.</h2>
+                <p>직접 만든 요리의 레시피를 등록하고<br />다른 사람들과 함께 맛있는 요리를 만들어보세요.</p>
+                <a href="/recipes/new" class="register-button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 5v14" />
+                        <path d="M5 12h14" />
+                    </svg>
+                    레시피 등록하기
+                </a>
+            </div>
 
-		<section>
-			<div class="section-title">
-				<h2>최근 등록된 레시피</h2>
-				<a href="/recipes?sort=recent">전체보기</a>
-			</div>
+            <div class="register-image">
+                <span>레시피 등록 이미지 영역</span>
+            </div>
+        </section>
 
-			<div class="recent-grid">
-				{#each recentRecipes as recipe, index}
-					<a href="/recipes/example" class="recent-recipe">
-						<div class="recent-image"><span>이미지</span></div>
-						<div class="recent-info">
-							<span class="tag">NEW</span>
-							<!-- <span class="tag">{index === 0 ? 'NEW' : '레시피'}</span> -->
-							<h3>{recipe}</h3>
-							<p>새롭게 등록된 레시피 설명입니다.</p>
-							<span class="recent-author">작성자 · 사용자</span>
-						</div>
-					</a>
-				{/each}
-			</div>
-		</section>
+        <section class="bottom-grid">
+            <div class="panel">
+                <div class="section-title">
+                    <h2>식재료 위키</h2>
+                    <a href="/ingredients">전체보기</a>
+                </div>
 
-		<section class="register-section">
-			<div class="register-content">
-				<span class="register-label">레시피 공유</span>
-				<h2>나만 알고 있는<br />레시피를 공유해보세요.</h2>
-				<p>직접 만든 요리의 레시피를 등록하고<br />다른 사람들과 함께 맛있는 요리를 만들어보세요.</p>
-				<a href="/recipes/new" class="register-button">
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<path d="M12 5v14" />
-						<path d="M5 12h14" />
-					</svg>
-					레시피 등록하기
-				</a>
-			</div>
+                <div class="wiki-image"><span>이미지 영역</span></div>
 
-			<div class="register-image">
-				<span>레시피 등록 이미지 영역</span>
-			</div>
-		</section>
+                <div class="wiki-text">
+                    <h3>식재료 이름</h3>
+                    <p>식재료에 대한 설명과 손질 방법, 보관 방법 등이 표시됩니다.</p>
+                </div>
+            </div>
 
-		<section class="bottom-grid">
-			<div class="panel">
-				<div class="section-title">
-					<h2>식재료 위키</h2>
-					<a href="/ingredients">전체보기</a>
-				</div>
+            <div class="panel">
+                <div class="section-title">
+                    <h2>커뮤니티</h2>
+                    <a href="/community">전체보기</a>
+                </div>
 
-				<div class="wiki-image"><span>이미지 영역</span></div>
-
-				<div class="wiki-text">
-					<h3>식재료 이름</h3>
-					<p>식재료에 대한 설명과 손질 방법, 보관 방법 등이 표시됩니다.</p>
-				</div>
-			</div>
-
-			<div class="panel">
-				<div class="section-title">
-					<h2>커뮤니티</h2>
-					<a href="/community">전체보기</a>
-				</div>
-
-				<div class="post-list">
-					{#each posts as post}
-						<a href="/community/example" class="post">
-							<div class="post-avatar"></div>
-							<div>
-								<strong>{post}</strong>
-								<span>작성자 · 2시간 전</span>
-							</div>
-							<svg viewBox="0 0 24 24" aria-hidden="true">
-								<path d="M9 5l7 7-7 7" />
-							</svg>
-						</a>
-					{/each}
-				</div>
-			</div>
-		</section>
-	</main>
+                <div class="post-list">
+                    {#each posts as post}
+                        <a href="/community/example" class="post">
+                            <div class="post-avatar"></div>
+                            <div>
+                                <strong>{post}</strong>
+                                <span>작성자 · 2시간 전</span>
+                            </div>
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                    {/each}
+                </div>
+            </div>
+        </section>
+    </main>
 </div>
 
 <style>
@@ -254,7 +253,6 @@
 		min-height: 100vh;
 		background: var(--background);
 		color: var(--text);
-		transition: background-color .2s ease, color .2s ease;
 	}
 
 	svg {
@@ -266,9 +264,14 @@
 	}
 
 	main {
-		width: min(1160px, calc(100% - 48px));
-		margin: 0 auto;
+		width: 100%;
 		padding-bottom: 80px;
+	}
+
+	main > section:not(.hero) {
+		width: min(1160px, calc(100% - 48px));
+		margin-left: auto;
+		margin-right: auto;
 	}
 
 	.banner-section {
@@ -277,12 +280,12 @@
 
 	.banner {
 		position: relative;
-		height: 235px;
+		height: 160px;
 		display: grid;
-		grid-template-columns: 1.05fr .95fr;
+		grid-template-columns: 1.6fr 1fr;
 		overflow: hidden;
 		border: 1px solid var(--border);
-		border-radius: 24px;
+		border-radius: 20px;
 		background: var(--surface-yellow);
 	}
 
@@ -291,59 +294,52 @@
 		place-items: center;
 		background: var(--surface-subtle);
 		color: var(--text-muted);
-		font-size: 14px;
+		font-size: 9px;
 	}
 
 	.banner-content {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		padding: 30px 65px 30px 35px;
-	}
-
-	.banner-label {
-		width: fit-content;
-		padding: 5px 9px;
-		border-radius: 999px;
-		background: var(--primary);
-		color: #0f172a;
-		font-size: 14px;
-		font-weight: 800;
+		padding: 20px 100px 20px 28px;
 	}
 
 	.banner-content h2 {
-		margin: 12px 0 7px;
-		font-size: 26px;
-		letter-spacing: -.06em;
+		margin: 0 0 4px;
+		font-size: 24px;
+		letter-spacing: -.05em;
 	}
 
 	.banner-content p {
-		margin: 0 0 17px;
+		margin: 0 0 12px;
 		color: var(--text-subtle);
-		font-size: 14px;
+		font-size: 10px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.banner-button {
 		width: fit-content;
-		padding: 9px 14px;
-		border-radius: 9px;
+		padding: 6px 12px;
+		border-radius: 8px;
 		background: var(--accent);
 		color: #fff;
-		font-size: 14px;
+		font-size: 9px;
 		font-weight: 700;
 	}
 
 	.banner-controls {
 		position: absolute;
 		right: 18px;
-		bottom: 18px;
+		bottom: 16px;
 		display: flex;
 		gap: 5px;
 	}
 
 	.banner-controls button {
-		width: 32px;
-		height: 32px;
+		width: 30px;
+		height: 30px;
 		display: grid;
 		place-items: center;
 		border: 1px solid var(--border);
@@ -359,20 +355,20 @@
 	}
 
 	.banner-controls svg {
-		width: 15px;
-		height: 15px;
+		width: 14px;
+		height: 14px;
 	}
 
 	.banner-indicators {
 		position: absolute;
-		left: 35px;
-		bottom: 18px;
+		right: 18px;
+		top: 16px;
 		display: flex;
 		gap: 5px;
 	}
 
 	.banner-indicators button {
-		width: 18px;
+		width: 16px;
 		height: 4px;
 		padding: 0;
 		border: 0;
@@ -384,40 +380,85 @@
 	}
 
 	.banner-indicators button.active {
-		width: 30px;
+		width: 26px;
 		background: var(--accent);
 		opacity: 1;
 	}
 
-	.hero {
-		display: grid;
-		grid-template-columns: 1.05fr .95fr;
-		gap: 55px;
-		align-items: center;
-		min-height: 510px;
-		padding: 65px 30px;
-	}
+	.hero-wrapper {
+        width: 100%;
+		margin-top: 60px;
+        background-color: var(--surface-yellow);
+        overflow: hidden;
+    }
 
-	.hero-content {
-		padding-left: 15px;
-	}
+    .hero {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(320px, 1.1fr) 1fr;
+        align-items: center;
+        min-height: 510px;
+        /* 왼쪽 중앙 정렬 기준을 유지하면서 전체 폭 활용 */
+        padding-left: max(24px, calc((100% - 1160px) / 2));
+    }
 
-	.hero h1 {
-		margin: 17px 0;
-		font-size: clamp(43px, 5vw, 64px);
-		line-height: 1.08;
-		letter-spacing: -.075em;
-	}
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        padding: 65px 20px 65px 15px;
+    }
 
-	.hero h1 span {
-		color: var(--accent);
-	}
+    .hero h1 {
+        margin: 17px 0;
+        font-size: clamp(43px, 5vw, 64px);
+        line-height: 1.08;
+        letter-spacing: -.075em;
+    }
 
-	.hero p {
-		margin: 0;
-		color: var(--text-subtle);
-		font-size: 14px;
-		line-height: 1.8;
+    .hero h1 span {
+        color: var(--accent);
+    }
+
+    .hero p {
+        margin: 0;
+        color: var(--text-subtle);
+        font-size: 13px;
+        line-height: 1.8;
+    }
+
+    /* 히어로 이미지 꽉 채우기 및 그라데이션 관련 스타일 */
+    .hero-image-container {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50%;
+        height: 100%;
+        z-index: 1;
+    }
+
+    .hero-image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+    }
+
+	.gradient-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(
+			to right,
+			var(--surface-yellow) 10%,
+			rgb(from var(--surface-yellow) r g b / 0.9) 20%,
+			rgb(from var(--surface-yellow) r g b / 0.7) 30%,
+			rgb(from var(--surface-yellow) r g b / 0.4) 40%,
+			rgba(255, 255, 255, 0) 50%
+		);
+		pointer-events: none;
 	}
 
 	.search-box {
@@ -451,7 +492,7 @@
 		outline: 0;
 		background: transparent;
 		color: var(--text);
-		font-size: 14px;
+		font-size: 12px;
 	}
 
 	.search-box input::placeholder {
@@ -465,18 +506,12 @@
 		border-radius: 10px;
 		background: var(--primary);
 		color: #0f172a;
-		font-size: 14px;
+		font-size: 11px;
 		font-weight: 750;
 		cursor: pointer;
 	}
 
-	.hero-image img {
-    width: 100%;
-    height: auto;
-    display: block;
-    }
-
-	section:not(.banner-section) {
+	section:not(.banner-section):not(.hero) {
 		margin-top: 65px;
 	}
 
@@ -495,7 +530,7 @@
 
 	.section-title > a {
 		color: var(--accent);
-		font-size: 14px;
+		font-size: 10px;
 		font-weight: 700;
 	}
 
@@ -533,11 +568,11 @@
 		border-radius: 14px;
 		background: var(--surface-yellow);
 		color: var(--accent);
-		font-size: 14px;
+		font-size: 8px;
 	}
 
 	.category strong {
-		font-size: 14px;
+		font-size: 11px;
 	}
 
 	.recipe-grid {
@@ -569,7 +604,7 @@
 		place-items: center;
 		background: var(--surface-yellow);
 		color: var(--accent);
-		font-size: 14px;
+		font-size: 9px;
 	}
 
 	.bookmark {
@@ -604,7 +639,7 @@
 
 	.tag {
 		color: var(--accent);
-		font-size: 14px;
+		font-size: 8px;
 		font-weight: 750;
 	}
 
@@ -619,7 +654,7 @@
 	.recent-recipe p {
 		margin: 0 0 13px;
 		color: var(--text-subtle);
-		font-size: 14px;
+		font-size: 9px;
 	}
 
 	.recipe-meta {
@@ -628,7 +663,7 @@
 		padding-top: 10px;
 		border-top: 1px solid var(--border);
 		color: var(--text-subtle);
-		font-size: 14px;
+		font-size: 8px;
 	}
 
 	.recommend-section {
@@ -644,7 +679,7 @@
 
 	.recommend-label {
 		color: var(--accent);
-		font-size: 14px;
+		font-size: 10px;
 		font-weight: 800;
 	}
 
@@ -658,7 +693,7 @@
 	.recommend-copy p {
 		margin: 0 0 20px;
 		color: var(--text-subtle);
-		font-size: 14px;
+		font-size: 11px;
 		line-height: 1.7;
 	}
 
@@ -668,7 +703,7 @@
 		border-radius: 9px;
 		background: var(--accent);
 		color: #fff;
-		font-size: 14px;
+		font-size: 10px;
 		font-weight: 700;
 	}
 
@@ -680,7 +715,7 @@
 		border-radius: 20px;
 		background: var(--surface);
 		color: var(--accent);
-		font-size: 14px;
+		font-size: 9px;
 	}
 
 	.recent-grid {
@@ -700,7 +735,7 @@
 		place-items: center;
 		background: var(--surface-yellow);
 		color: var(--accent);
-		font-size: 14px;
+		font-size: 8px;
 	}
 
 	.recent-info {
@@ -711,7 +746,7 @@
 
 	.recent-author {
 		color: var(--text-muted);
-		font-size: 14px;
+		font-size: 8px;
 	}
 
 	.register-section {
@@ -732,7 +767,7 @@
 
 	.register-label {
 		color: var(--accent);
-		font-size: 14px;
+		font-size: 10px;
 		font-weight: 800;
 	}
 
@@ -746,7 +781,7 @@
 	.register-content p {
 		margin: 0 0 20px;
 		color: var(--text-subtle);
-		font-size: 14px;
+		font-size: 10px;
 		line-height: 1.7;
 	}
 
@@ -759,7 +794,7 @@
 		border-radius: 10px;
 		background: var(--primary);
 		color: #0f172a;
-		font-size: 14px;
+		font-size: 10px;
 		font-weight: 750;
 		transition: .18s ease;
 	}
@@ -783,7 +818,7 @@
 		border-radius: 18px;
 		background: var(--surface-green);
 		color: var(--accent);
-		font-size: 14px;
+		font-size: 9px;
 	}
 
 	.bottom-grid {
@@ -806,7 +841,7 @@
 		border-radius: 14px;
 		background: var(--surface-yellow);
 		color: var(--accent);
-		font-size: 14px;
+		font-size: 9px;
 	}
 
 	.wiki-text h3 {
@@ -817,7 +852,7 @@
 	.wiki-text p {
 		margin: 0;
 		color: var(--text-subtle);
-		font-size: 14px;
+		font-size: 9px;
 		line-height: 1.7;
 	}
 
@@ -844,7 +879,7 @@
 	.post strong {
 		display: block;
 		overflow: hidden;
-		font-size: 14px;
+		font-size: 10px;
 		font-weight: 650;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -854,7 +889,7 @@
 		display: block;
 		margin-top: 4px;
 		color: var(--text-subtle);
-		font-size: 14px;
+		font-size: 8px;
 	}
 
 	.post svg {
@@ -904,10 +939,6 @@
 		.hero {
 			grid-template-columns: 1fr;
 			gap: 30px;
-		}
-
-		.hero-image {
-			height: 300px;
 		}
 
 		.category-grid {
@@ -973,10 +1004,6 @@
 
 		.hero h1 {
 			font-size: 42px;
-		}
-
-		.hero-image {
-			height: 230px;
 		}
 
 		.search-box {

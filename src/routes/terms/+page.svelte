@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-	<title>서비스 이용약관 | 요리위키</title>
+	<title>요리위키 | 서비스 이용약관</title>
 	<meta name="description" content="요리위키 서비스 이용약관" />
 </svelte:head>
 
@@ -81,169 +81,169 @@
 </div>
 
 <style>
-  svg {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.7;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
+	svg {
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.7;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
 
-  .page {
-    min-height: 100vh;
-    background: var(--background);
-  }
+	.page {
+		min-height: 100vh;
+		background: var(--background);
+	}
 
-  main {
-    min-height: calc(100vh - 68px);
-    padding: 60px 24px 100px;
-  }
+	main {
+		min-height: calc(100vh - 68px);
+		padding: 60px 24px 100px;
+	}
 
-  .document {
-    width: min(760px, 100%);
-    margin: 0 auto;
-  }
+	.document {
+		width: min(1160px, calc(100% - 48px));
+		margin: 0 auto;
+	}
 
-  .document-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 18px;
-  }
+	.document-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 18px;
+	}
 
-  .label {
-    padding: 5px 8px;
-    border-radius: 5px;
-    background: var(--surface-yellow);
-    color: var(--accent);
-    font-size: 14px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-  }
+	.label {
+		padding: 5px 8px;
+		border-radius: 5px;
+		background: var(--surface-yellow);
+		color: var(--accent);
+		font-size: 9px;
+		font-weight: 800;
+		letter-spacing: 0.08em;
+	}
 
-  .date {
-    color: var(--text-muted);
-    font-size: 14px;
-  }
+	.date {
+		color: var(--text-muted);
+		font-size: 11px;
+	}
 
-  h1 {
-    margin: 0;
-    font-size: 36px;
-    letter-spacing: -0.07em;
-  }
+	h1 {
+		margin: 0;
+		font-size: 36px;
+		letter-spacing: -0.07em;
+	}
 
-  .lead {
-    margin: 13px 0 40px;
-    color: var(--text-subtle);
-    font-size: 14px;
-    line-height: 1.8;
-  }
+	.lead {
+		margin: 13px 0 40px;
+		color: var(--text-subtle);
+		font-size: 14px;
+		line-height: 1.8;
+	}
 
-  .toc {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-bottom: 55px;
-    padding: 20px;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    background: var(--surface-subtle);
-  }
+	.toc {
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+		margin-bottom: 55px;
+		padding: 20px;
+		border: 1px solid var(--border);
+		border-radius: 14px;
+		background: var(--surface-subtle);
+	}
 
-  .toc strong {
-    margin-bottom: 7px;
-    font-size: 14px;
-  }
+	.toc strong {
+		margin-bottom: 7px;
+		font-size: 14px;
+	}
 
-  .toc a {
-    color: var(--text-subtle);
-    font-size: 14px;
-  }
+	.toc a {
+		color: var(--text-subtle);
+		font-size: 14px;
+	}
 
-  .toc a:hover {
-    color: var(--accent);
-  }
+	.toc a:hover {
+		color: var(--accent);
+	}
 
-  section {
-    scroll-margin-top: 100px;
-    padding: 0 0 37px;
-    margin-bottom: 37px;
-    border-bottom: 1px solid var(--border);
-  }
+	section {
+		scroll-margin-top: 100px;
+		padding: 0 0 37px;
+		margin-bottom: 37px;
+		border-bottom: 1px solid var(--border);
+	}
 
-  h2 {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    margin: 0 0 15px;
-    font-size: 17px;
-    letter-spacing: -0.045em;
-  }
+	h2 {
+		display: flex;
+		align-items: center;
+		gap: 11px;
+		margin: 0 0 15px;
+		font-size: 17px;
+		letter-spacing: -0.045em;
+	}
 
-  h2 span {
-    color: var(--accent);
-    font-size: 14px;
-    letter-spacing: 0.02em;
-  }
+	h2 span {
+		color: var(--accent);
+		font-size: 14px;
+		letter-spacing: 0.02em;
+	}
 
-  section p {
-    margin: 0 0 11px;
-    color: var(--text-subtle);
-    font-size: 14px;
-    line-height: 1.9;
-  }
+	section p {
+		margin: 0 0 11px;
+		color: var(--text-subtle);
+		font-size: 14px;
+		line-height: 1.9;
+	}
 
-  section p:last-child {
-    margin-bottom: 0;
-  }
+	section p:last-child {
+		margin-bottom: 0;
+	}
 
-  ul {
-    margin: 15px 0 0;
-    padding-left: 18px;
-    color: var(--text-subtle);
-    font-size: 14px;
-    line-height: 2;
-  }
+	ul {
+		margin: 15px 0 0;
+		padding-left: 18px;
+		color: var(--text-subtle);
+		font-size: 14px;
+		line-height: 2;
+	}
 
-  .notice-box {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 15px;
-    border-radius: 11px;
-    background: var(--surface-yellow);
-    color: var(--text-subtle);
-  }
+	.notice-box {
+		display: flex;
+		align-items: flex-start;
+		gap: 10px;
+		padding: 15px;
+		border-radius: 11px;
+		background: var(--surface-yellow);
+		color: var(--text-subtle);
+	}
 
-  .notice-box svg {
-    width: 17px;
-    height: 17px;
-    flex-shrink: 0;
-    color: var(--accent);
-  }
+	.notice-box svg {
+		width: 17px;
+		height: 17px;
+		flex-shrink: 0;
+		color: var(--accent);
+	}
 
-  .notice-box p {
-    margin: 0;
-    font-size: 14px;
-    line-height: 1.7;
-  }
+	.notice-box p {
+		margin: 0;
+		font-size: 14px;
+		line-height: 1.7;
+	}
 
-  @media (max-width: 600px) {
-    main {
-      padding: 35px 16px 70px;
-    }
+	@media (max-width: 600px) {
+		main {
+		padding: 35px 16px 70px;
+		}
 
-    .document-top {
-      align-items: flex-start;
-      gap: 15px;
-    }
+		.document-top {
+		align-items: flex-start;
+		gap: 15px;
+		}
 
-    .date {
-      padding-top: 5px;
-    }
+		.date {
+		padding-top: 5px;
+		}
 
-    h1 {
-      font-size: 30px;
-    }
-  }
+		h1 {
+		font-size: 30px;
+		}
+	}
 </style>
