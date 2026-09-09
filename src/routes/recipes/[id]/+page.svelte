@@ -3,7 +3,10 @@
   let { data }: { data: PageData } = $props();
 </script>
 
-<svelte:head><title>{data.food.name} | 요리위키</title></svelte:head>
+<svelte:head>
+  <title>{data.food.name} | 요리위키</title>
+</svelte:head>
+
 <main>
   <a href="/recipes">← 레시피 목록</a>
   <h1>{data.food.name}</h1>
@@ -13,6 +16,7 @@
   <h2>조리 방법</h2>
   <p class="content">{data.food.recipe}</p>
 </main>
+
 <style>
   main { max-width: 900px; margin: 40px auto; padding: 24px; }
   .content { white-space: pre-wrap; line-height: 1.8; overflow-wrap: anywhere; }
