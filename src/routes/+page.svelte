@@ -1,6 +1,8 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import heroImg from '$lib/assets/image/hero.jpg';
+    import noRecipeImg from '$lib/assets/image/no-image.png';
+    import baseProfileImg from '$lib/assets/image/base-profile.png';
 
     let currentBanner = $state(0);
 
@@ -87,28 +89,28 @@
             </div>
         </section>
 
-		<div class="hero-wrapper">
-			<section class="hero">
-				<div class="hero-content">
-					<h1>오늘은 무엇을<br /><span>만들어 볼까요?</span></h1>
-					<p>요리와 식재료에 대한 정보를 찾아보고<br />나만의 레시피를 공유해보세요.</p>
+        <div class="hero-wrapper">
+            <section class="hero">
+                <div class="hero-content">
+                    <h1>오늘은 무엇을<br /><span>만들어 볼까요?</span></h1>
+                    <p>요리와 식재료에 대한 정보를 찾아보고<br />나만의 레시피를 공유해보세요.</p>
 
-					<form class="search-box" action="/search" method="GET">
-						<svg viewBox="0 0 24 24" aria-hidden="true">
-							<circle cx="10.5" cy="10.5" r="6" />
-							<path d="M15 15l5 5" />
-						</svg>
-						<input name="q" type="search" maxlength="100" aria-label="요리 검색어" placeholder="요리 이름이나 재료를 검색하세요" />
-						<button type="submit">검색</button>
-					</form>
-				</div>
+                    <form class="search-box" action="/search" method="GET">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="10.5" cy="10.5" r="6" />
+                            <path d="M15 15l5 5" />
+                        </svg>
+                        <input name="q" type="search" maxlength="100" aria-label="요리 검색어" placeholder="요리 이름이나 재료를 검색하세요" />
+                        <button type="submit">검색</button>
+                    </form>
+                </div>
 
-				<div class="hero-image-container">
-					<img src={heroImg} alt="대표 이미지" />
-					<div class="gradient-overlay"></div>
-				</div>
-			</section>
-		</div>
+                <div class="hero-image-container">
+                    <img src={heroImg} alt="대표 이미지" />
+                    <div class="gradient-overlay"></div>
+                </div>
+            </section>
+        </div>
 
         <section>
             <div class="section-title">
@@ -136,7 +138,7 @@
                 {#each popularRecipes as recipe}
                     <a href="/recipes/example" class="recipe">
                         <div class="recipe-image">
-                            <span>이미지 영역</span>
+                            <img src={noRecipeImg} alt="레시피 이미지 준비중" />
                             <button class="bookmark" type="button" aria-label="즐겨찾기" onclick={(event) => event.preventDefault()}>
                                 <svg viewBox="0 0 24 24" aria-hidden="true">
                                     <path d="M6 4h12v17l-6-4-6 4z" />
@@ -164,7 +166,7 @@
             </div>
 
             <div class="recommend-image">
-                <span>추천 이미지 영역</span>
+                <img src={noRecipeImg} alt="추천 레시피 이미지 준비중" />
             </div>
         </section>
 
@@ -177,7 +179,9 @@
             <div class="recent-grid">
                 {#each recentRecipes as recipe, index}
                     <a href="/recipes/example" class="recent-recipe">
-                        <div class="recent-image"><span>이미지</span></div>
+                        <div class="recent-image">
+                            <img src={noRecipeImg} alt="최근 레시피 이미지 준비중" />
+                        </div>
                         <div class="recent-info">
                             <span class="tag">NEW</span>
                             <h3>{recipe}</h3>
@@ -204,7 +208,7 @@
             </div>
 
             <div class="register-image">
-                <span>레시피 등록 이미지 영역</span>
+                <img src={noRecipeImg} alt="레시피 등록 이미지 준비중" />
             </div>
         </section>
 
@@ -232,7 +236,7 @@
                 <div class="post-list">
                     {#each posts as post}
                         <a href="/community/example" class="post">
-                            <div class="post-avatar"></div>
+                            <img class="post-avatar" src={baseProfileImg} alt="프로필 이미지" />
                             <div>
                                 <strong>{post}</strong>
                                 <span>작성자 · 2시간 전</span>
@@ -249,145 +253,145 @@
 </div>
 
 <style>
-	.page {
-		min-height: 100vh;
-		background: var(--background);
-		color: var(--text);
-	}
+    .page {
+        min-height: 100vh;
+        background: var(--background);
+        color: var(--text);
+    }
 
-	svg {
-		fill: none;
-		stroke: currentColor;
-		stroke-width: 1.7;
-		stroke-linecap: round;
-		stroke-linejoin: round;
-	}
+    svg {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.7;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
 
-	main {
-		width: 100%;
-		padding-bottom: 80px;
-	}
-
-	main > section:not(.hero) {
-		width: min(1160px, calc(100% - 48px));
-		margin-left: auto;
-		margin-right: auto;
-	}
-
-	.banner-section {
-		margin-top: 25px;
-	}
-
-	.banner {
-		position: relative;
-		height: 160px;
-		display: grid;
-		grid-template-columns: 1.6fr 1fr;
-		overflow: hidden;
-		border: 1px solid var(--border);
-		border-radius: 20px;
-		background: var(--surface-yellow);
-	}
-
-	.banner-image {
-		display: grid;
-		place-items: center;
-		background: var(--surface-subtle);
-		color: var(--text-muted);
-		font-size: 9px;
-	}
-
-	.banner-content {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		padding: 20px 100px 20px 28px;
-	}
-
-	.banner-content h2 {
-		margin: 0 0 4px;
-		font-size: 24px;
-		letter-spacing: -.05em;
-	}
-
-	.banner-content p {
-		margin: 0 0 12px;
-		color: var(--text-subtle);
-		font-size: 10px;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	.banner-button {
-		width: fit-content;
-		padding: 6px 12px;
-		border-radius: 8px;
-		background: var(--accent);
-		color: #fff;
-		font-size: 9px;
-		font-weight: 700;
-	}
-
-	.banner-controls {
-		position: absolute;
-		right: 18px;
-		bottom: 16px;
-		display: flex;
-		gap: 5px;
-	}
-
-	.banner-controls button {
-		width: 30px;
-		height: 30px;
-		display: grid;
-		place-items: center;
-		border: 1px solid var(--border);
-		border-radius: 50%;
-		background: var(--surface);
-		color: var(--text);
-		cursor: pointer;
-	}
-
-	.banner-controls button:hover {
-		background: var(--primary);
-		color: #0f172a;
-	}
-
-	.banner-controls svg {
-		width: 14px;
-		height: 14px;
-	}
-
-	.banner-indicators {
-		position: absolute;
-		right: 18px;
-		top: 16px;
-		display: flex;
-		gap: 5px;
-	}
-
-	.banner-indicators button {
-		width: 16px;
-		height: 4px;
-		padding: 0;
-		border: 0;
-		border-radius: 999px;
-		background: var(--text-muted);
-		opacity: .35;
-		cursor: pointer;
-		transition: width .2s ease, opacity .2s ease;
-	}
-
-	.banner-indicators button.active {
-		width: 26px;
-		background: var(--accent);
-		opacity: 1;
-	}
-
-	.hero-wrapper {
+    main {
         width: 100%;
-		margin-top: 60px;
+        padding-bottom: 80px;
+    }
+
+    main > section:not(.hero) {
+        width: min(1160px, calc(100% - 48px));
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .banner-section {
+        margin-top: 25px;
+    }
+
+    .banner {
+        position: relative;
+        height: 160px;
+        display: grid;
+        grid-template-columns: 1.6fr 1fr;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        background: var(--surface-yellow);
+    }
+
+    .banner-image {
+        display: grid;
+        place-items: center;
+        background: var(--surface-subtle);
+        color: var(--text-muted);
+        font-size: 9px;
+    }
+
+    .banner-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 20px 100px 20px 28px;
+    }
+
+    .banner-content h2 {
+        margin: 0 0 4px;
+        font-size: 24px;
+        letter-spacing: -.05em;
+    }
+
+    .banner-content p {
+        margin: 0 0 12px;
+        color: var(--text-subtle);
+        font-size: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .banner-button {
+        width: fit-content;
+        padding: 6px 12px;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #fff;
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+    .banner-controls {
+        position: absolute;
+        right: 18px;
+        bottom: 16px;
+        display: flex;
+        gap: 5px;
+    }
+
+    .banner-controls button {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--border);
+        border-radius: 50%;
+        background: var(--surface);
+        color: var(--text);
+        cursor: pointer;
+    }
+
+    .banner-controls button:hover {
+        background: var(--primary);
+        color: #0f172a;
+    }
+
+    .banner-controls svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .banner-indicators {
+        position: absolute;
+        right: 18px;
+        top: 16px;
+        display: flex;
+        gap: 5px;
+    }
+
+    .banner-indicators button {
+        width: 16px;
+        height: 4px;
+        padding: 0;
+        border: 0;
+        border-radius: 999px;
+        background: var(--text-muted);
+        opacity: .35;
+        cursor: pointer;
+        transition: width .2s ease, opacity .2s ease;
+    }
+
+    .banner-indicators button.active {
+        width: 26px;
+        background: var(--accent);
+        opacity: 1;
+    }
+
+    .hero-wrapper {
+        width: 100%;
+        margin-top: 60px;
         background-color: var(--surface-yellow);
         overflow: hidden;
     }
@@ -398,7 +402,6 @@
         grid-template-columns: minmax(320px, 1.1fr) 1fr;
         align-items: center;
         min-height: 510px;
-        /* 왼쪽 중앙 정렬 기준을 유지하면서 전체 폭 활용 */
         padding-left: max(24px, calc((100% - 1160px) / 2));
     }
 
@@ -426,7 +429,6 @@
         line-height: 1.8;
     }
 
-    /* 히어로 이미지 꽉 채우기 및 그라데이션 관련 스타일 */
     .hero-image-container {
         position: absolute;
         top: 0;
@@ -444,611 +446,624 @@
         display: block;
     }
 
-	.gradient-overlay {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background: linear-gradient(
-			to right,
-			var(--surface-yellow) 10%,
-			rgb(from var(--surface-yellow) r g b / 0.9) 20%,
-			rgb(from var(--surface-yellow) r g b / 0.7) 30%,
-			rgb(from var(--surface-yellow) r g b / 0.4) 40%,
-			rgba(255, 255, 255, 0) 50%
-		);
-		pointer-events: none;
-	}
-
-	.search-box {
-		max-width: 550px;
-		height: 56px;
-		display: flex;
-		align-items: center;
-		margin-top: 27px;
-		padding: 4px 4px 4px 16px;
-		border: 1px solid var(--border);
-		border-radius: 14px;
-		background: var(--surface);
-		box-shadow: 0 8px 25px var(--shadow-search);
-	}
-
-	.search-box:focus-within {
-		border-color: var(--primary);
-	}
-
-	.search-box svg {
-		width: 19px;
-		height: 19px;
-		margin-right: 9px;
-		color: var(--accent);
-	}
-
-	.search-box input {
-		flex: 1;
-		min-width: 0;
-		border: 0;
-		outline: 0;
-		background: transparent;
-		color: var(--text);
-		font-size: 12px;
-	}
-
-	.search-box input::placeholder {
-		color: var(--text-muted);
-	}
-
-	.search-box button {
-		height: 46px;
-		padding: 0 21px;
-		border: 0;
-		border-radius: 10px;
-		background: var(--primary);
-		color: #0f172a;
-		font-size: 11px;
-		font-weight: 750;
-		cursor: pointer;
-	}
-
-	section:not(.banner-section):not(.hero) {
-		margin-top: 65px;
-	}
-
-	.section-title {
-		display: flex;
-		align-items: end;
-		justify-content: space-between;
-		margin-bottom: 20px;
-	}
-
-	.section-title h2 {
-		margin: 0;
-		font-size: 24px;
-		letter-spacing: -.06em;
-	}
-
-	.section-title > a {
-		color: var(--accent);
-		font-size: 10px;
-		font-weight: 700;
-	}
-
-	.category-grid {
-		display: grid;
-		grid-template-columns: repeat(6, 1fr);
-		gap: 11px;
-	}
-
-	.category {
-		height: 135px;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 13px;
-		border: 1px solid var(--border);
-		border-radius: 16px;
-		background: var(--surface);
-		transition: .18s ease;
-	}
-
-	.category:hover {
-		transform: translateY(-3px);
-		border-color: var(--primary);
-		background: var(--surface-yellow);
-		box-shadow: 0 8px 20px var(--shadow-card);
-	}
-
-	.category-image {
-		width: 58px;
-		height: 58px;
-		display: grid;
-		place-items: center;
-		border-radius: 14px;
-		background: var(--surface-yellow);
-		color: var(--accent);
-		font-size: 8px;
-	}
-
-	.category strong {
-		font-size: 11px;
-	}
-
-	.recipe-grid {
-		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		gap: 14px;
-	}
-
-	.recipe,
-	.recent-recipe {
-		overflow: hidden;
-		border: 1px solid var(--border);
-		border-radius: 17px;
-		background: var(--surface);
-		transition: .18s ease;
-	}
-
-	.recipe:hover,
-	.recent-recipe:hover {
-		transform: translateY(-3px);
-		border-color: var(--primary);
-		box-shadow: 0 12px 25px var(--shadow-card);
-	}
-
-	.recipe-image {
-		position: relative;
-		height: 180px;
-		display: grid;
-		place-items: center;
-		background: var(--surface-yellow);
-		color: var(--accent);
-		font-size: 9px;
-	}
-
-	.bookmark {
-		position: absolute;
-		top: 10px;
-		right: 10px;
-		width: 30px;
-		height: 30px;
-		display: grid;
-		place-items: center;
-		border: 1px solid var(--border);
-		border-radius: 50%;
-		background: var(--surface);
-		color: var(--text);
-		cursor: pointer;
-	}
-
-	.bookmark:hover {
-		background: var(--primary);
-		color: #0f172a;
-	}
-
-	.bookmark svg {
-		width: 15px;
-		height: 15px;
-	}
-
-	.recipe-info,
-	.recent-info {
-		padding: 14px;
-	}
-
-	.tag {
-		color: var(--accent);
-		font-size: 8px;
-		font-weight: 750;
-	}
-
-	.recipe h3,
-	.recent-recipe h3 {
-		margin: 6px 0;
-		font-size: 15px;
-		letter-spacing: -.04em;
-	}
-
-	.recipe p,
-	.recent-recipe p {
-		margin: 0 0 13px;
-		color: var(--text-subtle);
-		font-size: 9px;
-	}
-
-	.recipe-meta {
-		display: flex;
-		justify-content: space-between;
-		padding-top: 10px;
-		border-top: 1px solid var(--border);
-		color: var(--text-subtle);
-		font-size: 8px;
-	}
-
-	.recommend-section {
-		display: grid;
-		grid-template-columns: 1fr 420px;
-		align-items: center;
-		gap: 40px;
-		padding: 42px;
-		border: 1px solid var(--border-green);
-		border-radius: 25px;
-		background: var(--surface-green);
-	}
-
-	.recommend-label {
-		color: var(--accent);
-		font-size: 10px;
-		font-weight: 800;
-	}
-
-	.recommend-copy h2 {
-		margin: 10px 0 12px;
-		font-size: 32px;
-		line-height: 1.25;
-		letter-spacing: -.07em;
-	}
-
-	.recommend-copy p {
-		margin: 0 0 20px;
-		color: var(--text-subtle);
-		font-size: 11px;
-		line-height: 1.7;
-	}
-
-	.primary-button {
-		display: inline-block;
-		padding: 11px 16px;
-		border-radius: 9px;
-		background: var(--accent);
-		color: #fff;
-		font-size: 10px;
-		font-weight: 700;
-	}
-
-	.recommend-image {
-		height: 240px;
-		display: grid;
-		place-items: center;
-		border: 1.5px dashed var(--border-accent);
-		border-radius: 20px;
-		background: var(--surface);
-		color: var(--accent);
-		font-size: 9px;
-	}
-
-	.recent-grid {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 14px;
-	}
-
-	.recent-recipe {
-		display: grid;
-		grid-template-columns: 135px 1fr;
-	}
-
-	.recent-image {
-		min-height: 155px;
-		display: grid;
-		place-items: center;
-		background: var(--surface-yellow);
-		color: var(--accent);
-		font-size: 8px;
-	}
-
-	.recent-info {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-	}
-
-	.recent-author {
-		color: var(--text-muted);
-		font-size: 8px;
-	}
-
-	.register-section {
-		display: grid;
-		grid-template-columns: 1fr 360px;
-		align-items: center;
-		gap: 45px;
-		padding: 38px 42px;
-		border: 1px solid var(--border);
-		border-radius: 24px;
-		background: var(--surface);
-		overflow: hidden;
-	}
-
-	.register-content {
-		padding: 8px 0;
-	}
-
-	.register-label {
-		color: var(--accent);
-		font-size: 10px;
-		font-weight: 800;
-	}
-
-	.register-content h2 {
-		margin: 9px 0 11px;
-		font-size: 29px;
-		line-height: 1.3;
-		letter-spacing: -.065em;
-	}
-
-	.register-content p {
-		margin: 0 0 20px;
-		color: var(--text-subtle);
-		font-size: 10px;
-		line-height: 1.7;
-	}
-
-	.register-button {
-		width: fit-content;
-		display: flex;
-		align-items: center;
-		gap: 7px;
-		padding: 11px 16px;
-		border-radius: 10px;
-		background: var(--primary);
-		color: #0f172a;
-		font-size: 10px;
-		font-weight: 750;
-		transition: .18s ease;
-	}
-
-	.register-button:hover {
-		background: var(--accent);
-		color: #fff;
-		transform: translateY(-1px);
-	}
-
-	.register-button svg {
-		width: 15px;
-		height: 15px;
-	}
-
-	.register-image {
-		height: 190px;
-		display: grid;
-		place-items: center;
-		border: 1.5px dashed var(--border-accent);
-		border-radius: 18px;
-		background: var(--surface-green);
-		color: var(--accent);
-		font-size: 9px;
-	}
-
-	.bottom-grid {
-		display: grid;
-		grid-template-columns: .9fr 1.1fr;
-		gap: 15px;
-	}
-
-	.panel {
-		padding: 25px;
-		border: 1px solid var(--border);
-		border-radius: 19px;
-		background: var(--surface);
-	}
-
-	.wiki-image {
-		height: 180px;
-		display: grid;
-		place-items: center;
-		border-radius: 14px;
-		background: var(--surface-yellow);
-		color: var(--accent);
-		font-size: 9px;
-	}
-
-	.wiki-text h3 {
-		margin: 14px 0 5px;
-		font-size: 15px;
-	}
-
-	.wiki-text p {
-		margin: 0;
-		color: var(--text-subtle);
-		font-size: 9px;
-		line-height: 1.7;
-	}
-
-	.post-list {
-		border-top: 1px solid var(--border);
-	}
-
-	.post {
-		display: grid;
-		grid-template-columns: 32px 1fr 15px;
-		align-items: center;
-		gap: 10px;
-		padding: 13px 0;
-		border-bottom: 1px solid var(--border);
-	}
-
-	.post-avatar {
-		width: 32px;
-		height: 32px;
-		border-radius: 50%;
-		background: var(--surface-yellow);
-	}
-
-	.post strong {
-		display: block;
-		overflow: hidden;
-		font-size: 10px;
-		font-weight: 650;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.post span {
-		display: block;
-		margin-top: 4px;
-		color: var(--text-subtle);
-		font-size: 8px;
-	}
-
-	.post svg {
-		width: 14px;
-		height: 14px;
-		color: var(--accent);
-	}
-
-	@media (max-width: 1000px) {
-		.recommend-section {
-			grid-template-columns: 1fr 320px;
-		}
-
-		.recent-grid {
-			grid-template-columns: 1fr;
-		}
-	}
-
-	@media (max-width: 900px) {
-		.banner {
-			grid-template-columns: 1fr;
-			height: 380px;
-		}
-
-		.banner-image {
-			height: 190px;
-		}
-
-		.banner-content {
-			padding: 20px 30px 45px;
-		}
-
-		.banner-content h2 {
-			margin: 7px 0 4px;
-			font-size: 21px;
-		}
-
-		.banner-content p {
-			margin-bottom: 10px;
-		}
-
-		.banner-indicators {
-			left: 30px;
-			bottom: 18px;
-		}
-
-		.hero {
-			grid-template-columns: 1fr;
-			gap: 30px;
-		}
-
-		.category-grid {
-			grid-template-columns: repeat(3, 1fr);
-		}
-
-		.recipe-grid {
-			grid-template-columns: repeat(2, 1fr);
-		}
-
-		.recommend-section {
-			grid-template-columns: 1fr;
-		}
-
-		.register-section {
-			grid-template-columns: 1fr;
-			gap: 25px;
-		}
-
-		.register-image {
-			height: 180px;
-		}
-
-		.bottom-grid {
-			grid-template-columns: 1fr;
-		}
-	}
-
-	@media (max-width: 600px) {
-		main {
-			width: calc(100% - 24px);
-		}
-
-		.banner {
-			height: 350px;
-		}
-
-		.banner-image {
-			height: 165px;
-		}
-
-		.banner-content {
-			padding: 18px 22px 43px;
-		}
-
-		.banner-controls {
-			right: 14px;
-			bottom: 12px;
-		}
-
-		.banner-indicators {
-			left: 22px;
-			bottom: 18px;
-		}
-
-		.hero {
-			padding: 45px 10px 25px;
-		}
-
-		.hero-content {
-			padding: 0;
-		}
-
-		.hero h1 {
-			font-size: 42px;
-		}
-
-		.search-box {
-			height: 52px;
-		}
-
-		.search-box button {
-			height: 42px;
-			padding: 0 15px;
-		}
-
-		.category-grid {
-			grid-template-columns: repeat(2, 1fr);
-		}
-
-		.recipe-grid {
-			grid-template-columns: 1fr;
-		}
-
-		.recommend-section {
-			padding: 28px 22px;
-		}
-
-		.recommend-image {
-			height: 190px;
-		}
-
-		.recent-recipe {
-			grid-template-columns: 110px 1fr;
-		}
-
-		.recent-image {
-			min-height: 140px;
-		}
-
-		.register-section {
-			padding: 28px 22px;
-		}
-
-		.register-content h2 {
-			font-size: 25px;
-		}
-
-		.register-image {
-			height: 160px;
-		}
-	}
+    .gradient-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            to right,
+            var(--surface-yellow) 10%,
+            rgb(from var(--surface-yellow) r g b / 0.9) 20%,
+            rgb(from var(--surface-yellow) r g b / 0.7) 30%,
+            rgb(from var(--surface-yellow) r g b / 0.4) 40%,
+            rgba(255, 255, 255, 0) 50%
+        );
+        pointer-events: none;
+    }
+
+    .search-box {
+        max-width: 550px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        margin-top: 27px;
+        padding: 4px 4px 4px 16px;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: var(--surface);
+        box-shadow: 0 8px 25px var(--shadow-search);
+    }
+
+    .search-box:focus-within {
+        border-color: var(--primary);
+    }
+
+    .search-box svg {
+        width: 19px;
+        height: 19px;
+        margin-right: 9px;
+        color: var(--accent);
+    }
+
+    .search-box input {
+        flex: 1;
+        min-width: 0;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: var(--text);
+        font-size: 12px;
+    }
+
+    .search-box input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .search-box button {
+        height: 46px;
+        padding: 0 21px;
+        border: 0;
+        border-radius: 10px;
+        background: var(--primary);
+        color: #0f172a;
+        font-size: 11px;
+        font-weight: 750;
+        cursor: pointer;
+    }
+
+    section:not(.banner-section):not(.hero) {
+        margin-top: 65px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .section-title h2 {
+        margin: 0;
+        font-size: 24px;
+        letter-spacing: -.06em;
+    }
+
+    .section-title > a {
+        color: var(--accent);
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 11px;
+    }
+
+    .category {
+        height: 135px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 13px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: var(--surface);
+        transition: .18s ease;
+    }
+
+    .category:hover {
+        transform: translateY(-3px);
+        border-color: var(--primary);
+        background: var(--surface-yellow);
+        box-shadow: 0 8px 20px var(--shadow-card);
+    }
+
+    .category-image {
+        width: 58px;
+        height: 58px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background: var(--surface-yellow);
+        color: var(--accent);
+        font-size: 8px;
+    }
+
+    .category strong {
+        font-size: 11px;
+    }
+
+    .recipe-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+    }
+
+    .recipe,
+    .recent-recipe {
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: 17px;
+        background: var(--surface);
+        transition: .18s ease;
+    }
+
+    .recipe:hover,
+    .recent-recipe:hover {
+        transform: translateY(-3px);
+        border-color: var(--primary);
+        box-shadow: 0 12px 25px var(--shadow-card);
+    }
+
+    .recipe-image {
+        position: relative;
+        height: 180px;
+        background: var(--surface-yellow);
+        overflow: hidden;
+    }
+
+    .recipe-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .bookmark {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--border);
+        border-radius: 50%;
+        background: var(--surface);
+        color: var(--text);
+        cursor: pointer;
+    }
+
+    .bookmark:hover {
+        background: var(--primary);
+        color: #0f172a;
+    }
+
+    .bookmark svg {
+        width: 15px;
+        height: 15px;
+    }
+
+    .recipe-info,
+    .recent-info {
+        padding: 14px;
+    }
+
+    .tag {
+        color: var(--accent);
+        font-size: 8px;
+        font-weight: 750;
+    }
+
+    .recipe h3,
+    .recent-recipe h3 {
+        margin: 6px 0;
+        font-size: 15px;
+        letter-spacing: -.04em;
+    }
+
+    .recipe p,
+    .recent-recipe p {
+        margin: 0 0 13px;
+        color: var(--text-subtle);
+        font-size: 9px;
+    }
+
+    .recipe-meta {
+        display: flex;
+        justify-content: space-between;
+        padding-top: 10px;
+        border-top: 1px solid var(--border);
+        color: var(--text-subtle);
+        font-size: 8px;
+    }
+
+    .recommend-section {
+        display: grid;
+        grid-template-columns: 1fr 420px;
+        align-items: center;
+        gap: 40px;
+        padding: 42px;
+        border: 1px solid var(--border-green);
+        border-radius: 25px;
+        background: var(--surface-green);
+    }
+
+    .recommend-label {
+        color: var(--accent);
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .recommend-copy h2 {
+        margin: 10px 0 12px;
+        font-size: 32px;
+        line-height: 1.25;
+        letter-spacing: -.07em;
+    }
+
+    .recommend-copy p {
+        margin: 0 0 20px;
+        color: var(--text-subtle);
+        font-size: 11px;
+        line-height: 1.7;
+    }
+
+    .primary-button {
+        display: inline-block;
+        padding: 11px 16px;
+        border-radius: 9px;
+        background: var(--accent);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .recommend-image {
+        height: 240px;
+        border: 1.5px dashed var(--border-accent);
+        border-radius: 20px;
+        background: var(--surface);
+        overflow: hidden;
+    }
+
+    .recommend-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .recent-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+    }
+
+    .recent-recipe {
+        display: grid;
+        grid-template-columns: 135px 1fr;
+    }
+
+    .recent-image {
+        min-height: 155px;
+        height: 100%;
+        background: var(--surface-yellow);
+        overflow: hidden;
+    }
+
+    .recent-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .recent-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .recent-author {
+        color: var(--text-muted);
+        font-size: 8px;
+    }
+
+    .register-section {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        align-items: center;
+        gap: 45px;
+        padding: 38px 42px;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        background: var(--surface);
+        overflow: hidden;
+    }
+
+    .register-content {
+        padding: 8px 0;
+    }
+
+    .register-label {
+        color: var(--accent);
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .register-content h2 {
+        margin: 9px 0 11px;
+        font-size: 29px;
+        line-height: 1.3;
+        letter-spacing: -.065em;
+    }
+
+    .register-content p {
+        margin: 0 0 20px;
+        color: var(--text-subtle);
+        font-size: 10px;
+        line-height: 1.7;
+    }
+
+    .register-button {
+        width: fit-content;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 11px 16px;
+        border-radius: 10px;
+        background: var(--primary);
+        color: #0f172a;
+        font-size: 10px;
+        font-weight: 750;
+        transition: .18s ease;
+    }
+
+    .register-button:hover {
+        background: var(--accent);
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    .register-button svg {
+        width: 15px;
+        height: 15px;
+    }
+
+    .register-image {
+        height: 190px;
+        border: 1.5px dashed var(--border-accent);
+        border-radius: 18px;
+        background: var(--surface-green);
+        overflow: hidden;
+    }
+
+    .register-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .bottom-grid {
+        display: grid;
+        grid-template-columns: .9fr 1.1fr;
+        gap: 15px;
+    }
+
+    .panel {
+        padding: 25px;
+        border: 1px solid var(--border);
+        border-radius: 19px;
+        background: var(--surface);
+    }
+
+    .wiki-image {
+        height: 180px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background: var(--surface-yellow);
+        color: var(--accent);
+        font-size: 9px;
+    }
+
+    .wiki-text h3 {
+        margin: 14px 0 5px;
+        font-size: 15px;
+    }
+
+    .wiki-text p {
+        margin: 0;
+        color: var(--text-subtle);
+        font-size: 9px;
+        line-height: 1.7;
+    }
+
+    .post-list {
+        border-top: 1px solid var(--border);
+    }
+
+    .post {
+        display: grid;
+        grid-template-columns: 32px 1fr 15px;
+        align-items: center;
+        gap: 10px;
+        padding: 13px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .post-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .post strong {
+        display: block;
+        overflow: hidden;
+        font-size: 10px;
+        font-weight: 650;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .post span {
+        display: block;
+        margin-top: 4px;
+        color: var(--text-subtle);
+        font-size: 8px;
+    }
+
+    .post svg {
+        width: 14px;
+        height: 14px;
+        color: var(--accent);
+    }
+
+    @media (max-width: 1000px) {
+        .recommend-section {
+            grid-template-columns: 1fr 320px;
+        }
+
+        .recent-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .banner {
+            grid-template-columns: 1fr;
+            height: 380px;
+        }
+
+        .banner-image {
+            height: 190px;
+        }
+
+        .banner-content {
+            padding: 20px 30px 45px;
+        }
+
+        .banner-content h2 {
+            margin: 7px 0 4px;
+            font-size: 21px;
+        }
+
+        .banner-content p {
+            margin-bottom: 10px;
+        }
+
+        .banner-indicators {
+            left: 30px;
+            bottom: 18px;
+        }
+
+        .hero {
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        .category-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .recipe-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .recommend-section {
+            grid-template-columns: 1fr;
+        }
+
+        .register-section {
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        .register-image {
+            height: 180px;
+        }
+
+        .bottom-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 600px) {
+        main {
+            width: calc(100% - 24px);
+        }
+
+        .banner {
+            height: 350px;
+        }
+
+        .banner-image {
+            height: 165px;
+        }
+
+        .banner-content {
+            padding: 18px 22px 43px;
+        }
+
+        .banner-controls {
+            right: 14px;
+            bottom: 12px;
+        }
+
+        .banner-indicators {
+            left: 22px;
+            bottom: 18px;
+        }
+
+        .hero {
+            padding: 45px 10px 25px;
+        }
+
+        .hero-content {
+            padding: 0;
+        }
+
+        .hero h1 {
+            font-size: 42px;
+        }
+
+        .search-box {
+            height: 52px;
+        }
+
+        .search-box button {
+            height: 42px;
+            padding: 0 15px;
+        }
+
+        .category-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .recipe-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .recommend-section {
+            padding: 28px 22px;
+        }
+
+        .recommend-image {
+            height: 190px;
+        }
+
+        .recent-recipe {
+            grid-template-columns: 110px 1fr;
+        }
+
+        .recent-image {
+            min-height: 140px;
+        }
+
+        .register-section {
+            padding: 28px 22px;
+        }
+
+        .register-content h2 {
+            font-size: 25px;
+        }
+
+        .register-image {
+            height: 160px;
+        }
+    }
 </style>
