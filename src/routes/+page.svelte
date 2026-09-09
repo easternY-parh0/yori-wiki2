@@ -422,7 +422,7 @@
     .hero p {
         margin: 0;
         color: var(--text-subtle);
-        font-size: 13px;
+        font-size: 14px;
         line-height: 1.8;
     }
 
