@@ -1,3 +1,4 @@
+import { appPath } from '$lib/app-path';
 import type { Recipe } from './exploration';
 export type SearchResults = {
   items: (Recipe & { matchingFields: string[] })[];
@@ -11,7 +12,7 @@ export async function loadSearch(fetcher: typeof fetch, url: URL): Promise<{ res
     if (value !== null) params.set(key, value);
   }
   try {
-    const response = await fetcher(`/api/search?${params}`);
+    const response = await fetcher(appPath(`/api/search?${params}`));
     if (!response.ok) throw new Error(await response.text());
     return { result: await response.json(), error: '' };
   } catch (error) { return { result: null, error: error instanceof Error ? error.message : '검색 결과를 불러오지 못했습니다.' }; }

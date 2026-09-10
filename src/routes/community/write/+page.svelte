@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
 	type Category = '요리 이야기' | '레시피 질문' | '요리 팁' | '자유 이야기';
 
 	const categories: Category[] = ['요리 이야기', '레시피 질문', '요리 팁', '자유 이야기'];
@@ -100,12 +101,12 @@
 	<div class="board">
 		<div class="board-top">
 			<div class="board-title">
-				<a href="/community">요리위키 커뮤니티</a>
+				<a href={appPath('/community')}>요리위키 커뮤니티</a>
 				<span>›</span>
 				<strong>글쓰기</strong>
 			</div>
 
-			<a href="/community" class="back-link">목록으로</a>
+			<a href={appPath('/community')} class="back-link">목록으로</a>
 		</div>
 
 		<div class="write-wrap">
@@ -256,7 +257,7 @@
 				{/if}
 
 				<div class="form-bottom">
-					<a href="/community" class="cancel">취소</a>
+					<a href={appPath('/community')} class="cancel">취소</a>
 
 					<div class="right">
 						<button type="button" class="draft" onclick={saveDraft}>

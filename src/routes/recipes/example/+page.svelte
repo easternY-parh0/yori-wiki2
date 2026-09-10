@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
 	import { onMount } from 'svelte';
 
 	let liked = $state(false);
@@ -22,7 +23,7 @@
 <div class="page">
 	<main>
 		<div class="breadcrumb">
-			<a href="/recipes">레시피</a>
+			<a href={appPath('/recipes')}>레시피</a>
 			<svg viewBox="0 0 24 24">
 				<path d="M9 18l6-6-6-6" />
 			</svg>
@@ -291,7 +292,7 @@
 
 						<div>
 							<span>로그인 후 댓글을 작성할 수 있습니다.</span>
-							<a href="/login">로그인</a>
+							<a href={appPath('/login')}>로그인</a>
 						</div>
 					</div>
 
@@ -354,7 +355,7 @@
 					</div>
 				</div>
 
-				<a href="/recipes/new" class="sidebar-register">
+				<a href={appPath('/recipes/new')} class="sidebar-register">
 					<svg viewBox="0 0 24 24">
 						<path d="M12 5v14" />
 						<path d="M5 12h14" />

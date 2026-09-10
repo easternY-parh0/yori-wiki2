@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
 	let title = $state('');
 	let description = $state('');
 	let category = $state('');
@@ -43,11 +44,11 @@
 <div class="page">
 	<main>
 		<div class="breadcrumb">
-			<a href="/">홈</a>
+			<a href={appPath('/')}>홈</a>
 			<svg viewBox="0 0 24 24">
 				<path d="M9 5l7 7-7 7" />
 			</svg>
-			<a href="/recipes">레시피</a>
+			<a href={appPath('/recipes')}>레시피</a>
 			<svg viewBox="0 0 24 24">
 				<path d="M9 5l7 7-7 7" />
 			</svg>
@@ -279,7 +280,7 @@
 			</section>
 
 			<div class="form-actions">
-				<a href="/recipes" class="cancel-button">취소</a>
+				<a href={appPath('/recipes')} class="cancel-button">취소</a>
 
 				<div>
 					<button class="draft-button" type="button" onclick={saveDraft}>

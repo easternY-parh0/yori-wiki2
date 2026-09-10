@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
 	let liked = $state(false);
 	let comment = $state('');
 
@@ -49,7 +50,7 @@
 
 <main class="page">
 	<div class="breadcrumb">
-		<a href="/community">커뮤니티</a>
+		<a href={appPath('/community')}>커뮤니티</a>
 		<svg viewBox="0 0 24 24" aria-hidden="true">
 			<path d="m9 5 7 7-7 7" />
 		</svg>
@@ -239,7 +240,7 @@
 	</section>
 
 	<div class="back-link">
-		<a href="/community">
+		<a href={appPath('/community')}>
 			<svg viewBox="0 0 24 24" aria-hidden="true">
 				<path d="m15 5-7 7 7 7" />
 			</svg>

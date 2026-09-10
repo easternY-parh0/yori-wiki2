@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/state';
 	import { authPost } from '$lib/auth';
@@ -18,7 +19,7 @@
 		try {
 			await authPost('login', { email, password, rememberMe });
 			await invalidateAll();
-			await goto('/');
+			await goto(appPath('/'));
 		} catch (error) { message = error instanceof Error ? error.message : '로그인에 실패했습니다.'; }
 		finally { pending = false; }
 	}
@@ -95,7 +96,7 @@
 					<div class="field">
 						<div class="field-label">
 							<label for="password">비밀번호</label>
-							<a href="/password/reset">비밀번호 찾기</a>
+							<a href={appPath('/password/reset')}>비밀번호 찾기</a>
 						</div>
 
 						<div class="input-wrap">
@@ -159,7 +160,7 @@
 
 				<div class="signup">
 					<span>아직 계정이 없나요?</span>
-					<a href="/signup">회원가입</a>
+					<a href={appPath('/signup')}>회원가입</a>
 				</div>
 
 				<p class="notice">

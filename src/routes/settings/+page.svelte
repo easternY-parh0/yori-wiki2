@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
 	let notifications = $state(true);
 	let recipeUpdates = $state(true);
 	let communityUpdates = $state(false);
@@ -97,7 +98,7 @@
 							<label>비밀번호</label>
 							<span>정기적으로 비밀번호를 변경하는 것을 권장합니다.</span>
 						</div>
-						<a href="/profile/password" class="outline-button">비밀번호 변경</a>
+						<a href={appPath('/profile/password')} class="outline-button">비밀번호 변경</a>
 					</div>
 				</div>
 
@@ -199,7 +200,7 @@
 				</div>
 
 				<div class="link-list">
-					<a href="/terms">
+					<a href={appPath('/terms')}>
 						<div>
 							<strong>이용약관</strong>
 							<span>요리위키 서비스 이용약관을 확인합니다.</span>
@@ -207,7 +208,7 @@
 						<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
 					</a>
 
-					<a href="/privacy">
+					<a href={appPath('/privacy')}>
 						<div>
 							<strong>개인정보처리방침</strong>
 							<span>개인정보 처리 및 보호에 관한 내용을 확인합니다.</span>
@@ -215,7 +216,7 @@
 						<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
 					</a>
 
-					<a href="/faq">
+					<a href={appPath('/faq')}>
 						<div>
 							<strong>자주 묻는 질문</strong>
 							<span>서비스 이용에 궁금한 점이 있다면 확인해보세요.</span>

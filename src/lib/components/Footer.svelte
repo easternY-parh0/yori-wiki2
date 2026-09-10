@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
 	const footerLinks = [
-		{ label: '공지사항', href: '/notice' },
-		{ label: 'FAQ', href: '/faq' },
-		{ label: '이용약관', href: '/terms' },
-		{ label: '개인정보처리방침', href: '/privacy' },
-		{ label: '문의하기', href: '/contact' }
+		{ label: '공지사항', href: appPath('/notice') },
+		{ label: 'FAQ', href: appPath('/faq') },
+		{ label: '이용약관', href: appPath('/terms') },
+		{ label: '개인정보처리방침', href: appPath('/privacy') },
+		{ label: '문의하기', href: appPath('/contact') }
 	];
 </script>
 

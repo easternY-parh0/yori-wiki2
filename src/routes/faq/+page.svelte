@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
 	type Category = '전체' | '서비스' | '레시피' | '커뮤니티' | '계정';
 
 	type FAQ = {
@@ -178,7 +179,7 @@
 			<strong>궁금한 내용을 커뮤니티에서 질문해보세요.</strong>
 		</div>
 
-		<a href="/community">커뮤니티 가기</a>
+		<a href={appPath('/community')}>커뮤니티 가기</a>
 	</section>
 </main>
 

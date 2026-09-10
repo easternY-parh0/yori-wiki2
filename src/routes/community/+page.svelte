@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
 	import { onMount } from 'svelte';
 
 	let searchKeyword = $state('');
@@ -114,7 +115,7 @@
 				<p>요리에 대한 이야기를 나누고 다른 사람들의 경험을 만나보세요.</p>
 			</div>
 
-			<a href="/community/write" class="write-button">
+			<a href={appPath('/community/write')} class="write-button">
 				<svg viewBox="0 0 24 24">
 					<path d="M12 5v14" />
 					<path d="M5 12h14" />
@@ -162,7 +163,7 @@
 
 			<div class="popular-grid">
 				{#each popularPosts as post, index}
-					<a href="/community/example" class="popular-card">
+					<a href={appPath('/community/example')} class="popular-card">
 						<div class="popular-number">{String(index + 1).padStart(2, '0')}</div>
 
 						<div class="popular-content">
@@ -228,7 +229,7 @@
 				</div>
 
 				{#each posts as post}
-					<a href="/community/example" class="post-row">
+					<a href={appPath('/community/example')} class="post-row">
 						<span class="post-category">{post.category}</span>
 
 						<div class="post-title">
@@ -294,7 +295,7 @@
 				<p>커뮤니티에 글을 작성해 다른 요리사들과 이야기를 나눠보세요.</p>
 			</div>
 
-			<a href="/community/write" class="cta-button">
+			<a href={appPath('/community/write')} class="cta-button">
 				글 작성하기
 				<svg viewBox="0 0 24 24">
 					<path d="M5 12h14" />

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
     import { onMount } from 'svelte';
     import heroImg from '$lib/assets/image/hero.jpg';
     import noRecipeImg from '$lib/assets/image/no-image.png';
@@ -65,7 +66,7 @@
                 <div class="banner-content">
                     <h2>{banners[currentBanner].title}</h2>
                     <p>{banners[currentBanner].description}</p>
-                    <a href="/recipes" class="banner-button">자세히 보기</a>
+                    <a href={appPath('/recipes')} class="banner-button">자세히 보기</a>
                 </div>
 
                 <div class="banner-controls">
@@ -95,7 +96,7 @@
                     <h1>오늘은 무엇을<br /><span>만들어 볼까요?</span></h1>
                     <p>요리와 식재료에 대한 정보를 찾아보고<br />나만의 레시피를 공유해보세요.</p>
 
-                    <form class="search-box" action="/search" method="GET">
+                    <form class="search-box" action={appPath('/search')} method="GET">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                             <circle cx="10.5" cy="10.5" r="6" />
                             <path d="M15 15l5 5" />
@@ -115,12 +116,12 @@
         <section>
             <div class="section-title">
                 <h2>카테고리</h2>
-                <a href="/categories">전체보기</a>
+                <a href={appPath('/categories')}>전체보기</a>
             </div>
 
             <div class="category-grid">
                 {#each categories as category}
-                    <a href="/categories" class="category">
+                    <a href={appPath('/categories')} class="category">
                         <div class="category-image"><span>이미지</span></div>
                         <strong>{category}</strong>
                     </a>
@@ -131,12 +132,12 @@
         <section>
             <div class="section-title">
                 <h2>인기 레시피</h2>
-                <a href="/recipes">전체보기</a>
+                <a href={appPath('/recipes')}>전체보기</a>
             </div>
 
             <div class="recipe-grid">
                 {#each popularRecipes as recipe}
-                    <a href="/recipes/example" class="recipe">
+                    <a href={appPath('/recipes/example')} class="recipe">
                         <div class="recipe-image">
                             <img src={noRecipeImg} alt="레시피 이미지 준비중" />
                             <button class="bookmark" type="button" aria-label="즐겨찾기" onclick={(event) => event.preventDefault()}>
@@ -162,7 +163,7 @@
                 <span class="recommend-label">오늘의 추천</span>
                 <h2>오늘은 이런 요리<br />어떠세요?</h2>
                 <p>현재 인기 있는 레시피를 바탕으로<br />오늘 만들어보기 좋은 요리를 추천합니다.</p>
-                <a href="/recipes/recommended" class="primary-button">추천 레시피 보기</a>
+                <a href={appPath('/recipes/recommended')} class="primary-button">추천 레시피 보기</a>
             </div>
 
             <div class="recommend-image">
@@ -173,12 +174,12 @@
         <section>
             <div class="section-title">
                 <h2>최근 등록된 레시피</h2>
-                <a href="/recipes?sort=recent">전체보기</a>
+                <a href={appPath('/recipes?sort=recent')}>전체보기</a>
             </div>
 
             <div class="recent-grid">
                 {#each recentRecipes as recipe, index}
-                    <a href="/recipes/example" class="recent-recipe">
+                    <a href={appPath('/recipes/example')} class="recent-recipe">
                         <div class="recent-image">
                             <img src={noRecipeImg} alt="최근 레시피 이미지 준비중" />
                         </div>
@@ -198,7 +199,7 @@
                 <span class="register-label">레시피 공유</span>
                 <h2>나만 알고 있는<br />레시피를 공유해보세요.</h2>
                 <p>직접 만든 요리의 레시피를 등록하고<br />다른 사람들과 함께 맛있는 요리를 만들어보세요.</p>
-                <a href="/recipes/new" class="register-button">
+                <a href={appPath('/recipes/new')} class="register-button">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M12 5v14" />
                         <path d="M5 12h14" />
@@ -216,7 +217,7 @@
             <div class="panel">
                 <div class="section-title">
                     <h2>식재료 위키</h2>
-                    <a href="/ingredients">전체보기</a>
+                    <a href={appPath('/ingredients')}>전체보기</a>
                 </div>
 
                 <div class="wiki-image"><span>이미지 영역</span></div>
@@ -230,12 +231,12 @@
             <div class="panel">
                 <div class="section-title">
                     <h2>커뮤니티</h2>
-                    <a href="/community">전체보기</a>
+                    <a href={appPath('/community')}>전체보기</a>
                 </div>
 
                 <div class="post-list">
                     {#each posts as post}
-                        <a href="/community/example" class="post">
+                        <a href={appPath('/community/example')} class="post">
                             <img class="post-avatar" src={baseProfileImg} alt="프로필 이미지" />
                             <div>
                                 <strong>{post}</strong>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
 	import { page } from '$app/state';
 	import { invalidateAll, goto } from '$app/navigation';
 	import { authPost } from '$lib/auth';
@@ -6,7 +7,7 @@
 	let authError = $state('');
 	async function logout() {
 		logoutPending = true;
-		try { await authPost('logout', {}); await invalidateAll(); closeMenu(); await goto('/login'); }
+		try { await authPost('logout', {}); await invalidateAll(); closeMenu(); await goto(appPath('/login')); }
 		catch (error) { authError = error instanceof Error ? error.message : '로그아웃에 실패했습니다.'; }
 		finally { logoutPending = false; }
 	}
@@ -35,7 +36,7 @@
 
 <aside class:visible={menuOpen} class="navigation">
 	<div class="navigation-header">
-		<a href="/" class="navigation-logo" onclick={closeMenu}>
+		<a href={appPath('/')} class="navigation-logo" onclick={closeMenu}>
 			<div class="brand-mark">
 				<svg viewBox="0 0 24 24">
 					<path d="M7 10V5M10 10V5M13 10V5M5 10h10M8 10v9M18 19V5M18 5c-2 2-2 5 0 7" />
@@ -51,7 +52,7 @@
 		</button>
 	</div>
 
-	<a href="/profile" class="profile-card" onclick={closeMenu}>
+	<a href={appPath('/profile')} class="profile-card" onclick={closeMenu}>
 		<div class="profile-icon">
 			<svg viewBox="0 0 24 24">
 				<circle cx="12" cy="8" r="3" />
@@ -70,36 +71,36 @@
 	</a>
 
 	<nav>
-		<a href="/search" onclick={closeMenu}>요리 탐색</a>
-		<a href="/" onclick={closeMenu}>
+		<a href={appPath('/search')} onclick={closeMenu}>요리 탐색</a>
+		<a href={appPath('/')} onclick={closeMenu}>
 			<svg viewBox="0 0 24 24">
 				<path d="M3 11.5L12 4l9 7.5M5.5 10v9h13v-9" />
 			</svg>
 			홈
 		</a>
 
-		<a href="/recipes" onclick={closeMenu}>
+		<a href={appPath('/recipes')} onclick={closeMenu}>
 			<svg viewBox="0 0 24 24">
 				<path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5" />
 			</svg>
 			레시피
 		</a>
 
-		<a href="/ingredients" onclick={closeMenu}>
+		<a href={appPath('/ingredients')} onclick={closeMenu}>
 			<svg viewBox="0 0 24 24">
 				<path d="M12 20c5-2 7-6 7-11-5 0-9 2-11 6M12 20C7 19 5 15 5 10c5 0 8 2 10 5" />
 			</svg>
 			식재료 위키
 		</a>
 
-		<a href="/community" onclick={closeMenu}>
+		<a href={appPath('/community')} onclick={closeMenu}>
 			<svg viewBox="0 0 24 24">
 				<path d="M4 5h16v12H8l-4 3zM8 9h8M8 12h5" />
 			</svg>
 			커뮤니티
 		</a>
 
-		<a href="/profile" onclick={closeMenu}>
+		<a href={appPath('/profile')} onclick={closeMenu}>
 			<svg viewBox="0 0 24 24">
 				<circle cx="12" cy="8" r="3" />
 				<path d="M5 20c.8-4 3.2-6 7-6s6.2 2 7 6" />
@@ -109,9 +110,9 @@
 	</nav>
 
 	<div class="navigation-bottom">
-		<a href="/notice" onclick={closeMenu}>공지사항</a>
-		<a href="/faq" onclick={closeMenu}>FAQ</a>
-		<a href="/settings" onclick={closeMenu}>설정</a>
+		<a href={appPath('/notice')} onclick={closeMenu}>공지사항</a>
+		<a href={appPath('/faq')} onclick={closeMenu}>FAQ</a>
+		<a href={appPath('/settings')} onclick={closeMenu}>설정</a>
 	</div>
 </aside>
 
@@ -123,7 +124,7 @@
 			<span></span>
 		</button>
 
-		<a href="/" class="header-logo">
+		<a href={appPath('/')} class="header-logo">
 			<div class="brand-mark">
 				<svg viewBox="0 0 24 24">
 					<path d="M7 10V5M10 10V5M13 10V5M5 10h10M8 10v9M18 19V5M18 5c-2 2-2 5 0 7" />
@@ -147,12 +148,12 @@
             {/if}
         </button>
 
-		<a href="/search" class="login-button">탐색</a>
+		<a href={appPath('/search')} class="login-button">탐색</a>
 
 		{#if page.data.user}
 		<span>{page.data.user.nickname}님</span>
 		<button type="button" class="login-button" onclick={logout} disabled={logoutPending}>로그아웃</button>
-		{:else}<a href="/login" class="login-button">로그인</a>{/if}
+		{:else}<a href={appPath('/login')} class="login-button">로그인</a>{/if}
 		{#if authError}<span role="alert">{authError}</span>{/if}
 	</div>
 </header>

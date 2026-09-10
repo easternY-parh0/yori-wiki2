@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
 	const effectiveDate = '2026-09-01';
 
 	function getDaysSince(dateString: string) {
@@ -27,7 +28,7 @@
 
 			<!-- Breadcrumb -->
 			<div class="breadcrumb">
-				<a href="/">요리위키</a>
+				<a href={appPath('/')}>요리위키</a>
 				<span>›</span>
 				<span>서비스 이용약관</span>
 			</div>
