@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
 	import { goto } from '$app/navigation';
 	import { authPost } from '$lib/auth';
 	let pending = $state(false);
@@ -36,7 +37,7 @@
 		pending = true;
 		try {
 			await authPost('signup', { email, nickname, password, passwordConfirm, agreeTerms, agreePrivacy });
-			await goto('/login?registered=1');
+			await goto(appPath('/login?registered=1'));
 		} catch (error) { message = error instanceof Error ? error.message : '회원가입에 실패했습니다.'; }
 		finally { pending = false; }
 	}
@@ -185,14 +186,14 @@
 							<input type="checkbox" bind:checked={agreeTerms} required />
 							<span class="checkmark"></span>
 							<span>서비스 이용약관 동의 <b>(필수)</b></span>
-							<a href="/terms" target="_blank" rel="noopener">보기</a>
+							<a href={appPath('/terms')} target="_blank" rel="noopener">보기</a>
 						</label>
 
 						<label class="agreement">
 							<input type="checkbox" bind:checked={agreePrivacy} required />
 							<span class="checkmark"></span>
 							<span>개인정보 처리방침 동의 <b>(필수)</b></span>
-							<a href="/privacy" target="_blank" rel="noopener">보기</a>
+							<a href={appPath('/privacy')} target="_blank" rel="noopener">보기</a>
 						</label>
 					</div>
 
@@ -208,7 +209,7 @@
 
 				<div class="login-link">
 					이미 계정이 있으신가요?
-					<a href="/login">로그인하기</a>
+					<a href={appPath('/login')}>로그인하기</a>
 				</div>
 			</div>
 		</section>

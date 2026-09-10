@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
   import type { PageData } from './$types';
   let { data }: { data: PageData } = $props();
 </script>
@@ -8,7 +9,7 @@
 </svelte:head>
 
 <main>
-  <a href="/recipes">← 레시피 목록</a>
+  <a href={appPath('/recipes')}>← 레시피 목록</a>
   <h1>{data.food.name}</h1>
   <p>조리 시간: {data.food.estimated_time}</p>
   <h2>재료</h2>

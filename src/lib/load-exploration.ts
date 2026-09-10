@@ -1,3 +1,4 @@
+import { appPath } from '$lib/app-path';
 import type { Recipe } from './exploration';
 
 export async function loadExploration(fetcher: typeof fetch, signedIn: boolean) {
@@ -9,7 +10,7 @@ export async function loadExploration(fetcher: typeof fetch, signedIn: boolean) 
   await Promise.all([
     (async () => {
       try {
-        const response = await fetcher('/api/explore');
+        const response = await fetcher(appPath('/api/explore'));
         if (!response.ok) throw new Error(await response.text());
         const data = await response.json();
         recipes = data.recipes;
@@ -19,7 +20,7 @@ export async function loadExploration(fetcher: typeof fetch, signedIn: boolean) 
     (async () => {
       if (!signedIn) return;
       try {
-        const response = await fetcher('/api/auth/cooked');
+        const response = await fetcher(appPath('/api/auth/cooked'));
         if (!response.ok) throw new Error(await response.text());
         cooked = (await response.json()).ids;
       } catch (error) { cookedError = error instanceof Error ? error.message : '경험 기록을 불러오지 못했습니다.'; }

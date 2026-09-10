@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
   import { onMount } from 'svelte';
   import { invalidate } from '$app/navigation';
   import { page } from '$app/state';
@@ -59,7 +60,7 @@
     pending = true;
     error = '';
     try {
-      const response = await fetch('/api/auth/cooked', {
+      const response = await fetch(appPath('/api/auth/cooked'), {
         method: 'PUT',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ recipeId: id, cooked: !data.cooked.includes(id) })
@@ -87,7 +88,7 @@
       </h1>
       <p>해본 요리를 연결하고, 익숙한 범위에서 한 걸음 더 나아가 보세요.</p>
     </div>
-    <a class="pill" href={view === 'profile' ? '/search' : '/profile'}>
+    <a class="pill" href={appPath(view === 'profile' ? '/search' : '/profile')}>
       {view === 'profile' ? '새로운 요리 탐색 ↗' : '마이페이지 ↗'}
     </a>
   </div>
@@ -100,7 +101,7 @@
 
   {#if !page.data.user}
     <div class="notice">
-      <a href="/login">로그인</a>하면 해본 요리를 기록하고 나만의 추천을 받을 수 있습니다.
+      <a href={appPath('/login')}>로그인</a>하면 해본 요리를 기록하고 나만의 추천을 받을 수 있습니다.
     </div>
   {/if}
 
@@ -286,7 +287,7 @@
         {/each}
       </div>
       <div class="detail-actions">
-        <a class="pill" href={`/recipes/${focused.id}`}>레시피 자세히 보기 ↗</a>
+        <a class="pill" href={appPath(`/recipes/${focused.id}`)}>레시피 자세히 보기 ↗</a>
         <button
           class="primary"
           disabled={!page.data.user || pending || Boolean(data.cookedError)}
@@ -336,7 +337,7 @@
                   : '구조화 데이터 대기'}
               </small>
             </button>
-            <a href={`/recipes/${dish.id}`} aria-label={`${dish.name} 레시피 보기`}>
+            <a href={appPath(`/recipes/${dish.id}`)} aria-label={`${dish.name} 레시피 보기`}>
               ↗
             </a>
           </div>

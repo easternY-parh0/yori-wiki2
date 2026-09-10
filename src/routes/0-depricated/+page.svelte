@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
 	let menuOpen = $state(false);
 
 	const categories = [
@@ -98,7 +99,7 @@
 				<span></span>
 			</button>
 
-			<a href="/" class="logo" onclick={closeMenu}>
+			<a href={appPath('/')} class="logo" onclick={closeMenu}>
 				<span class="logo-mark">🍳</span>
 				<span>요리위키</span>
 			</a>
@@ -112,7 +113,7 @@
 				</svg>
 			</button>
 
-			<a href="/login" class="login-button">
+			<a href={appPath('/login')} class="login-button">
 				로그인
 			</a>
 		</div>
@@ -146,56 +147,56 @@
 		</div>
 
 		<nav class="menu-nav">
-			<a href="/" class="menu-link active" onclick={closeMenu}>
+			<a href={appPath('/')} class="menu-link active" onclick={closeMenu}>
 				<span class="menu-icon">🏠</span>
 				<span>홈</span>
 			</a>
 
-			<a href="/recipes" class="menu-link" onclick={closeMenu}>
+			<a href={appPath('/recipes')} class="menu-link" onclick={closeMenu}>
 				<span class="menu-icon">🍳</span>
 				<span>레시피</span>
 			</a>
 
-			<a href="/ingredients" class="menu-link" onclick={closeMenu}>
+			<a href={appPath('/ingredients')} class="menu-link" onclick={closeMenu}>
 				<span class="menu-icon">🥬</span>
 				<span>식재료 위키</span>
 			</a>
 
-			<a href="/refrigerator" class="menu-link" onclick={closeMenu}>
+			<a href={appPath('/refrigerator')} class="menu-link" onclick={closeMenu}>
 				<span class="menu-icon">🧊</span>
 				<span>냉장고 추천</span>
 			</a>
 
-			<a href="/community" class="menu-link" onclick={closeMenu}>
+			<a href={appPath('/community')} class="menu-link" onclick={closeMenu}>
 				<span class="menu-icon">💬</span>
 				<span>커뮤니티</span>
 			</a>
 
-			<a href="/profile" class="menu-link" onclick={closeMenu}>
+			<a href={appPath('/profile')} class="menu-link" onclick={closeMenu}>
 				<span class="menu-icon">👤</span>
 				<span>마이페이지</span>
 			</a>
 
 			<div class="menu-divider"></div>
 
-			<a href="/recipes/new" class="menu-link secondary" onclick={closeMenu}>
+			<a href={appPath('/recipes/new')} class="menu-link secondary" onclick={closeMenu}>
 				<span class="menu-icon">✏️</span>
 				<span>레시피 등록</span>
 			</a>
 
-			<a href="/notice" class="menu-link secondary" onclick={closeMenu}>
+			<a href={appPath('/notice')} class="menu-link secondary" onclick={closeMenu}>
 				<span class="menu-icon">📢</span>
 				<span>공지사항</span>
 			</a>
 
-			<a href="/faq" class="menu-link secondary" onclick={closeMenu}>
+			<a href={appPath('/faq')} class="menu-link secondary" onclick={closeMenu}>
 				<span class="menu-icon">❓</span>
 				<span>도움말</span>
 			</a>
 		</nav>
 
 		<div class="side-menu-footer">
-			<a href="/login" onclick={closeMenu}>로그인</a>
+			<a href={appPath('/login')} onclick={closeMenu}>로그인</a>
 			<p>함께 만들고 함께 나누는 요리 이야기</p>
 		</div>
 	</aside>
@@ -246,10 +247,10 @@
 
 				<div class="popular-search">
 					<span>인기 검색어</span>
-					<a href="/recipes">김치볶음밥</a>
-					<a href="/recipes">파스타</a>
-					<a href="/recipes">계란요리</a>
-					<a href="/recipes">자취요리</a>
+					<a href={appPath('/recipes')}>김치볶음밥</a>
+					<a href={appPath('/recipes')}>파스타</a>
+					<a href={appPath('/recipes')}>계란요리</a>
+					<a href={appPath('/recipes')}>자취요리</a>
 				</div>
 			</div>
 
@@ -289,12 +290,12 @@
 					<h2>오늘은 어떤 요리를 해볼까요?</h2>
 				</div>
 
-				<a href="/categories" class="more-link">전체보기 →</a>
+				<a href={appPath('/categories')} class="more-link">전체보기 →</a>
 			</div>
 
 			<div class="category-grid">
 				{#each categories as category}
-					<a href="/categories" class="category-card">
+					<a href={appPath('/categories')} class="category-card">
 						<div class="category-icon">
 							{category.emoji}
 						</div>
@@ -313,12 +314,12 @@
 					<h2>요즘 많이 찾는 레시피</h2>
 				</div>
 
-				<a href="/recipes" class="more-link">레시피 더보기 →</a>
+				<a href={appPath('/recipes')} class="more-link">레시피 더보기 →</a>
 			</div>
 
 			<div class="recipe-grid">
 				{#each popularRecipes as recipe}
-					<a href="/recipes/example" class="recipe-card">
+					<a href={appPath('/recipes/example')} class="recipe-card">
 						<div class="recipe-image">
 							<span>{recipe.emoji}</span>
 
@@ -384,7 +385,7 @@
 					{/each}
 				</div>
 
-				<a href="/refrigerator" class="yellow-button">
+				<a href={appPath('/refrigerator')} class="yellow-button">
 					냉장고 레시피 찾아보기
 					<span>→</span>
 				</a>
@@ -410,12 +411,12 @@
 					<h2>방금 올라온 레시피</h2>
 				</div>
 
-				<a href="/recipes" class="more-link">전체보기 →</a>
+				<a href={appPath('/recipes')} class="more-link">전체보기 →</a>
 			</div>
 
 			<div class="recent-list">
 				{#each recentRecipes as recipe, index}
-					<a href="/recipes/example" class="recent-item">
+					<a href={appPath('/recipes/example')} class="recent-item">
 						<div class="recent-number">
 							{String(index + 1).padStart(2, '0')}
 						</div>
@@ -453,7 +454,7 @@
 						<h2>식재료 위키</h2>
 					</div>
 
-					<a href="/ingredients">전체보기 →</a>
+					<a href={appPath('/ingredients')}>전체보기 →</a>
 				</div>
 
 				<div class="wiki-feature">
@@ -472,7 +473,7 @@
 							보관 방법 등이 표시됩니다.
 						</p>
 
-						<a href="/ingredients/example">식재료 정보 보기 →</a>
+						<a href={appPath('/ingredients/example')}>식재료 정보 보기 →</a>
 					</div>
 				</div>
 			</div>
@@ -484,12 +485,12 @@
 						<h2>요리 이야기</h2>
 					</div>
 
-					<a href="/community">더보기 →</a>
+					<a href={appPath('/community')}>더보기 →</a>
 				</div>
 
 				<div class="community-list">
 					{#each communityPosts as post, index}
-						<a href="/community/example" class="community-item">
+						<a href={appPath('/community/example')} class="community-item">
 							<div class="community-avatar">
 								{['🥘', '🍳', '🥗', '🍞'][index]}
 							</div>
@@ -523,7 +524,7 @@
 					나의 맛있는 요리를 요리위키에 공유해보세요.
 				</p>
 
-				<a href="/recipes/new" class="dark-button">
+				<a href={appPath('/recipes/new')} class="dark-button">
 					레시피 등록하기
 					<span>→</span>
 				</a>
@@ -547,9 +548,9 @@
 		</p>
 
 		<div class="footer-links">
-			<a href="/notice">공지사항</a>
-			<a href="/faq">FAQ</a>
-			<a href="/contact">문의하기</a>
+			<a href={appPath('/notice')}>공지사항</a>
+			<a href={appPath('/faq')}>FAQ</a>
+			<a href={appPath('/contact')}>문의하기</a>
 		</div>
 
 		<small>© 2026 요리위키 · School Web Programming Project</small>

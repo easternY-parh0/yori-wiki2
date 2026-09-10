@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
 	type Ingredient = {
 		name: string;
 		category: string;
@@ -111,7 +112,7 @@
 
 			<div class="popular-grid">
 				{#each ingredients.slice(0, 4) as ingredient}
-					<a href="/ingredients/{ingredient.name}" class="popular-card">
+					<a href={appPath(`/ingredients/${ingredient.name}`)} class="popular-card">
 						<div class="ingredient-image">
 							<span>IMAGE</span>
 						</div>
@@ -136,7 +137,7 @@
 			{#if filteredIngredients.length > 0}
 				<div class="ingredient-grid">
 					{#each filteredIngredients as ingredient}
-						<a href="/ingredients/{ingredient.name}" class="ingredient-card">
+						<a href={appPath(`/ingredients/${ingredient.name}`)} class="ingredient-card">
 							<div class="card-image">
 								<span>IMAGE</span>
 							</div>

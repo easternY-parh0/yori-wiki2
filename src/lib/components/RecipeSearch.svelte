@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { appPath } from '$lib/app-path';
   import { goto } from '$app/navigation';
   import { page, navigating } from '$app/state';
   import type { loadSearch } from '$lib/load-search';
@@ -18,7 +19,7 @@
 </script>
 
 <section class="search-section" aria-labelledby="search-title">
-  <div class="heading"><div><span class="eyebrow">레시피 검색</span><h1 id="search-title">찾고 싶은 요리가 있나요?</h1><p>요리 이름, 재료, 조리 방법으로 찾아보세요.</p></div><a href="/recipes/new" class="register">레시피 등록 ↗</a></div>
+  <div class="heading"><div><span class="eyebrow">레시피 검색</span><h1 id="search-title">찾고 싶은 요리가 있나요?</h1><p>요리 이름, 재료, 조리 방법으로 찾아보세요.</p></div><a href={appPath('/recipes/new')} class="register">레시피 등록 ↗</a></div>
   <form method="GET" action={page.url.pathname} onsubmit={e => { e.preventDefault(); submit(e.currentTarget, true); }} aria-busy={Boolean(navigating.to)}>
     <div class="search-bar"><label for="recipe-query" class="sr-only">검색어</label><input id="recipe-query" name="q" type="search" maxlength="100" value={params.get('q') ?? ''} placeholder="예: 김치볶음밥, 두부, 파스타" /><button type="submit">검색</button></div>
     <div class="filters">
@@ -42,7 +43,7 @@
       {#if result.warning}<p role="status">{result.warning}</p>{/if}
       {#if result.query === ''}<p class="empty">검색어를 입력해주세요. 전체 요리를 보려면 초기화를 눌러주세요.</p>
       {:else if !result.items.length}<p class="empty">검색 결과가 없습니다. 다른 검색어나 필터를 사용해보세요.</p>
-      {:else}<div class="results">{#each result.items as recipe (recipe.id)}<article><span class="category">{categories[recipe.metadata?.category as keyof typeof categories] || '미분류'}</span><h3><a href={`/recipes/${recipe.id}`}>{recipe.name}</a></h3><p>{typeof recipe.metadata?.description === 'string' ? recipe.metadata.description : recipe.ingredients}</p><div class="facts"><span>{recipe.estimated_time}</span><span>재료 {String(recipe.metadata?.ingredient_count ?? '—')}개</span><span>난이도 {recipe.metadata?.difficulty == null ? '미등록' : `${recipe.metadata.difficulty}/10`}</span></div>{#if recipe.matchingFields.length}<small>{recipe.matchingFields.map(key => labels[key]).join(' · ')} 일치</small>{/if}</article>{/each}</div>{/if}
+      {:else}<div class="results">{#each result.items as recipe (recipe.id)}<article><span class="category">{categories[recipe.metadata?.category as keyof typeof categories] || '미분류'}</span><h3><a href={appPath(`/recipes/${recipe.id}`)}>{recipe.name}</a></h3><p>{typeof recipe.metadata?.description === 'string' ? recipe.metadata.description : recipe.ingredients}</p><div class="facts"><span>{recipe.estimated_time}</span><span>재료 {String(recipe.metadata?.ingredient_count ?? '—')}개</span><span>난이도 {recipe.metadata?.difficulty == null ? '미등록' : `${recipe.metadata.difficulty}/10`}</span></div>{#if recipe.matchingFields.length}<small>{recipe.matchingFields.map(key => labels[key]).join(' · ')} 일치</small>{/if}</article>{/each}</div>{/if}
       {#if result.pages > 1}<nav aria-label="검색 결과 페이지" class="pagination">{#if result.page > 1}<a href={pageHref(result.page - 1)} rel="prev">이전</a>{/if}{#each pageNumbers as number}<a href={pageHref(number)} class:active={number === result.page} aria-current={number === result.page ? 'page' : undefined}>{number}</a>{/each}{#if result.page < result.pages}<a href={pageHref(result.page + 1)} rel="next">다음</a>{/if}</nav>{/if}
     {/if}
   </div>
