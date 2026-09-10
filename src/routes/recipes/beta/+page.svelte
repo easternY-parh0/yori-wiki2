@@ -90,20 +90,25 @@
 <div class="page">
   <main>
     <!-- 페이지 헤더 -->
-    <section class="page-heading">
-      <div>
-        <span class="eyebrow">레시피 검색</span>
-        <h1>찾고 싶은 요리가 있나요?</h1>
-        <p>요리 이름, 재료, 조리 방법으로 검색해보세요.</p>
-      </div>
+    <div class="breadcrumb">
+        <a href={appPath('/')}>요리위키</a>
+        <span>›</span>
+        <span>레시피 검색</span>
+    </div>
 
-      <a href={appPath('/recipes/new')} class="register-button">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 5v14" />
-          <path d="M5 12h14" />
-        </svg>
-        레시피 등록하기
-      </a>
+    <section class="document-header">
+        <div class="header-content">
+            <h1>찾고 싶은 요리가 있나요?</h1>
+            <p class="lead">요리 이름, 재료, 조리 방법으로 검색해보세요.</p>
+        </div>
+
+        <a href={appPath('/recipes/new')} class="register-button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5v14" />
+            <path d="M5 12h14" />
+            </svg>
+            레시피 등록하기
+        </a>
     </section>
 
     <!-- 검색 바 & 추천 검색어 -->
@@ -377,67 +382,6 @@
 </div>
 
 <style>
-  :global(:root) {
-    --background: #ffffff;
-    --surface: #ffffff;
-    --surface-subtle: #f8fafc;
-    --surface-yellow: #fefce8;
-    --surface-green: #f7fee7;
-    --primary: #facc15;
-    --accent: #65a30d;
-    --text: #0f172a;
-    --text-subtle: #64748b;
-    --text-muted: #94a3b8;
-    --border: #e2e8f0;
-    --border-green: #d9f99d;
-    --border-accent: #a3e635;
-    --overlay: rgba(15, 23, 42, 0.25);
-    --shadow-card: rgba(15, 23, 42, 0.07);
-    --shadow-menu: rgba(15, 23, 42, 0.1);
-  }
-
-  :global(:root.dark-theme) {
-    --background: #0f172a;
-    --surface: #1e293b;
-    --surface-subtle: #172235;
-    --surface-yellow: #292614;
-    --surface-green: #172414;
-    --primary: #facc15;
-    --accent: #84cc16;
-    --text: #f8fafc;
-    --text-subtle: #94a3b8;
-    --text-muted: #94a3b8;
-    --border: #334155;
-    --border-green: #365314;
-    --border-accent: #65a30d;
-    --overlay: rgba(2, 6, 23, 0.72);
-    --shadow-card: rgba(0, 0, 0, 0.22);
-    --shadow-menu: rgba(0, 0, 0, 0.35);
-  }
-
-  :global(html),
-  :global(body) {
-    margin: 0;
-    padding: 0;
-    background: var(--background);
-    color: var(--text);
-  }
-
-  :global(*) {
-    box-sizing: border-box;
-  }
-
-  :global(a) {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  :global(button),
-  :global(input),
-  :global(select) {
-    font: inherit;
-  }
-
   .page {
     min-height: 100vh;
     background: var(--background);
@@ -456,33 +400,66 @@
   main {
     width: min(1160px, calc(100% - 48px));
     margin: 0 auto;
-    padding-bottom: 80px;
+    padding-top: 42px;
   }
 
-  .eyebrow {
+/* Breadcrumb */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 25px;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  .breadcrumb a {
+    color: var(--text-subtle);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .breadcrumb a:hover {
     color: var(--accent);
-    font-size: 13px;
-    font-weight: 750;
   }
 
-  .page-heading {
+  .breadcrumb span {
+    color: var(--text-muted);
+  }
+
+  .breadcrumb span:last-child {
+    color: var(--text-subtle);
+  }
+
+  /* Document Header */
+  .document-header {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 30px;
-    padding: 55px 8px 35px;
+    gap: 40px;
+    padding-bottom: 28px;
+    margin-bottom: 35px;
+    border-bottom: 1px solid var(--border);
   }
 
-  .page-heading h1 {
-    margin: 6px 0 9px;
-    font-size: 42px;
-    letter-spacing: -0.07em;
+  .header-content {
+    max-width: 680px;
   }
 
-  .page-heading p {
+  .document-header h1 {
     margin: 0;
+    font-size: 38px;
+    font-weight: 750;
+    letter-spacing: -0.075em;
+    line-height: 1.25;
+  }
+
+  .lead {
+    margin: 12px 0 0;
     color: var(--text-subtle);
     font-size: 14px;
+    line-height: 1.85;
+    letter-spacing: -0.015em;
   }
 
   .register-button {
@@ -496,6 +473,7 @@
     font-size: 13px;
     font-weight: 750;
     white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .register-button:hover {
@@ -957,11 +935,6 @@
     .recipe-grid {
       grid-template-columns: repeat(3, 1fr);
     }
-
-    .page-heading {
-      align-items: flex-start;
-      flex-direction: column;
-    }
   }
 
   @media (max-width: 800px) {
@@ -978,14 +951,6 @@
   @media (max-width: 600px) {
     main {
       width: calc(100% - 24px);
-    }
-
-    .page-heading {
-      padding: 40px 6px 25px;
-    }
-
-    .page-heading h1 {
-      font-size: 36px;
     }
 
     .search-section {
