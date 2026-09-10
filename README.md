@@ -15,6 +15,10 @@ npm run dev
 ```
 
 `.env`의 `BACKEND_URL`은 서버 프록시에서 읽으며 기본값은 `http://127.0.0.1:8080`입니다.
+HTTPS nginx 뒤에서는 `PUBLIC_ORIGIN=https://project.example.com`도 설정하세요.
+경로(`/yoriwiki`)를 포함하지 않는 외부 출처이며, 비워두면 요청 URL의 출처를 사용합니다.
+개발 시 `.env` 또는 프로세스 환경에서 읽고, 운영 환경에서는 실행 어댑터의 환경 변수 설정을 사용합니다.
+`PUBLIC_` 변수는 `$env/dynamic/public`에서 읽어야 합니다. 인증 요청의 Origin과 비교하며 임의의 전달 헤더는 신뢰하지 않습니다.
 통합 실행기는 셸의 `BACKEND_URL` 또는 `http://127.0.0.1:${PORT}`를 전달하므로 `.env`보다 우선합니다.
 
 ```sh
