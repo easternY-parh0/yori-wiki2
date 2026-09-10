@@ -16,17 +16,23 @@
     if (servings > 1) servings -= 1;
   }
 
-  // 조리 과정 텍스트 줄바꿈 분리
+  // 숫자 패턴("1. ", "2. ") 또는 줄바꿈(\n)을 기준으로 조리 순서 분리
   const recipeSteps = $derived(
     data.food.recipe
-      ? data.food.recipe.split('\n').filter((step) => step.trim() !== '')
+      ? data.food.recipe
+          .split(/(?:\r?\n|\s*(?=\d+\.\s*))/)
+          .map((step) => step.replace(/^\d+\.\s*/, '').trim())
+          .filter((step) => step !== '')
       : []
   );
 
-  // 재료 텍스트 줄바꿈 분리
+  // 쉼표(,) 또는 줄바꿈(\n)을 기준으로 재료 분리
   const ingredientList = $derived(
     data.food.ingredients
-      ? data.food.ingredients.split('\n').filter((item) => item.trim() !== '')
+      ? data.food.ingredients
+          .split(/(?:\r?\n|,)/)
+          .map((item) => item.trim())
+          .filter((item) => item !== '')
       : []
   );
 </script>
@@ -42,7 +48,7 @@
 <div class="page">
   <main>
     <div class="breadcrumb">
-      <a href={appPath('/recipes')}>레시피</a>
+      <a href={appPath('/recipes/beta')}>레시피</a>
       <svg viewBox="0 0 24 24">
         <path d="M9 18l6-6-6-6" />
       </svg>

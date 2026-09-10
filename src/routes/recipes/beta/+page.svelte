@@ -281,7 +281,7 @@
         {:else}
           <div class="recipe-grid">
             {#each result.items as recipe (recipe.id)}
-              <a href={appPath('/recipes/beta/${recipe.id}')} class="recipe-card">
+              <a href={appPath(`/recipes/beta/${recipe.id}`)} class="recipe-card">
                 <div class="recipe-image">
                   <span>{recipe.name}</span>
                   <button
