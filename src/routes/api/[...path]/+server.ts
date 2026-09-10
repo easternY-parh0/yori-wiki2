@@ -9,9 +9,17 @@ const proxy: RequestHandler = async ({ params, url, request, fetch }) => {
   const target = new URL(`/${path}`, env.BACKEND_URL || 'http://127.0.0.1:8080');
   target.search = url.search;
   if (path.startsWith('auth/') && request.method !== 'GET') {
-    if (request.headers.get('origin') !== url.origin) return new Response('허용되지 않은 요청입니다.', { status: 403 });
-    if (!request.headers.get('content-type')?.startsWith('application/json')) return new Response('JSON 요청이 필요합니다.', { status: 415 });
-  }
+    const requestOrigin = request.headers.get('origin');
+    const expectedOrigin = env.PUBLIC_ORIGIN || url.origin;
+
+    if (requestOrigin !== expectedOrigin) {
+        return new Response('허용되지 않은 요청입니다.', { status: 403 });
+    }
+
+    if (!request.headers.get('content-type')?.startsWith('application/json')) {
+        return new Response('JSON 요청이 필요합니다.', { status: 415 });
+    }
+}
   try {
     const response = await fetch(target, {
       method: request.method,
