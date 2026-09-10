@@ -1,4 +1,6 @@
 import { env } from '$env/dynamic/private';
+import { env as publicEnv } from '$env/dynamic/public';
+import { expectedRequestOrigin } from '$lib/server/request-origin';
 import type { RequestHandler } from './$types';
 
 const proxy: RequestHandler = async ({ params, url, request, fetch }) => {
@@ -10,16 +12,22 @@ const proxy: RequestHandler = async ({ params, url, request, fetch }) => {
   target.search = url.search;
   if (path.startsWith('auth/') && request.method !== 'GET') {
     const requestOrigin = request.headers.get('origin');
-    const expectedOrigin = env.PUBLIC_ORIGIN || url.origin;
+    let expectedOrigin: string;
+    try {
+      expectedOrigin = expectedRequestOrigin(publicEnv.PUBLIC_ORIGIN, url.origin);
+    } catch {
+      console.error('Invalid PUBLIC_ORIGIN: configure an HTTP(S) origin without a path, query or credentials.');
+      return new Response('서버의 공개 주소 설정이 올바르지 않습니다.', { status: 500 });
+    }
 
     if (requestOrigin !== expectedOrigin) {
-        return new Response('허용되지 않은 요청입니다.', { status: 403 });
+      return new Response('허용되지 않은 요청입니다.', { status: 403 });
     }
 
     if (!request.headers.get('content-type')?.startsWith('application/json')) {
-        return new Response('JSON 요청이 필요합니다.', { status: 415 });
+      return new Response('JSON 요청이 필요합니다.', { status: 415 });
     }
-}
+  }
   try {
     const response = await fetch(target, {
       method: request.method,
