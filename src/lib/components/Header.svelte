@@ -1,141 +1,179 @@
 <script lang="ts">
-	import { appPath } from '$lib/app-path';
-	import { page } from '$app/state';
-	import { invalidateAll, goto } from '$app/navigation';
-	import { authPost } from '$lib/auth';
-	let logoutPending = $state(false);
-	let authError = $state('');
-	async function logout() {
-		logoutPending = true;
-		try { await authPost('logout', {}); await invalidateAll(); closeMenu(); await goto(appPath('/login')); }
-		catch (error) { authError = error instanceof Error ? error.message : '로그아웃에 실패했습니다.'; }
-		finally { logoutPending = false; }
-	}
-	let {
-		darkMode = false,
-		toggleTheme
-	}: {
-		darkMode?: boolean;
-		toggleTheme: () => void;
-	} = $props();
+    import { appPath } from '$lib/app-path';
+    import { page } from '$app/state';
+    import { invalidateAll, goto } from '$app/navigation';
+    import { authPost } from '$lib/auth';
 
-	let menuOpen = $state(false);
+    let logoutPending = $state(false);
+    let authError = $state('');
 
-	function toggleMenu() {
-		menuOpen = !menuOpen;
-	}
+    async function logout() {
+        logoutPending = true;
+        try { 
+            await authPost('logout', {}); 
+            await invalidateAll(); 
+            closeMenu(); 
+            await goto(appPath('/login')); 
+        } catch (error) { 
+            authError = error instanceof Error ? error.message : '로그아웃에 실패했습니다.'; 
+        } finally { 
+            logoutPending = false; 
+        }
+    }
 
-	function closeMenu() {
-		menuOpen = false;
-	}
+    let {
+        darkMode = false,
+        toggleTheme
+    }: {
+        darkMode?: boolean;
+        toggleTheme: () => void;
+    } = $props();
+
+    let menuOpen = $state(false);
+
+    function toggleMenu() {
+        menuOpen = !menuOpen;
+    }
+
+    function closeMenu() {
+        menuOpen = false;
+    }
 </script>
 
 {#if menuOpen}
-	<button class="overlay" type="button" aria-label="메뉴 닫기" onclick={closeMenu}></button>
+    <button class="overlay" type="button" aria-label="메뉴 닫기" onclick={closeMenu}></button>
 {/if}
 
 <aside class:visible={menuOpen} class="navigation">
-	<div class="navigation-header">
-		<a href={appPath('/')} class="navigation-logo" onclick={closeMenu}>
-			<div class="brand-mark">
-				<svg viewBox="0 0 24 24">
-					<path d="M7 10V5M10 10V5M13 10V5M5 10h10M8 10v9M18 19V5M18 5c-2 2-2 5 0 7" />
-				</svg>
-			</div>
-			<span>요리위키</span>
-		</a>
+    <div class="navigation-header">
+        <a href={appPath('/')} class="navigation-logo" onclick={closeMenu}>
+            <div class="brand-mark">
+                <svg viewBox="0 0 24 24">
+                    <path d="M7 10V5M10 10V5M13 10V5M5 10h10M8 10v9M18 19V5M18 5c-2 2-2 5 0 7" />
+                </svg>
+            </div>
+            <span>요리위키</span>
+        </a>
 
-		<button class="close-button" type="button" aria-label="메뉴 닫기" onclick={closeMenu}>
-			<svg viewBox="0 0 24 24">
-				<path d="M6 6l12 12M18 6L6 18" />
-			</svg>
-		</button>
-	</div>
+        <button class="close-button" type="button" aria-label="메뉴 닫기" onclick={closeMenu}>
+            <svg viewBox="0 0 24 24">
+                <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+        </button>
+    </div>
 
-	<a href={appPath('/profile')} class="profile-card" onclick={closeMenu}>
-		<div class="profile-icon">
-			<svg viewBox="0 0 24 24">
-				<circle cx="12" cy="8" r="3" />
-				<path d="M5 20c.8-4 3.2-6 7-6s6.2 2 7 6" />
-			</svg>
-		</div>
+    <!-- 프로필 영역 (로그인 여부에 따른 분기) -->
+    {#if page.data.user}
+        <a href={appPath('/profile')} class="profile-card" onclick={closeMenu}>
+            <div class="profile-icon">
+                {#if page.data.user.avatarUrl}
+                    <img src={page.data.user.avatarUrl} alt="프로필" class="avatar-img" />
+                {:else}
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="8" r="3" />
+                        <path d="M5 20c.8-4 3.2-6 7-6s6.2 2 7 6" />
+                    </svg>
+                {/if}
+            </div>
 
-		<div class="profile-text">
-			<strong>{page.data.user?.nickname ?? "방문자"}님</strong>
-			<span>마이페이지</span>
-		</div>
+            <div class="profile-text">
+                <strong>{page.data.user.nickname}님</strong>
+                <span>마이페이지 보기</span>
+            </div>
 
-		<svg class="profile-arrow" viewBox="0 0 24 24">
-			<path d="M9 5l7 7-7 7" />
-		</svg>
-	</a>
+            <svg class="profile-arrow" viewBox="0 0 24 24">
+                <path d="M9 5l7 7-7 7" />
+            </svg>
+        </a>
+    {:else}
+        <a href={appPath('/login')} class="profile-card guest-card" onclick={closeMenu}>
+            <div class="profile-icon">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="8" r="3" />
+                    <path d="M5 20c.8-4 3.2-6 7-6s6.2 2 7 6" />
+                </svg>
+            </div>
 
-	<nav>
-		<a href={appPath('/search')} onclick={closeMenu}>요리 탐색</a>
-		<a href={appPath('/')} onclick={closeMenu}>
-			<svg viewBox="0 0 24 24">
-				<path d="M3 11.5L12 4l9 7.5M5.5 10v9h13v-9" />
-			</svg>
-			홈
-		</a>
+            <div class="profile-text">
+                <strong>로그인이 필요합니다</strong>
+                <span>클릭하여 로그인하기</span>
+            </div>
 
-		<a href={appPath('/recipes')} onclick={closeMenu}>
-			<svg viewBox="0 0 24 24">
-				<path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5" />
-			</svg>
-			레시피
-		</a>
+            <svg class="profile-arrow" viewBox="0 0 24 24">
+                <path d="M9 5l7 7-7 7" />
+            </svg>
+        </a>
+    {/if}
 
-		<a href={appPath('/ingredients')} onclick={closeMenu}>
-			<svg viewBox="0 0 24 24">
-				<path d="M12 20c5-2 7-6 7-11-5 0-9 2-11 6M12 20C7 19 5 15 5 10c5 0 8 2 10 5" />
-			</svg>
-			식재료 위키
-		</a>
+    <nav>
+        <a href={appPath('/search')} onclick={closeMenu}>요리 탐색</a>
+        <a href={appPath('/')} onclick={closeMenu}>
+            <svg viewBox="0 0 24 24">
+                <path d="M3 11.5L12 4l9 7.5M5.5 10v9h13v-9" />
+            </svg>
+            홈
+        </a>
 
-		<a href={appPath('/community')} onclick={closeMenu}>
-			<svg viewBox="0 0 24 24">
-				<path d="M4 5h16v12H8l-4 3zM8 9h8M8 12h5" />
-			</svg>
-			커뮤니티
-		</a>
+        <a href={appPath('/recipes')} onclick={closeMenu}>
+            <svg viewBox="0 0 24 24">
+                <path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5" />
+            </svg>
+            레시피
+        </a>
 
-		<a href={appPath('/profile')} onclick={closeMenu}>
-			<svg viewBox="0 0 24 24">
-				<circle cx="12" cy="8" r="3" />
-				<path d="M5 20c.8-4 3.2-6 7-6s6.2 2 7 6" />
-			</svg>
-			마이페이지
-		</a>
-	</nav>
+        <a href={appPath('/ingredients')} onclick={closeMenu}>
+            <svg viewBox="0 0 24 24">
+                <path d="M12 20c5-2 7-6 7-11-5 0-9 2-11 6M12 20C7 19 5 15 5 10c5 0 8 2 10 5" />
+            </svg>
+            식재료 위키
+        </a>
 
-	<div class="navigation-bottom">
-		<a href={appPath('/notice')} onclick={closeMenu}>공지사항</a>
-		<a href={appPath('/faq')} onclick={closeMenu}>FAQ</a>
-		<a href={appPath('/settings')} onclick={closeMenu}>설정</a>
-	</div>
+        <a href={appPath('/community')} onclick={closeMenu}>
+            <svg viewBox="0 0 24 24">
+                <path d="M4 5h16v12H8l-4 3zM8 9h8M8 12h5" />
+            </svg>
+            커뮤니티
+        </a>
+
+        <!-- 로그인 회원 전용 메뉴 -->
+        {#if page.data.user}
+            <a href={appPath('/profile')} onclick={closeMenu}>
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="8" r="3" />
+                    <path d="M5 20c.8-4 3.2-6 7-6s6.2 2 7 6" />
+                </svg>
+                마이페이지
+            </a>
+        {/if}
+    </nav>
+
+    <div class="navigation-bottom">
+        <a href={appPath('/notice')} onclick={closeMenu}>공지사항</a>
+        <a href={appPath('/faq')} onclick={closeMenu}>FAQ</a>
+        <a href={appPath('/settings')} onclick={closeMenu}>설정</a>
+    </div>
 </aside>
 
 <header>
-	<div class="header-left">
-		<button class="menu-button" type="button" aria-label="메뉴 열기" aria-expanded={menuOpen} onclick={toggleMenu}>
-			<span></span>
-			<span></span>
-			<span></span>
-		</button>
+    <div class="header-left">
+        <button class="menu-button" type="button" aria-label="메뉴 열기" aria-expanded={menuOpen} onclick={toggleMenu}>
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
 
-		<a href={appPath('/')} class="header-logo">
-			<div class="brand-mark">
-				<svg viewBox="0 0 24 24">
-					<path d="M7 10V5M10 10V5M13 10V5M5 10h10M8 10v9M18 19V5M18 5c-2 2-2 5 0 7" />
-				</svg>
-			</div>
-			요리위키
-		</a>
-	</div>
+        <a href={appPath('/')} class="header-logo">
+            <div class="brand-mark">
+                <svg viewBox="0 0 24 24">
+                    <path d="M7 10V5M10 10V5M13 10V5M5 10h10M8 10v9M18 19V5M18 5c-2 2-2 5 0 7" />
+                </svg>
+            </div>
+            요리위키
+        </a>
+    </div>
 
-	<div class="header-actions">
-		<button class="theme-button" type="button" aria-label="다크모드 전환" onclick={toggleTheme}>
+    <div class="header-actions">
+        <button class="theme-button" type="button" aria-label="다크모드 전환" onclick={toggleTheme}>
             {#if darkMode}
                 <svg viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="4" />
@@ -148,298 +186,399 @@
             {/if}
         </button>
 
-		<a href={appPath('/search')} class="login-button">탐색</a>
+        <a href={appPath('/search')} class="header-link-btn">탐색</a>
 
-		{#if page.data.user}
-		<span>{page.data.user.nickname}님</span>
-		<button type="button" class="login-button" onclick={logout} disabled={logoutPending}>로그아웃</button>
-		{:else}<a href={appPath('/login')} class="login-button">로그인</a>{/if}
-		{#if authError}<span role="alert">{authError}</span>{/if}
-	</div>
+        {#if page.data.user}
+            <!-- 로그인 시: 프로필 정보 + 로그아웃 버튼 -->
+            <a href={appPath('/profile')} class="user-profile-badge">
+                <div class="header-avatar">
+                    {#if page.data.user.avatarUrl}
+                        <img src={page.data.user.avatarUrl} alt="프로필" />
+                    {:else}
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="8" r="3" />
+                            <path d="M5 20c.8-4 3.2-6 7-6s6.2 2 7 6" />
+                        </svg>
+                    {/if}
+                </div>
+                <span class="user-nickname">{page.data.user.nickname}님</span>
+            </a>
+            <button type="button" class="logout-button" onclick={logout} disabled={logoutPending}>로그아웃</button>
+        {:else}
+            <!-- 비로그인 시: 로그인 버튼 -->
+            <a href={appPath('/login')} class="login-button">로그인</a>
+        {/if}
+
+        {#if authError}<span role="alert" class="auth-error-msg">{authError}</span>{/if}
+    </div>
 </header>
 
 <style>
-	svg {
-		fill: none;
-		stroke: currentColor;
-		stroke-width: 1.7;
-		stroke-linecap: round;
-		stroke-linejoin: round;
-	}
+    svg {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.7;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
 
-	header {
-		position: sticky;
-		top: 0;
-		z-index: 50;
-		height: 68px;
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 0 32px;
-		background: var(--background);
-		border-bottom: 1px solid var(--border);
-	}
+    header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        height: 68px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 32px;
+        background: var(--background);
+        border-bottom: 1px solid var(--border);
+    }
 
-	.header-left,
-	.header-actions {
-		display: flex;
-		align-items: center;
-	}
+    .header-left,
+    .header-actions {
+        display: flex;
+        align-items: center;
+    }
 
-	.header-actions {
-		gap: 8px;
-	}
+    .header-actions {
+        gap: 10px;
+    }
 
-	.menu-button {
-		width: 38px;
-		height: 38px;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 5px;
-		margin-right: 10px;
-		border: 0;
-		border-radius: 10px;
-		background: transparent;
-		cursor: pointer;
-	}
+    .menu-button {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        margin-right: 10px;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        cursor: pointer;
+    }
 
-	.menu-button:hover,
-	.theme-button:hover {
-		background: var(--surface-yellow);
-	}
+    .menu-button:hover,
+    .theme-button:hover {
+        background: var(--surface-yellow);
+    }
 
-	.menu-button span {
-		width: 19px;
-		height: 2px;
-		border-radius: 999px;
-		background: var(--text);
-	}
+    .menu-button span {
+        width: 19px;
+        height: 2px;
+        border-radius: 999px;
+        background: var(--text);
+    }
 
-	.header-logo,
-	.navigation-logo {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		font-weight: 800;
-		letter-spacing: -0.06em;
-	}
+    .header-logo,
+    .navigation-logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 800;
+        letter-spacing: -0.06em;
+    }
 
-	.header-logo {
-		font-size: 20px;
-	}
+    .header-logo {
+        font-size: 20px;
+    }
 
-	.brand-mark {
-		width: 28px;
-		height: 28px;
-		display: grid;
-		place-items: center;
-		border-radius: 9px;
-		background: var(--primary);
-		color: #0f172a;
-	}
+    .brand-mark {
+        width: 28px;
+        height: 28px;
+        display: grid;
+        place-items: center;
+        border-radius: 9px;
+        background: var(--primary);
+        color: #0f172a;
+    }
 
-	.brand-mark svg {
-		width: 18px;
-		height: 18px;
-	}
+    .brand-mark svg {
+        width: 18px;
+        height: 18px;
+    }
 
-	.theme-button {
-		width: 38px;
-		height: 38px;
-		display: grid;
-		place-items: center;
-		border: 0;
-		border-radius: 10px;
-		background: transparent;
-		color: var(--text);
-		cursor: pointer;
-	}
+    .theme-button {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        color: var(--text);
+        cursor: pointer;
+    }
 
-	.theme-button svg {
-		width: 19px;
-		height: 19px;
-	}
+    .theme-button svg {
+        width: 19px;
+        height: 19px;
+    }
 
-	.login-button {
-		padding: 9px 15px;
-		border-radius: 999px;
-		background: var(--primary);
-		color: #0f172a;
-		font-size: 14px;
-		font-weight: 750;
-	}
+    /* 헤더 로그인/탐색 버튼 공통 디자인 */
+    .header-link-btn,
+    .login-button {
+        padding: 8px 16px;
+        border-radius: 999px;
+        background: var(--surface-subtle);
+        color: var(--text);
+        font-size: 14px;
+        font-weight: 700;
+        transition: background 0.2s ease;
+    }
 
-	.login-button:hover {
-		background: var(--accent);
-		color: #fff;
-	}
+    .login-button {
+        background: var(--primary);
+        color: #0f172a;
+    }
 
-	.overlay {
-		position: fixed;
-		inset: 0;
-		z-index: 100;
-		border: 0;
-		background: var(--overlay);
-		backdrop-filter: blur(2px);
-	}
+    .login-button:hover {
+        background: var(--accent);
+        color: #fff;
+    }
 
-	.navigation {
-		position: fixed;
-		top: 0;
-		left: 0;
-		z-index: 110;
-		width: 300px;
-		height: 100dvh;
-		display: flex;
-		flex-direction: column;
-		padding: 24px 18px;
-		background: var(--surface);
-		border-right: 1px solid var(--border);
-		box-shadow: 12px 0 35px rgba(0, 0, 0, 0.12);
-		transform: translateX(-100%);
-		transition: transform 0.25s ease;
-	}
+    /* 상단 회원 전용 정보 배지 */
+    .user-profile-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 12px 4px 4px;
+        border-radius: 999px;
+        background: var(--surface-yellow);
+        text-decoration: none;
+        color: var(--text);
+    }
 
-	.navigation.visible {
-		transform: translateX(0);
-	}
+    .user-profile-badge:hover {
+        opacity: 0.9;
+    }
 
-	.navigation-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 4px 6px 22px;
-		border-bottom: 1px solid var(--border);
-	}
+    .header-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--primary);
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        color: #0f172a;
+    }
 
-	.close-button {
-		width: 34px;
-		height: 34px;
-		display: grid;
-		place-items: center;
-		border: 0;
-		border-radius: 9px;
-		background: var(--surface-yellow);
-		color: var(--text);
-		cursor: pointer;
-	}
+    .header-avatar img,
+    .avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 
-	.close-button svg {
-		width: 17px;
-		height: 17px;
-	}
+    .header-avatar svg {
+        width: 18px;
+        height: 18px;
+    }
 
-	.profile-card {
-		display: flex;
-		align-items: center;
-		gap: 11px;
-		margin: 18px 0 10px;
-		padding: 13px;
-		border: 1px solid var(--primary);
-		border-radius: 13px;
-		background: var(--surface-yellow);
-	}
+    .user-nickname {
+        font-size: 13px;
+        font-weight: 700;
+    }
 
-	.profile-icon {
-		width: 36px;
-		height: 36px;
-		display: grid;
-		place-items: center;
-		flex-shrink: 0;
-		border-radius: 10px;
-		background: var(--primary);
-		color: #0f172a;
-	}
+    .logout-button {
+        padding: 7px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-subtle);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+    }
 
-	.profile-icon svg {
-		width: 19px;
-		height: 19px;
-	}
+    .logout-button:hover {
+        background: var(--surface-subtle);
+        color: var(--text);
+    }
 
-	.profile-text {
-		min-width: 0;
-		flex: 1;
-	}
+    .auth-error-msg {
+        font-size: 12px;
+        color: #ef4444;
+    }
 
-	.profile-text strong,
-	.profile-text span {
-		display: block;
-	}
+    .overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        border: 0;
+        background: var(--overlay);
+        backdrop-filter: blur(2px);
+    }
 
-	.profile-text strong {
-		font-size: 11px;
-	}
+    .navigation {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 110;
+        width: 300px;
+        height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        padding: 24px 18px;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        box-shadow: 12px 0 35px rgba(0, 0, 0, 0.12);
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+    }
 
-	.profile-text span {
-		margin-top: 3px;
-		color: var(--text-muted);
-		font-size: 8px;
-	}
+    .navigation.visible {
+        transform: translateX(0);
+    }
 
-	.profile-arrow {
-		width: 15px;
-		height: 15px;
-		color: var(--accent);
-	}
+    .navigation-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 4px 6px 22px;
+        border-bottom: 1px solid var(--border);
+    }
 
-	.navigation nav {
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-		padding-top: 9px;
-	}
+    .close-button {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border: 0;
+        border-radius: 999px;
+        background: var(--surface-subtle);
+        color: var(--text);
+        cursor: pointer;
+    }
 
-	.navigation nav a {
-		display: flex;
-		align-items: center;
-		gap: 13px;
-		padding: 12px 13px;
-		border-radius: 11px;
-		font-size: 13px;
-		font-weight: 650;
-	}
+    .close-button svg {
+        width: 17px;
+        height: 17px;
+    }
 
-	.navigation nav a:hover {
-		background: var(--surface-yellow);
-	}
+    .profile-card {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin: 18px 0 10px;
+        padding: 13px;
+        border: 1px solid var(--primary);
+        border-radius: 13px;
+        background: var(--surface-yellow);
+        text-decoration: none;
+    }
 
-	.navigation nav svg {
-		width: 18px;
-		height: 18px;
-	}
+    .guest-card {
+        border-color: var(--border);
+        background: var(--surface-subtle);
+    }
 
-	.navigation-bottom {
-		display: flex;
-		gap: 7px;
-		margin-top: auto;
-		padding-top: 18px;
-		border-top: 1px solid var(--border);
-	}
+    .profile-icon {
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: var(--primary);
+        color: #0f172a;
+        overflow: hidden;
+    }
 
-	.navigation-bottom a {
-		flex: 1;
-		padding: 10px;
-		border-radius: 9px;
-		background: var(--surface-subtle);
-		color: var(--text-subtle);
-		font-size: 9px;
-		font-weight: 650;
-		text-align: center;
-	}
+    .profile-icon svg {
+        width: 19px;
+        height: 19px;
+    }
 
-	@media (max-width: 560px) {
-		header {
-			padding: 0 16px;
-		}
+    .profile-text {
+        min-width: 0;
+        flex: 1;
+    }
 
-		.login-button {
-			display: none;
-		}
+    .profile-text strong,
+    .profile-text span {
+        display: block;
+    }
 
-		.navigation {
-			width: min(300px, 88vw);
-		}
-	}
+    .profile-text strong {
+        font-size: 13px;
+        color: var(--text);
+    }
+
+    .profile-text span {
+        margin-top: 2px;
+        color: var(--text-muted);
+        font-size: 11px;
+    }
+
+    .profile-arrow {
+        width: 15px;
+        height: 15px;
+        color: var(--accent);
+    }
+
+    .navigation nav {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding-top: 9px;
+    }
+
+    .navigation nav a {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 12px 13px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 650;
+        color: var(--text);
+    }
+
+    .navigation nav a:hover {
+        background: var(--surface-yellow);
+    }
+
+    .navigation nav svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .navigation-bottom {
+        display: flex;
+        gap: 7px;
+        margin-top: auto;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+    }
+
+    .navigation-bottom a {
+        flex: 1;
+        padding: 10px;
+        border: 0;
+        border-radius: 9px;
+        background: var(--surface-subtle);
+        color: var(--text-subtle);
+        font-size: 11px;
+        font-weight: 650;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    @media (max-width: 560px) {
+        header {
+            padding: 0 16px;
+        }
+
+        .user-nickname {
+            display: none;
+        }
+
+        .navigation {
+            width: min(300px, 88vw);
+        }
+    }
 </style>

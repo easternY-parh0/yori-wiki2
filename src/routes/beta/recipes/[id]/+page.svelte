@@ -1,5 +1,6 @@
 <script lang="ts">
   import { appPath } from '$lib/app-path';
+  import RecipeCard from '$lib/components/layouts/RecipeCard.svelte'
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
