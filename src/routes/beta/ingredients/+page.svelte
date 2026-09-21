@@ -1,5 +1,9 @@
 <script lang="ts">
 	import { appPath } from '$lib/app-path';
+	import PreparingModal from '$lib/components/layouts/PreparingModal.svelte';
+
+	let isPreparingOpen = $state(true);
+
 	type Ingredient = {
 		name: string;
 		category: string;
@@ -46,6 +50,8 @@
 	<title>식재료 위키 | 요리위키</title>
 	<meta name="description" content="요리위키 식재료 위키에서 다양한 식재료 정보를 찾아보세요." />
 </svelte:head>
+
+<PreparingModal bind:open={isPreparingOpen} />
 
 <div class="page">
 	<main>

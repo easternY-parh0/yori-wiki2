@@ -301,7 +301,7 @@
                         categories[recipe.metadata?.category as keyof typeof categories] || '미분류'
                         }
                         cookingTime={recipe.estimated_time}
-                        href={appPath(`/recipes/beta/${recipe.id}`)}
+                        href={appPath(`/recipes/${recipe.id}`)}
                     />
                     {/each}
                 </div>

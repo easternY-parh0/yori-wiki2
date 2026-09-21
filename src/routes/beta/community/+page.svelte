@@ -1,6 +1,14 @@
 <script lang="ts">
 	import { appPath } from '$lib/app-path';
-	import { onMount } from 'svelte';
+	import Breadcrumb from '$lib/components/layouts/Breadcrumb.svelte';
+	import PreparingModal from '$lib/components/layouts/PreparingModal.svelte';
+
+	let isPreparingOpen = $state(true);
+
+	const breadcrumbItems = [
+		{ label: '요리위키', href: appPath('/') },
+		{ label: '커뮤니티' }
+	];
 
 	let searchKeyword = $state('');
 	let activeBoard = $state('전체');
@@ -107,328 +115,257 @@
 	<meta name="description" content="요리위키 커뮤니티에서 요리 이야기를 나눠보세요." />
 </svelte:head>
 
-<div class="page">
-	<main>
-		<section class="page-heading">
+<PreparingModal bind:open={isPreparingOpen} />
+
+<main class="page">
+	<Breadcrumb items={breadcrumbItems} />
+
+	<section class="settings-header">
+		<div>
+			<h1>커뮤니티</h1>
+			<p>요리에 대한 이야기를 나누고 다른 사람들의 다양한 노하우를 만나보세요.</p>
+		</div>
+		<a href={appPath('/community/write')} class="write-button">
+			<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
+			글쓰기
+		</a>
+	</section>
+
+	<section class="community-hero">
+		<div class="hero-text">
+			<span class="hero-label">요리 이야기</span>
+			<h2>맛있는 즐거움을<br /><span>함께 나눠보세요!</span></h2>
+			<p>오늘의 요리 고민부터 나만의 특별한 레시피 노하우까지 자유롭게 공유하는 공간입니다.</p>
+		</div>
+
+		<div class="hero-card">
+			<div class="hero-icon">🍳</div>
+			<span>오늘의 베스트 이야기</span>
+			<strong>"냉장고 털기 성공! 자취생 간단 레시피"</strong>
+		</div>
+	</section>
+
+	<div class="toolbar">
+		<div class="category-list">
+			{#each boards as board}
+				<button
+					type="button"
+					class:active={activeBoard === board}
+					onclick={() => {
+						activeBoard = board;
+						currentPage = 1;
+					}}
+				>
+					{board}
+				</button>
+			{/each}
+		</div>
+
+		<form class="search-box" onsubmit={(event) => { event.preventDefault(); submitSearch(); }}>
+			<svg viewBox="0 0 24 24">
+				<circle cx="11" cy="11" r="6.5" />
+				<path d="m16 16 5 5" />
+			</svg>
+			<input bind:value={searchKeyword} placeholder="게시글 검색" aria-label="게시글 검색" />
+			{#if searchKeyword}
+				<button
+					class="clear-button"
+					type="button"
+					aria-label="검색어 지우기"
+					onclick={() => { searchKeyword = ''; submitSearch(); }}
+				>
+					<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg>
+				</button>
+			{/if}
+		</form>
+	</div>
+
+	<section class="popular-section">
+		<div class="section-title">
 			<div>
-				<h1>커뮤니티</h1>
-				<p>요리에 대한 이야기를 나누고 다른 사람들의 경험을 만나보세요.</p>
+				<h2>🔥 실시간 인기글</h2>
+				<p>지금 커뮤니티에서 가장 뜨거운 이야기입니다.</p>
 			</div>
+		</div>
 
-			<a href={appPath('/community/write')} class="write-button">
-				<svg viewBox="0 0 24 24">
-					<path d="M12 5v14" />
-					<path d="M5 12h14" />
-				</svg>
-				글쓰기
-			</a>
-		</section>
-
-		<section class="community-hero">
-			<div>
-				<span class="hero-label">요리 이야기</span>
-				<h2>맛있는 이야기를<br /><span>함께 나눠보세요.</span></h2>
-				<p>레시피 질문부터 요리 후기까지 자유롭게 이야기할 수 있습니다.</p>
-			</div>
-
-			<div class="hero-placeholder">
-				<span>커뮤니티 이미지 영역</span>
-			</div>
-		</section>
-
-		<section class="board-section">
-			<div class="board-tabs">
-				{#each boards as board}
-					<button
-						class:active={activeBoard === board}
-						type="button"
-						onclick={() => {
-							activeBoard = board;
-							currentPage = 1;
-						}}
-					>
-						{board}
-					</button>
-				{/each}
-			</div>
-		</section>
-
-		<section class="popular-section">
-			<div class="section-title">
-				<div>
-					<h2>인기 게시글</h2>
-					<p>최근 많은 관심을 받고 있는 이야기입니다.</p>
-				</div>
-			</div>
-
-			<div class="popular-grid">
-				{#each popularPosts as post, index}
-					<a href={appPath('/community/example')} class="popular-card">
-						<div class="popular-number">{String(index + 1).padStart(2, '0')}</div>
-
-						<div class="popular-content">
-							<span>인기 게시글</span>
-							<h3>{post.title}</h3>
-
-							<div>
-								<strong>{post.author}</strong>
-								<small>조회 {post.views}</small>
-								<small>댓글 {post.comments}</small>
-							</div>
+		<div class="popular-grid">
+			{#each popularPosts as post, index}
+				<a href={appPath('/community/example')} class="popular-card">
+					<div class="popular-rank">{index + 1}</div>
+					<div class="popular-content">
+						<h3>{post.title}</h3>
+						<div class="popular-meta">
+							<strong>{post.author}</strong>
+							<span>조회 {post.views}</span>
+							<span>댓글 {post.comments}</span>
 						</div>
+					</div>
+					<svg class="arrow" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
+				</a>
+			{/each}
+		</div>
+	</section>
 
-						<svg viewBox="0 0 24 24">
-							<path d="M9 5l7 7-7 7" />
-						</svg>
-					</a>
-				{/each}
-			</div>
-		</section>
-
-		<section class="post-section">
-			<div class="post-toolbar">
-				<div>
-					<h2>전체 게시글</h2>
-					<span>총 128개의 게시글</span>
-				</div>
-
-				<div class="sort-area">
-					<select bind:value={sortType} aria-label="정렬">
-						<option value="최신순">최신순</option>
-						<option value="인기순">인기순</option>
-						<option value="조회순">조회순</option>
-						<option value="댓글순">댓글순</option>
-					</select>
-				</div>
+	<section class="post-section">
+		<div class="post-toolbar">
+			<div class="section-heading">
+				<h2>전체 게시글 <span>(128)</span></h2>
 			</div>
 
-			<form
-				class="community-search"
-				onsubmit={(event) => {
-					event.preventDefault();
-					submitSearch();
-				}}
+			<div class="sort-area">
+				<select bind:value={sortType} aria-label="정렬 방식 선택">
+					<option value="최신순">최신순</option>
+					<option value="인기순">인기순</option>
+					<option value="조회순">조회순</option>
+					<option value="댓글순">댓글순</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="post-table">
+			<div class="table-head">
+				<span>카테고리</span>
+				<span>제목</span>
+				<span>작성자</span>
+				<span>조회</span>
+				<span>댓글</span>
+				<span>작성일</span>
+			</div>
+
+			{#each posts as post}
+				<a href={appPath('/community/example')} class="post-row">
+					<span class="post-category">
+						{#if post.category === '자유게시판'}
+							<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+						{:else if post.category === '요리 질문'}
+							<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+						{:else if post.category === '레시피 후기'}
+							<svg viewBox="0 0 24 24"><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9zM12 3v6M8 5v4M16 5v4"/></svg>
+						{:else}
+							<svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+						{/if}
+						{post.category}
+					</span>
+
+					<div class="post-title">
+						<strong>{post.title}</strong>
+					</div>
+
+					<span class="author">{post.author}</span>
+					<span class="meta">{post.views}</span>
+					<span class="meta comment">{post.comments}</span>
+					<span class="meta">{post.date}</span>
+				</a>
+			{/each}
+		</div>
+	</section>
+
+	<section class="pagination-section">
+		<div class="pagination">
+			<button
+				type="button"
+				disabled={currentPage === 1}
+				onclick={() => (currentPage = Math.max(1, currentPage - 1))}
+				aria-label="이전 페이지"
 			>
-				<svg viewBox="0 0 24 24">
-					<circle cx="10.5" cy="10.5" r="6" />
-					<path d="M15 15l5 5" />
-				</svg>
+				<svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" /></svg>
+			</button>
 
-				<input bind:value={searchKeyword} placeholder="게시글 제목을 검색하세요" />
-
-				<button type="submit">검색</button>
-			</form>
-
-			<div class="post-table">
-				<div class="table-head">
-					<span>분류</span>
-					<span>게시글</span>
-					<span>조회</span>
-					<span>댓글</span>
-					<span>작성일</span>
-				</div>
-
-				{#each posts as post}
-					<a href={appPath('/community/example')} class="post-row">
-						<span class="post-category">{post.category}</span>
-
-						<div class="post-title">
-							<strong>{post.title}</strong>
-							<small>{post.author}</small>
-						</div>
-
-						<span>{post.views}</span>
-						<span>{post.comments}</span>
-						<span>{post.date}</span>
-					</a>
-				{/each}
-			</div>
-		</section>
-
-		<section class="pagination-section">
-			<div class="pagination">
+			{#each [1, 2, 3] as pageNumber}
 				<button
+					class:active={currentPage === pageNumber}
 					type="button"
-					disabled={currentPage === 1}
-					onclick={() => (currentPage = Math.max(1, currentPage - 1))}
+					onclick={() => (currentPage = pageNumber)}
 				>
-					<svg viewBox="0 0 24 24">
-						<path d="M14 6l-6 6 6 6" />
-					</svg>
+					{pageNumber}
 				</button>
+			{/each}
 
-				{#each [1, 2, 3] as pageNumber}
-					<button
-						class:active={currentPage === pageNumber}
-						type="button"
-						onclick={() => (currentPage = pageNumber)}
-					>
-						{pageNumber}
-					</button>
-				{/each}
+			<span class="dots">...</span>
 
-				<span>...</span>
+			<button
+				class:active={currentPage === 12}
+				type="button"
+				onclick={() => (currentPage = 12)}
+			>
+				12
+			</button>
 
-				<button
-					class:active={currentPage === 12}
-					type="button"
-					onclick={() => (currentPage = 12)}
-				>
-					12
-				</button>
+			<button
+				type="button"
+				onclick={() => (currentPage = Math.min(12, currentPage + 1))}
+				aria-label="다음 페이지"
+			>
+				<svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
+			</button>
+		</div>
+	</section>
 
-				<button
-					type="button"
-					onclick={() => (currentPage = Math.min(12, currentPage + 1))}
-				>
-					<svg viewBox="0 0 24 24">
-						<path d="M10 6l6 6-6 6" />
-					</svg>
-				</button>
-			</div>
-		</section>
+	<section class="contact-card">
+		<div class="contact-icon">
+			<svg viewBox="0 0 24 24">
+				<path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+			</svg>
+		</div>
 
-		<section class="community-cta">
-			<div>
-				<span>함께 이야기해요</span>
-				<h2>궁금한 것이 있거나<br />공유하고 싶은 이야기가 있나요?</h2>
-				<p>커뮤니티에 글을 작성해 다른 요리사들과 이야기를 나눠보세요.</p>
-			</div>
+		<div class="contact-text">
+			<span>나만의 요리 팁이 있나요?</span>
+			<strong>이야기를 공유하고 다른 요리사들과 소통해보세요.</strong>
+		</div>
 
-			<a href={appPath('/community/write')} class="cta-button">
-				글 작성하기
-				<svg viewBox="0 0 24 24">
-					<path d="M5 12h14" />
-					<path d="M13 6l6 6-6 6" />
-				</svg>
-			</a>
-		</section>
-	</main>
-</div>
+		<a href={appPath('/community/write')} class="primary-button">글 작성하기</a>
+	</section>
+</main>
 
 <style>
-	:global(:root) {
-		--background: #ffffff;
-		--surface: #ffffff;
-		--surface-subtle: #f8fafc;
-		--surface-yellow: #fefce8;
-		--surface-green: #f7fee7;
-		--primary: #facc15;
-		--accent: #65a30d;
-		--text: #0f172a;
-		--text-subtle: #64748b;
-		--text-muted: #94a3b8;
-		--border: #e2e8f0;
-		--border-green: #d9f99d;
-		--border-accent: #a3e635;
-		--overlay: rgba(15,23,42,.25);
-		--shadow-card: rgba(15,23,42,.07);
-		--shadow-menu: rgba(15,23,42,.1);
-	}
-
-	:global(:root.dark-theme) {
-		--background: #0f172a;
-		--surface: #1e293b;
-		--surface-subtle: #172235;
-		--surface-yellow: #292614;
-		--surface-green: #172414;
-		--primary: #facc15;
-		--accent: #84cc16;
-		--text: #f8fafc;
-		--text-subtle: #94a3b8;
-		--text-muted: #94a3b8;
-		--border: #334155;
-		--border-green: #365314;
-		--border-accent: #65a30d;
-		--overlay: rgba(2,6,23,.72);
-		--shadow-card: rgba(0,0,0,.22);
-		--shadow-menu: rgba(0,0,0,.35);
-	}
-
-	:global(html),
-	:global(body) {
-		margin: 0;
-		padding: 0;
-		background: var(--background);
-		color: var(--text);
-	}
-
-	:global(html.dark-theme) {
-		color-scheme: dark;
-		background: #0f172a;
-	}
-
-	:global(body.dark-theme) {
-		background: #0f172a;
-		color: #f8fafc;
-	}
-
-	:global(*) {
-		box-sizing: border-box;
-	}
-
-	:global(a) {
-		color: inherit;
-		text-decoration: none;
-	}
-
-	:global(button),
-	:global(input),
-	:global(select) {
-		font: inherit;
-	}
-
 	.page {
+		width: min(1160px, calc(100% - 48px));
 		min-height: 100vh;
+		padding: 48px 24px 100px;
 		background: var(--background);
 		color: var(--text);
-	}
-
-	svg {
-		fill: none;
-		stroke: currentColor;
-		stroke-width: 1.7;
-		stroke-linecap: round;
-		stroke-linejoin: round;
-	}
-
-	main {
-		width: min(1160px, calc(100% - 48px));
 		margin: 0 auto;
-		padding-bottom: 80px;
 	}
 
-	.page-heading {
+	/* Settings Header */
+
+	.settings-header {
 		display: flex;
-		align-items: end;
+		align-items: flex-end;
 		justify-content: space-between;
-		gap: 30px;
-		padding: 55px 8px 32px;
+		gap: 20px;
+		padding-bottom: 28px;
+		border-bottom: 1px solid var(--border);
 	}
 
-	.page-heading h1 {
-		margin: 0 0 8px;
-		font-size: 42px;
-		letter-spacing: -.07em;
-	}
-
-	.page-heading p {
+	.settings-header h1 {
 		margin: 0;
-		color: var(--text-subtle);
-		font-size: 14px;
+		font-size: 38px;
+		font-weight: 750;
+		letter-spacing: -0.07em;
+		line-height: 1.3;
+	}
+
+	.settings-header p {
+		margin: 9px 0 0;
+		color: var(--text-muted);
+		font-size: 13px;
+		line-height: 1.7;
 	}
 
 	.write-button {
 		display: inline-flex;
 		align-items: center;
-		gap: 7px;
-		padding: 11px 15px;
-		border-radius: 10px;
+		gap: 6px;
+		padding: 8px 16px;
+		border-radius: 7px;
 		background: var(--primary);
 		color: #0f172a;
-		font-size: 14px;
-		font-weight: 750;
+		font-size: 12px;
+		font-weight: 700;
+		text-decoration: none;
 		white-space: nowrap;
+		transition: background 0.15s ease, color 0.15s ease;
 	}
 
 	.write-button:hover {
@@ -437,324 +374,411 @@
 	}
 
 	.write-button svg {
-		width: 15px;
-		height: 15px;
+		width: 14px;
+		height: 14px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2.5;
 	}
+
+	/* Hero Section */
 
 	.community-hero {
 		display: grid;
-		grid-template-columns: 1fr 390px;
-		gap: 35px;
+		grid-template-columns: 1fr 320px;
+		gap: 24px;
 		align-items: center;
-		padding: 35px 40px;
-		border: 1px solid var(--border-green);
-		border-radius: 24px;
-		background: var(--surface-green);
+		margin-top: 28px;
+		padding: 28px 32px;
+		border: 1px solid var(--border);
+		border-radius: 12px;
+		background: var(--surface-yellow);
 	}
 
 	.hero-label {
 		color: var(--accent);
-		font-size: 14px;
-		font-weight: 800;
+		font-size: 12px;
+		font-weight: 750;
+		letter-spacing: -0.01em;
 	}
 
-	.community-hero h2 {
-		margin: 9px 0 12px;
-		font-size: 31px;
-		line-height: 1.25;
-		letter-spacing: -.07em;
+	.hero-text h2 {
+		margin: 8px 0 10px;
+		font-size: 26px;
+		font-weight: 750;
+		line-height: 1.3;
+		letter-spacing: -0.05em;
 	}
 
-	.community-hero h2 span {
+	.hero-text h2 span {
 		color: var(--accent);
 	}
 
-	.community-hero p {
+	.hero-text p {
 		margin: 0;
-		color: var(--text-subtle);
-		font-size: 14px;
-		line-height: 1.7;
+		color: var(--text-muted);
+		font-size: 13px;
+		line-height: 1.6;
 	}
 
-	.hero-placeholder {
-		height: 210px;
-		display: grid;
-		place-items: center;
-		border: 1.5px dashed var(--border-accent);
-		border-radius: 19px;
-		background: var(--surface);
-		color: var(--accent);
-		font-size: 14px;
-	}
-
-	.board-section {
-		margin-top: 35px;
-	}
-
-	.board-tabs {
+	.hero-card {
+		padding: 18px 20px;
+		border: 1px solid var(--border);
+		border-radius: 9px;
+		background: var(--background);
 		display: flex;
-		flex-wrap: wrap;
-		gap: 7px;
+		flex-direction: column;
+		gap: 6px;
 	}
 
-	.board-tabs button {
-		padding: 9px 15px;
+	.hero-icon {
+		font-size: 20px;
+	}
+
+	.hero-card span {
+		font-size: 11px;
+		color: var(--accent);
+		font-weight: 700;
+	}
+
+	.hero-card strong {
+		font-size: 13px;
+		font-weight: 650;
+		line-height: 1.4;
+		color: var(--text);
+	}
+
+	/* Toolbar & Search */
+
+	.toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 20px;
+		margin-top: 32px;
+		margin-bottom: 28px;
+	}
+
+	.category-list {
+		display: flex;
+		gap: 6px;
+		overflow-x: auto;
+		scrollbar-width: none;
+	}
+
+	.category-list::-webkit-scrollbar {
+		display: none;
+	}
+
+	.category-list button {
+		flex-shrink: 0;
+		padding: 7px 14px;
 		border: 1px solid var(--border);
 		border-radius: 999px;
-		background: var(--surface);
-		color: var(--text-subtle);
-		font-size: 14px;
+		background: transparent;
+		color: var(--text-muted);
+		font: inherit;
+		font-size: 12px;
+		font-weight: 650;
+		cursor: pointer;
+		transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+	}
+
+	.category-list button:hover {
+		border-color: var(--accent);
+		color: var(--text);
+	}
+
+	.category-list button.active {
+		border-color: var(--accent);
+		background: var(--surface-yellow);
+		color: var(--accent);
+		font-weight: 700;
+	}
+
+	.search-box {
+		width: 230px;
+		height: 36px;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		flex-shrink: 0;
+		padding: 0 10px;
+		border: 1px solid var(--border);
+		border-radius: 7px;
+		background: transparent;
+		transition: border-color 0.15s ease;
+	}
+
+	.search-box:focus-within {
+		border-color: var(--accent);
+	}
+
+	.search-box > svg {
+		width: 14px;
+		height: 14px;
+		flex-shrink: 0;
+		color: var(--text-muted);
+		stroke-width: 2;
+		fill: none;
+		stroke: currentColor;
+	}
+
+	.search-box input {
+		width: 100%;
+		border: 0;
+		outline: 0;
+		background: transparent;
+		color: var(--text);
+		font: inherit;
+		font-size: 12px;
+	}
+
+	.search-box input::placeholder {
+		color: var(--text-muted);
+	}
+
+	.clear-button {
+		width: 18px;
+		height: 18px;
+		display: grid;
+		place-items: center;
+		flex-shrink: 0;
+		border: 0;
+		border-radius: 50%;
+		background: var(--surface-subtle);
+		color: var(--text-muted);
 		cursor: pointer;
 	}
 
-	.board-tabs button:hover {
-		border-color: var(--primary);
+	.clear-button svg {
+		width: 10px;
+		height: 10px;
+		stroke-width: 2;
+		fill: none;
+		stroke: currentColor;
 	}
 
-	.board-tabs button.active {
-		border-color: var(--primary);
-		background: var(--primary);
-		color: #0f172a;
-		font-weight: 750;
-	}
+	/* Popular Section */
 
-	.popular-section,
-	.post-section {
-		margin-top: 48px;
+	.popular-section {
+		margin-bottom: 38px;
 	}
 
 	.section-title {
-		display: flex;
-		align-items: end;
-		justify-content: space-between;
-		margin-bottom: 18px;
+		margin-bottom: 16px;
 	}
 
 	.section-title h2 {
 		margin: 0;
-		font-size: 22px;
-		letter-spacing: -.06em;
+		font-size: 16px;
+		font-weight: 750;
+		letter-spacing: -0.03em;
 	}
 
 	.section-title p {
-		margin: 5px 0 0;
+		margin: 4px 0 0;
 		color: var(--text-muted);
-		font-size: 14px;
+		font-size: 12px;
 	}
 
 	.popular-grid {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
-		gap: 13px;
+		gap: 12px;
 	}
 
 	.popular-card {
-		display: grid;
-		grid-template-columns: 28px 1fr 14px;
-		gap: 12px;
+		display: flex;
 		align-items: center;
-		padding: 19px;
+		gap: 12px;
+		padding: 14px 16px;
 		border: 1px solid var(--border);
-		border-radius: 16px;
-		background: var(--surface);
+		border-radius: 9px;
+		background: transparent;
+		text-decoration: none;
+		color: var(--text);
+		transition: background 0.15s ease, border-color 0.15s ease;
 	}
 
 	.popular-card:hover {
-		border-color: var(--primary);
-		background: var(--surface-yellow);
+		border-color: var(--accent);
+		background: var(--surface-subtle);
 	}
 
-	.popular-number {
-		color: var(--primary);
-		font-size: 18px;
-		font-weight: 850;
-	}
-
-	.popular-content > span {
+	.popular-rank {
+		font-size: 16px;
+		font-weight: 800;
 		color: var(--accent);
-		font-size: 14px;
-		font-weight: 750;
+		width: 18px;
+		text-align: center;
+	}
+
+	.popular-content {
+		flex: 1;
+		min-width: 0;
 	}
 
 	.popular-content h3 {
-		margin: 6px 0 9px;
-		font-size: 14px;
-		line-height: 1.5;
-	}
-
-	.popular-content div {
-		display: flex;
-		gap: 8px;
-		color: var(--text-muted);
-		font-size: 14px;
-	}
-
-	.popular-content small {
-		font-size: 14px;
-	}
-
-	.popular-card > svg {
-		width: 14px;
-		height: 14px;
-		color: var(--accent);
-	}
-
-	.post-toolbar {
-		display: flex;
-		align-items: end;
-		justify-content: space-between;
-		margin-bottom: 17px;
-	}
-
-	.post-toolbar h2 {
-		margin: 0;
-		font-size: 22px;
-		letter-spacing: -.06em;
-	}
-
-	.post-toolbar span {
-		display: block;
-		margin-top: 5px;
-		color: var(--text-muted);
-		font-size: 14px;
-	}
-
-	.sort-area select {
-		min-width: 105px;
-		padding: 8px 10px;
-		border: 1px solid var(--border);
-		border-radius: 8px;
-		background: var(--surface);
-		color: var(--text);
-		font-size: 14px;
-		outline: 0;
-	}
-
-	.community-search {
-		height: 48px;
-		display: flex;
-		align-items: center;
-		margin-bottom: 18px;
-		padding: 4px 4px 4px 14px;
-		border: 1px solid var(--border);
-		border-radius: 11px;
-		background: var(--surface-subtle);
-	}
-
-	.community-search:focus-within {
-		border-color: var(--primary);
-	}
-
-	.community-search svg {
-		width: 17px;
-		height: 17px;
-		margin-right: 8px;
-		color: var(--accent);
-	}
-
-	.community-search input {
-		flex: 1;
-		min-width: 0;
-		border: 0;
-		outline: 0;
-		background: transparent;
-		color: var(--text);
-		font-size: 14px;
-	}
-
-	.community-search input::placeholder {
-		color: var(--text-muted);
-	}
-
-	.community-search button {
-		height: 40px;
-		padding: 0 16px;
-		border: 0;
-		border-radius: 8px;
-		background: var(--primary);
-		color: #0f172a;
-		font-size: 14px;
-		font-weight: 750;
-		cursor: pointer;
-	}
-
-	.community-search button:hover {
-		background: var(--accent);
-		color: #fff;
-	}
-
-	.post-table {
-		border-top: 1px solid var(--border);
-	}
-
-	.table-head,
-	.post-row {
-		display: grid;
-		grid-template-columns: 100px minmax(0, 1fr) 65px 60px 85px;
-		column-gap: 10px;
-		align-items: center;
-	}
-
-	.table-head {
-		padding: 12px 14px;
-		color: var(--text-muted);
-		font-size: 14px;
+		margin: 0 0 6px;
+		font-size: 13px;
 		font-weight: 650;
-		background: var(--surface-subtle);
-		border-bottom: 1px solid var(--border);
-	}
-
-	.post-row {
-		min-height: 66px;
-		padding: 8px 14px;
-		border-bottom: 1px solid var(--border);
-		font-size: 14px;
-	}
-
-	.post-row:hover {
-		background: var(--surface-yellow);
-	}
-
-	.post-category {
-		width: fit-content;
-		padding: 5px 8px;
-		border-radius: 6px;
-		background: var(--surface-green);
-		color: var(--accent);
-		font-size: 14px;
-		font-weight: 750;
-	}
-
-	.post-title {
-		min-width: 0;
-	}
-
-	.post-title strong {
-		display: block;
 		overflow: hidden;
-		font-size: 14px;
-		font-weight: 650;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
 
-	.post-title small {
-		display: block;
-		margin-top: 4px;
+	.popular-meta {
+		display: flex;
+		gap: 8px;
+		font-size: 11px;
 		color: var(--text-muted);
-		font-size: 14px;
 	}
 
-	.post-row > span:not(.post-category) {
-		color: var(--text-muted);
-		text-align: center;
-		font-size: 14px;
+	.popular-meta strong {
+		color: var(--text);
+		font-weight: 600;
 	}
+
+	.popular-card .arrow {
+		width: 14px;
+		height: 14px;
+		fill: none;
+		stroke: var(--text-muted);
+		stroke-width: 2;
+		flex-shrink: 0;
+	}
+
+	/* Post Section & Table */
+
+	.post-section {
+		margin-bottom: 38px;
+	}
+
+	.post-toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding-bottom: 12px;
+		border-bottom: 1px solid var(--border);
+		margin-bottom: 16px;
+	}
+
+	.section-heading h2 {
+		margin: 0;
+		font-size: 14px;
+		font-weight: 700;
+		letter-spacing: -0.03em;
+		color: var(--text);
+	}
+
+	.section-heading h2 span {
+		color: var(--text-muted);
+		font-weight: 500;
+	}
+
+	.sort-area select {
+		padding: 5px 8px;
+		border: 1px solid var(--border);
+		border-radius: 6px;
+		background: transparent;
+		color: var(--text);
+		font: inherit;
+		font-size: 12px;
+		outline: 0;
+		cursor: pointer;
+	}
+
+	.post-table {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	.table-head {
+		display: grid;
+		grid-template-columns: 110px 1fr 100px 60px 60px 80px;
+		gap: 12px;
+		padding: 8px 16px;
+		color: var(--text-muted);
+		font-size: 11px;
+		font-weight: 650;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.post-row {
+		display: grid;
+		grid-template-columns: 110px 1fr 100px 60px 60px 80px;
+		gap: 12px;
+		align-items: center;
+		padding: 12px 16px;
+		border: 1px solid var(--border);
+		border-radius: 8px;
+		background: transparent;
+		text-decoration: none;
+		color: var(--text);
+		transition: background 0.15s ease, border-color 0.15s ease;
+	}
+
+	.post-row:hover {
+		border-color: var(--accent);
+		background: var(--surface-subtle);
+	}
+
+	.post-category {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		padding: 3px 8px;
+		border: 1px solid var(--border);
+		border-radius: 5px;
+		background: var(--surface-subtle);
+		color: var(--text-muted);
+		font-size: 11px;
+		font-weight: 600;
+		width: fit-content;
+	}
+
+	.post-category svg {
+		width: 11px;
+		height: 11px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
+	}
+
+	.post-title strong {
+		font-size: 13px;
+		font-weight: 650;
+		color: var(--text);
+		display: block;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.post-row .author {
+		font-size: 12px;
+		color: var(--text);
+		font-weight: 500;
+	}
+
+	.post-row .meta {
+		font-size: 12px;
+		color: var(--text-muted);
+	}
+
+	.post-row .meta.comment {
+		color: var(--accent);
+		font-weight: 650;
+	}
+
+	/* Pagination */
 
 	.pagination-section {
 		display: flex;
 		justify-content: center;
-		margin-top: 35px;
+		margin-bottom: 48px;
 	}
 
 	.pagination {
@@ -764,122 +788,139 @@
 	}
 
 	.pagination button {
-		width: 34px;
-		height: 34px;
+		width: 32px;
+		height: 32px;
 		display: grid;
 		place-items: center;
 		border: 1px solid var(--border);
-		border-radius: 9px;
-		background: var(--surface);
-		color: var(--text-subtle);
-		font-size: 14px;
+		border-radius: 6px;
+		background: transparent;
+		color: var(--text-muted);
+		font: inherit;
+		font-size: 12px;
+		font-weight: 600;
 		cursor: pointer;
+		transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
 	}
 
 	.pagination button:hover:not(:disabled) {
-		border-color: var(--primary);
-		background: var(--surface-yellow);
+		border-color: var(--accent);
+		color: var(--text);
 	}
 
 	.pagination button.active {
-		border-color: var(--primary);
-		background: var(--primary);
-		color: #0f172a;
-		font-weight: 750;
+		border-color: var(--accent);
+		background: var(--surface-yellow);
+		color: var(--accent);
+		font-weight: 700;
 	}
 
 	.pagination button:disabled {
-		opacity: .35;
+		opacity: 0.3;
 		cursor: default;
 	}
 
-	.pagination svg {
-		width: 15px;
-		height: 15px;
-	}
-
-	.pagination span {
-		padding: 0 5px;
-		color: var(--text-muted);
-		font-size: 14px;
-	}
-
-	.community-cta {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 25px;
-		margin-top: 55px;
-		padding: 30px 35px;
-		border: 1px solid var(--border);
-		border-radius: 20px;
-		background: var(--surface);
-	}
-
-	.community-cta > div > span {
-		color: var(--accent);
-		font-size: 14px;
-		font-weight: 800;
-	}
-
-	.community-cta h2 {
-		margin: 7px 0 8px;
-		font-size: 22px;
-		line-height: 1.3;
-		letter-spacing: -.06em;
-	}
-
-	.community-cta p {
-		margin: 0;
-		color: var(--text-subtle);
-		font-size: 14px;
-	}
-
-	.cta-button {
-		display: inline-flex;
-		align-items: center;
-		gap: 8px;
-		padding: 11px 15px;
-		border-radius: 9px;
-		background: var(--accent);
-		color: #fff;
-		font-size: 14px;
-		font-weight: 750;
-		white-space: nowrap;
-	}
-
-	.cta-button svg {
+	.pagination button svg {
 		width: 14px;
 		height: 14px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
 	}
 
-	@media (max-width: 1000px) {
+	.pagination .dots {
+		padding: 0 4px;
+		color: var(--text-muted);
+		font-size: 12px;
+	}
+
+	/* Contact Banner */
+
+	.contact-card {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		padding: 18px 20px;
+		border: 1px solid var(--border);
+		border-radius: 9px;
+		background: var(--surface-yellow);
+	}
+
+	.contact-icon {
+		width: 32px;
+		height: 32px;
+		display: grid;
+		place-items: center;
+		flex-shrink: 0;
+		border-radius: 7px;
+		background: var(--accent);
+		color: #fff;
+	}
+
+	.contact-icon svg {
+		width: 15px;
+		height: 15px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
+	}
+
+	.contact-text {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.contact-text span,
+	.contact-text strong {
+		display: block;
+	}
+
+	.contact-text span {
+		margin-bottom: 2px;
+		color: var(--text-muted);
+		font-size: 11px;
+	}
+
+	.contact-text strong {
+		font-size: 13px;
+		font-weight: 650;
+		color: var(--text);
+	}
+
+	.primary-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		border-radius: 7px;
+		padding: 8px 14px;
+		border: 1px solid var(--primary);
+		background: var(--primary);
+		color: #0f172a;
+		font: inherit;
+		font-size: 11px;
+		font-weight: 650;
+		text-decoration: none;
+		cursor: pointer;
+		white-space: nowrap;
+		transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+	}
+
+	.primary-button:hover {
+		border-color: var(--accent);
+		background: var(--accent);
+		color: #fff;
+	}
+
+	/* Responsive */
+
+	@media (max-width: 900px) {
 		.community-hero {
-			grid-template-columns: 1fr 300px;
+			grid-template-columns: 1fr;
 		}
 
 		.popular-grid {
 			grid-template-columns: 1fr;
-		}
-
-		.table-head,
-		.post-row {
-			grid-template-columns: 90px minmax(0, 1fr) 55px 55px 75px;
-		}
-	}
-
-	@media (max-width: 800px) {
-		.page-heading {
-			align-items: flex-start;
-			flex-direction: column;
-		}
-
-		.community-hero {
-			grid-template-columns: 1fr;
-		}
-
-		.hero-placeholder {
-			height: 190px;
 		}
 
 		.table-head {
@@ -887,85 +928,51 @@
 		}
 
 		.post-row {
-			grid-template-columns: 82px 1fr auto;
-			gap: 10px;
-			padding: 14px 10px;
+			grid-template-columns: 1fr;
+			gap: 8px;
 		}
 
-		.post-row > span:nth-child(3),
-		.post-row > span:nth-child(4),
-		.post-row > span:nth-child(5) {
-			display: none;
-		}
-
-		.community-cta {
-			align-items: flex-start;
-			flex-direction: column;
+		.post-row .author,
+		.post-row .meta {
+			display: inline-block;
+			margin-right: 8px;
 		}
 	}
 
-	@media (max-width: 600px) {
-		main {
-			width: calc(100% - 24px);
+	@media (max-width: 760px) {
+		.page {
+			padding: 35px 16px 70px;
 		}
 
-		.page-heading {
-			padding: 40px 6px 25px;
-		}
-
-		.page-heading h1 {
-			font-size: 36px;
-		}
-
-		.community-hero {
-			padding: 28px 22px;
-		}
-
-		.community-hero h2 {
-			font-size: 27px;
-		}
-
-		.hero-placeholder {
-			height: 160px;
-		}
-
-		.board-tabs {
-			gap: 5px;
-		}
-
-		.board-tabs button {
-			padding: 8px 11px;
-			font-size: 14px;
-		}
-
-		.post-toolbar {
-			align-items: flex-start;
+		.settings-header {
 			flex-direction: column;
+			align-items: flex-start;
+			gap: 16px;
+		}
+
+		.settings-header h1 {
+			font-size: 30px;
+		}
+
+		.toolbar {
+			flex-direction: column;
+			align-items: stretch;
 			gap: 12px;
 		}
 
-		.sort-area {
+		.search-box {
 			width: 100%;
+			box-sizing: border-box;
 		}
 
-		.sort-area select {
+		.contact-card {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 14px;
+		}
+
+		.contact-card .primary-button {
 			width: 100%;
-		}
-
-		.post-row {
-			grid-template-columns: 72px 1fr;
-		}
-
-		.post-category {
-			font-size: 14px;
-		}
-
-		.post-title strong {
-			font-size: 14px;
-		}
-
-		.community-cta {
-			padding: 25px 22px;
 		}
 	}
 </style>
