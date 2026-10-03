@@ -1,578 +1,1339 @@
 <script lang="ts">
-	import { appPath } from '$lib/app-path';
+    import { appPath } from '$lib/app-path';
+    import { onMount } from 'svelte';
+
+    import ingredientHeroImg from '$lib/assets/image/hero.jpg';
+    import noImage from '$lib/assets/image/no-image.png';
 	import PreparingModal from '$lib/components/layouts/PreparingModal.svelte';
 
 	let isPreparingOpen = $state(true);
 
-	type Ingredient = {
-		name: string;
-		category: string;
-		description: string;
-		tags: string[];
-	};
+    type Ingredient = {
+        name: string;
+        category: string;
+        description: string;
+        storage: string;
+        tags: string[];
+    };
 
-	let searchQuery = $state('');
-	let selectedCategory = $state('전체');
+    const categories = [
+        { name: '채소', value: 'VEGETABLE', icon: '🥬' },
+        { name: '과일', value: 'FRUIT', icon: '🍎' },
+        { name: '육류', value: 'MEAT', icon: '🥩' },
+        { name: '해산물', value: 'SEAFOOD', icon: '🐟' },
+        { name: '곡류', value: 'GRAIN', icon: '🌾' },
+        { name: '조미료', value: 'SEASONING', icon: '🧂' },
+        { name: '유제품', value: 'DAIRY', icon: '🥛' },
+        { name: '견과류', value: 'NUT', icon: '🥜' }
+    ];
 
-	const categories = ['전체', '채소', '육류', '해산물', '과일', '곡류', '조미료', '유제품'];
+    const popularIngredients: Ingredient[] = [
+        {
+            name: '양파',
+            category: '채소',
+            description: '다양한 요리에 기본적으로 사용되는 대표적인 향신 채소입니다.',
+            storage: '서늘하고 건조한 곳',
+            tags: ['기본재료', '채소', '볶음']
+        },
+        {
+            name: '마늘',
+            category: '채소',
+            description: '한국 요리에서 빠지지 않는 대표적인 향신료입니다.',
+            storage: '통풍이 잘되는 서늘한 곳',
+            tags: ['향신료', '기본재료', '한식']
+        },
+        {
+            name: '대파',
+            category: '채소',
+            description: '국물과 볶음 요리에 풍미를 더해주는 대표적인 채소입니다.',
+            storage: '냉장 보관',
+            tags: ['채소', '국물', '볶음']
+        },
+        {
+            name: '감자',
+            category: '채소',
+            description: '찌개, 볶음, 전 등 다양한 요리에 활용할 수 있는 식재료입니다.',
+            storage: '빛이 없는 서늘한 곳',
+            tags: ['채소', '전분', '구황작물']
+        },
+        {
+            name: '당근',
+            category: '채소',
+            description: '색과 단맛을 더해주는 활용도가 높은 채소입니다.',
+            storage: '냉장 보관',
+            tags: ['채소', '볶음', '샐러드']
+        },
+        {
+            name: '돼지고기',
+            category: '육류',
+            description: '구이, 찌개, 볶음 등 다양한 요리에 사용되는 대표적인 육류입니다.',
+            storage: '냉장 또는 냉동 보관',
+            tags: ['육류', '구이', '찌개']
+        }
+    ];
 
-	const ingredients: Ingredient[] = [
-		{ name: '양파', category: '채소', description: '다양한 요리에 기본적으로 사용되는 대표적인 향신 채소입니다.', tags: ['기본재료', '채소'] },
-		{ name: '대파', category: '채소', description: '국물과 볶음 요리에 향을 더해주는 친숙한 식재료입니다.', tags: ['향채', '채소'] },
-		{ name: '마늘', category: '채소', description: '알싸한 향과 풍미를 더하기 위해 폭넓게 사용됩니다.', tags: ['향신료', '채소'] },
-		{ name: '돼지고기', category: '육류', description: '구이부터 찌개, 볶음까지 다양한 요리에 활용됩니다.', tags: ['육류', '단백질'] },
-		{ name: '닭고기', category: '육류', description: '담백한 맛으로 다양한 조리법에 활용하기 좋은 식재료입니다.', tags: ['육류', '단백질'] },
-		{ name: '연어', category: '해산물', description: '구이와 샐러드 등 여러 요리에 활용되는 대표적인 생선입니다.', tags: ['생선', '해산물'] },
-		{ name: '토마토', category: '채소', description: '샐러드와 소스 등 다양한 형태로 활용되는 식재료입니다.', tags: ['채소', '소스'] },
-		{ name: '감자', category: '채소', description: '찌개와 볶음, 구이 등 여러 조리법에 사용할 수 있습니다.', tags: ['전분', '채소'] },
-		{ name: '쌀', category: '곡류', description: '한국 식문화에서 가장 기본적인 곡류 식재료입니다.', tags: ['곡류', '주식'] },
-		{ name: '버터', category: '유제품', description: '고소한 풍미를 더하거나 조리용으로 사용할 수 있습니다.', tags: ['유제품', '조리'] },
-		{ name: '간장', category: '조미료', description: '짠맛과 감칠맛을 더하는 대표적인 전통 조미료입니다.', tags: ['조미료', '발효'] },
-		{ name: '사과', category: '과일', description: '상큼한 맛과 아삭한 식감이 특징인 대표적인 과일입니다.', tags: ['과일', '디저트'] }
-	];
+    const recentIngredients: Ingredient[] = [
+        {
+            name: '애호박',
+            category: '채소',
+            description: '부드러운 식감과 은은한 단맛이 특징인 채소입니다.',
+            storage: '냉장 보관',
+            tags: ['채소', '찌개', '전']
+        },
+        {
+            name: '새우',
+            category: '해산물',
+            description: '볶음밥부터 파스타까지 폭넓게 활용되는 해산물입니다.',
+            storage: '냉장 또는 냉동 보관',
+            tags: ['해산물', '볶음', '파스타']
+        },
+        {
+            name: '사과',
+            category: '과일',
+            description: '아삭한 식감과 달콤한 맛을 가진 대표적인 과일입니다.',
+            storage: '냉장 보관',
+            tags: ['과일', '디저트', '간식']
+        },
+        {
+            name: '두부',
+            category: '기타',
+            description: '콩으로 만든 식재료로 찌개와 반찬에 다양하게 활용됩니다.',
+            storage: '냉장 보관',
+            tags: ['콩', '단백질', '찌개']
+        }
+    ];
 
-	const filteredIngredients = $derived(
-		ingredients.filter((ingredient) => {
-			const matchesCategory = selectedCategory === '전체' || ingredient.category === selectedCategory;
-			const query = searchQuery.trim().toLowerCase();
-			const matchesSearch =
-				!query ||
-				ingredient.name.toLowerCase().includes(query) ||
-				ingredient.description.toLowerCase().includes(query) ||
-				ingredient.tags.some((tag) => tag.toLowerCase().includes(query));
+    let searchQuery = $state('');
+    let selectedCategory = $state('ALL');
+    let currentPage = $state(1);
 
-			return matchesCategory && matchesSearch;
-		})
-	);
+    const itemsPerPage = 8;
+
+    let filteredIngredients = $derived(
+        [...popularIngredients, ...recentIngredients].filter((ingredient) => {
+            const matchesCategory =
+                selectedCategory === 'ALL' ||
+                ingredient.category ===
+                    categories.find((category) => category.value === selectedCategory)?.name;
+
+            const query = searchQuery.trim().toLowerCase();
+
+            const matchesSearch =
+                !query ||
+                ingredient.name.toLowerCase().includes(query) ||
+                ingredient.description.toLowerCase().includes(query) ||
+                ingredient.tags.some((tag) => tag.toLowerCase().includes(query));
+
+            return matchesCategory && matchesSearch;
+        })
+    );
+
+    let totalPages = $derived(
+        Math.max(1, Math.ceil(filteredIngredients.length / itemsPerPage))
+    );
+
+    let visibleIngredients = $derived(
+        filteredIngredients.slice(
+            (currentPage - 1) * itemsPerPage,
+            currentPage * itemsPerPage
+        )
+    );
+
+    function selectCategory(value: string) {
+        selectedCategory = value;
+        currentPage = 1;
+    }
+
+    function handleSearch() {
+        currentPage = 1;
+    }
+
+    function previousPage() {
+        if (currentPage > 1) {
+            currentPage -= 1;
+        }
+    }
+
+    function nextPage() {
+        if (currentPage < totalPages) {
+            currentPage += 1;
+        }
+    }
+
+    function goToPage(page: number) {
+        currentPage = page;
+    }
 </script>
 
 <svelte:head>
-	<title>식재료 위키 | 요리위키</title>
-	<meta name="description" content="요리위키 식재료 위키에서 다양한 식재료 정보를 찾아보세요." />
+    <title>식재료 위키 | 요리위키</title>
+    <meta
+        name="description"
+        content="식재료의 특징과 손질법, 보관법을 찾아보세요."
+    />
 </svelte:head>
 
 <PreparingModal bind:open={isPreparingOpen} />
 
 <div class="page">
-	<main>
-		<section class="hero">
-			<div class="hero-copy">
-				<span class="eyebrow">식재료 위키</span>
-				<h1>요리에 들어가는<br /><strong>모든 식재료를 찾아보세요.</strong></h1>
-				<p>식재료의 특징과 활용법을 한곳에서 확인하고, 새로운 재료를 발견해보세요.</p>
-			</div>
-			<div class="hero-visual">
-				<div class="placeholder-image">
-					<svg viewBox="0 0 24 24"><path d="M4 18l5-6 4 4 3-3 4 5M5 19h14M8 8h.01" /></svg>
-					<span>식재료 이미지<br />플레이스홀더</span>
-				</div>
-			</div>
-		</section>
+    <main>
 
-		<section class="search-section">
-			<div class="search-box">
-				<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="M16.5 16.5L21 21" /></svg>
-				<input bind:value={searchQuery} type="search" placeholder="식재료 이름을 검색해보세요" />
-				{#if searchQuery}
-					<button type="button" class="clear-button" aria-label="검색어 지우기" onclick={() => (searchQuery = '')}>
-						<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg>
-					</button>
-				{/if}
-			</div>
-		</section>
+        <!-- =========================================
+             HERO
+        ========================================== -->
+        <section class="wiki-hero">
+            <div class="wiki-hero-content">
+                <span class="hero-label">INGREDIENT WIKI</span>
 
-		<section class="category-section">
-			<div class="section-heading">
-				<div>
-					<span class="section-label">CATEGORY</span>
-					<h2>카테고리로 찾아보기</h2>
-				</div>
-			</div>
+                <h1>
+                    식재료에 대한<br />
+                    <span>모든 정보</span>를 찾아보세요.
+                </h1>
 
-			<div class="category-list">
-				{#each categories as category}
-					<button class:active={selectedCategory === category} type="button" onclick={() => (selectedCategory = category)}>
-						{#if category === '채소'}
-							<svg viewBox="0 0 24 24"><path d="M12 20c5-2 7-6 7-11-5 0-9 2-11 6M12 20C7 19 5 15 5 10c5 0 8 2 10 5" /></svg>
-						{:else if category === '육류'}
-							<svg viewBox="0 0 24 24"><path d="M7 15c-2-2-2-5 0-7 3-3 8-2 10 1 2 3 1 7-2 9-3 2-6 0-8-3z" /><circle cx="14.5" cy="10" r="1" /></svg>
-						{:else if category === '해산물'}
-							<svg viewBox="0 0 24 24"><path d="M4 12c3-5 9-7 16-4-2 6-7 9-13 8l-3 2 1-3-1-3z" /><path d="M15 9h.01" /></svg>
-						{:else}
-							<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" /><path d="M12 5v14M5 12h14" /></svg>
-						{/if}
-						<span>{category}</span>
-					</button>
-				{/each}
-			</div>
-		</section>
+                <p>
+                    식재료의 특징부터 손질 방법과 보관 방법까지<br />
+                    요리에 필요한 정보를 한곳에서 확인할 수 있습니다.
+                </p>
 
-		<section class="popular-section">
-			<div class="section-heading">
-				<div>
-					<span class="section-label">POPULAR</span>
-					<h2>많이 찾는 식재료</h2>
-				</div>
-				<a href="#all" class="more-link">전체 보기 <span>→</span></a>
-			</div>
+                <form
+                    class="wiki-search"
+                    onsubmit={(event) => {
+                        event.preventDefault();
+                        handleSearch();
+                    }}
+                >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="10.5" cy="10.5" r="6" />
+                        <path d="M15 15l5 5" />
+                    </svg>
 
-			<div class="popular-grid">
-				{#each ingredients.slice(0, 4) as ingredient}
-					<a href={appPath(`/ingredients/${ingredient.name}`)} class="popular-card">
-						<div class="ingredient-image">
-							<span>IMAGE</span>
-						</div>
-						<div class="popular-content">
-							<span>{ingredient.category}</span>
-							<h3>{ingredient.name}</h3>
-						</div>
-					</a>
-				{/each}
-			</div>
-		</section>
+                    <input
+                        bind:value={searchQuery}
+                        type="search"
+                        maxlength="100"
+                        aria-label="식재료 검색"
+                        placeholder="식재료 이름을 검색하세요"
+                    />
 
-		<section id="all" class="all-section">
-			<div class="section-heading">
-				<div>
-					<span class="section-label">INGREDIENTS</span>
-					<h2>전체 식재료</h2>
-				</div>
-				<span class="result-count">{filteredIngredients.length}개의 식재료</span>
-			</div>
+                    <button type="submit">
+                        검색
+                    </button>
+                </form>
+            </div>
 
-			{#if filteredIngredients.length > 0}
-				<div class="ingredient-grid">
-					{#each filteredIngredients as ingredient}
-						<a href={appPath(`/ingredients/${ingredient.name}`)} class="ingredient-card">
-							<div class="card-image">
-								<span>IMAGE</span>
-							</div>
-							<div class="card-body">
-								<div class="card-category">{ingredient.category}</div>
-								<h3>{ingredient.name}</h3>
-								<p>{ingredient.description}</p>
-								<div class="tags">
-									{#each ingredient.tags as tag}
-										<span>{tag}</span>
-									{/each}
-								</div>
-							</div>
-						</a>
-					{/each}
-				</div>
-			{:else}
-				<div class="empty-state">
-					<div class="empty-icon">
-						<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="M16.5 16.5L21 21M8 11h6" /></svg>
-					</div>
-					<h3>검색 결과가 없습니다.</h3>
-					<p>다른 식재료 이름이나 카테고리로 검색해보세요.</p>
-					<button type="button" onclick={() => { searchQuery = ''; selectedCategory = '전체'; }}>검색 초기화</button>
-				</div>
-			{/if}
-		</section>
-	</main>
+            <div class="wiki-hero-image">
+                <img src={ingredientHeroImg} alt="다양한 식재료 이미지" />
+                <div class="hero-image-overlay"></div>
+            </div>
+        </section>
+
+        <!-- =========================================
+             CATEGORY
+        ========================================== -->
+        <section class="category-section">
+            <div class="section-title">
+                <div>
+                    <span class="section-label">CATEGORY</span>
+                    <h2>식재료 카테고리</h2>
+                </div>
+
+                <span class="result-count">
+                    총 {filteredIngredients.length}개의 식재료
+                </span>
+            </div>
+
+            <div class="category-grid">
+
+                <button
+                    type="button"
+                    class:active={selectedCategory === 'ALL'}
+                    class="category-card"
+                    onclick={() => selectCategory('ALL')}
+                >
+                    <div class="category-icon all-icon">
+                        ALL
+                    </div>
+
+                    <strong>전체</strong>
+                </button>
+
+                {#each categories as category}
+                    <button
+                        type="button"
+                        class:active={selectedCategory === category.value}
+                        class="category-card"
+                        onclick={() => selectCategory(category.value)}
+                    >
+                        <div class="category-icon">
+                            {category.icon}
+                        </div>
+
+                        <strong>{category.name}</strong>
+                    </button>
+                {/each}
+
+            </div>
+        </section>
+
+        <!-- =========================================
+             POPULAR INGREDIENTS
+        ========================================== -->
+        <section class="popular-section">
+
+            <div class="section-title">
+                <div>
+                    <span class="section-label">POPULAR</span>
+                    <h2>많이 찾는 식재료</h2>
+                </div>
+
+                <a href={appPath('/ingredients/popular')}>
+                    전체보기
+                </a>
+            </div>
+
+            <div class="popular-grid">
+                {#each popularIngredients.slice(0, 4) as ingredient}
+                    <a
+                        href={appPath(
+                            `/ingredients/${encodeURIComponent(ingredient.name)}`
+                        )}
+                        class="popular-card"
+                    >
+                        <div class="popular-image">
+                            <img
+                                src={noImage}
+                                alt={`${ingredient.name} 이미지`}
+                            />
+                        </div>
+
+                        <div class="popular-content">
+                            <span>{ingredient.category}</span>
+
+                            <h3>{ingredient.name}</h3>
+
+                            <p>
+                                {ingredient.description}
+                            </p>
+
+                            <div class="card-arrow">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M5 12h14" />
+                                    <path d="M13 6l6 6-6 6" />
+                                </svg>
+                            </div>
+                        </div>
+                    </a>
+                {/each}
+            </div>
+        </section>
+
+        <!-- =========================================
+             INGREDIENT LIST
+        ========================================== -->
+        <section class="ingredient-section">
+
+            <div class="section-title">
+                <div>
+                    <span class="section-label">INGREDIENTS</span>
+                    <h2>
+                        {selectedCategory === 'ALL'
+                            ? '전체 식재료'
+                            : categories.find(
+                                  (category) =>
+                                      category.value === selectedCategory
+                              )?.name}
+                    </h2>
+                </div>
+
+                {#if searchQuery}
+                    <button
+                        type="button"
+                        class="clear-search"
+                        onclick={() => {
+                            searchQuery = '';
+                            currentPage = 1;
+                        }}
+                    >
+                        검색 초기화
+                    </button>
+                {/if}
+            </div>
+
+            {#if visibleIngredients.length > 0}
+
+                <div class="ingredient-grid">
+                    {#each visibleIngredients as ingredient}
+                        <a
+                            href={appPath(
+                                `/ingredients/${encodeURIComponent(ingredient.name)}`
+                            )}
+                            class="ingredient-card"
+                        >
+                            <div class="ingredient-image">
+                                <img
+                                    src={noImage}
+                                    alt={`${ingredient.name} 이미지`}
+                                />
+
+                                <span class="ingredient-category">
+                                    {ingredient.category}
+                                </span>
+                            </div>
+
+                            <div class="ingredient-card-content">
+                                <h3>{ingredient.name}</h3>
+
+                                <p>
+                                    {ingredient.description}
+                                </p>
+
+                                <div class="storage">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <rect
+                                            x="4"
+                                            y="5"
+                                            width="16"
+                                            height="15"
+                                            rx="2"
+                                        />
+                                        <path d="M8 3v4" />
+                                        <path d="M16 3v4" />
+                                        <path d="M4 10h16" />
+                                    </svg>
+
+                                    <span>
+                                        {ingredient.storage}
+                                    </span>
+                                </div>
+
+                                <div class="tags">
+                                    {#each ingredient.tags as tag}
+                                        <span>#{tag}</span>
+                                    {/each}
+                                </div>
+                            </div>
+                        </a>
+                    {/each}
+                </div>
+
+            {:else}
+
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="10.5" cy="10.5" r="6" />
+                            <path d="M15 15l5 5" />
+                        </svg>
+                    </div>
+
+                    <h3>검색 결과가 없습니다.</h3>
+
+                    <p>
+                        다른 식재료 이름이나 카테고리로 검색해보세요.
+                    </p>
+
+                    <button
+                        type="button"
+                        onclick={() => {
+                            searchQuery = '';
+                            selectedCategory = 'ALL';
+                            currentPage = 1;
+                        }}
+                    >
+                        전체 식재료 보기
+                    </button>
+                </div>
+
+            {/if}
+
+            <!-- PAGINATION -->
+            {#if filteredIngredients.length > 0}
+                <div class="pagination">
+
+                    <button
+                        type="button"
+                        class="page-arrow"
+                        aria-label="이전 페이지"
+                        disabled={currentPage === 1}
+                        onclick={previousPage}
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                    </button>
+
+                    {#each Array(totalPages) as _, index}
+                        <button
+                            type="button"
+                            class:active={currentPage === index + 1}
+                            onclick={() => goToPage(index + 1)}
+                        >
+                            {index + 1}
+                        </button>
+                    {/each}
+
+                    <button
+                        type="button"
+                        class="page-arrow"
+                        aria-label="다음 페이지"
+                        disabled={currentPage === totalPages}
+                        onclick={nextPage}
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg>
+                    </button>
+
+                </div>
+            {/if}
+
+        </section>
+
+        <!-- =========================================
+             WIKI INFORMATION
+        ========================================== -->
+        <section class="info-section">
+
+            <div class="info-content">
+                <span class="section-label">
+                    INGREDIENT WIKI
+                </span>
+
+                <h2>
+                    식재료 정보를 함께<br />
+                    만들어가요.
+                </h2>
+
+                <p>
+                    알고 있는 식재료 정보를 공유하고<br />
+                    다른 사람들과 함께 요리 지식을 쌓아보세요.
+                </p>
+
+                <a
+                    href={appPath('/ingredients/new')}
+                    class="info-button"
+                >
+                    식재료 정보 등록하기
+
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M5 12h14" />
+                        <path d="M13 6l6 6-6 6" />
+                    </svg>
+                </a>
+            </div>
+
+            <div class="info-decoration">
+                <div class="decoration-circle circle-one"></div>
+                <div class="decoration-circle circle-two"></div>
+
+                <div class="decoration-card">
+                    <span>WIKI</span>
+                    <strong>식재료 정보</strong>
+                    <small>
+                        손질 · 보관 · 활용법
+                    </small>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
 </div>
 
 <style>
-	svg {
-		fill: none;
-		stroke: currentColor;
-		stroke-width: 1.7;
-		stroke-linecap: round;
-		stroke-linejoin: round;
-	}
+    .page {
+        min-height: 100vh;
+        background: var(--background);
+        color: var(--text);
+    }
 
-	.page {
-		min-height: 100vh;
-		background: var(--background);
-	}
+    svg {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.7;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
 
-	main {
-		width: min(1120px, 100%);
-		margin: 0 auto;
-		padding: 52px 24px 100px;
-	}
+    main {
+        width: 100%;
+        padding-bottom: 80px;
+    }
 
-	.hero {
-		display: grid;
-		grid-template-columns: 1.2fr 0.8fr;
-		gap: 50px;
-		align-items: center;
-		padding: 20px 0 58px;
-	}
+    main > section {
+        width: min(1160px, calc(100% - 48px));
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 60px;
+    }
 
-	.eyebrow,
-	.section-label {
-		color: var(--accent);
-		font-size: 14px;
-		font-weight: 800;
-		letter-spacing: 0.1em;
-	}
+    /* =========================================
+       HERO
+    ========================================== */
 
-	.hero h1 {
-		margin: 13px 0 17px;
-		font-size: 40px;
-		line-height: 1.18;
-		letter-spacing: -0.065em;
-	}
+    .wiki-hero {
+        position: relative;
+        min-height: 430px;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: 25px;
+        background: var(--surface-green);
+    }
 
-	.hero h1 strong {
-		color: var(--accent);
-	}
+    .wiki-hero-content {
+        position: relative;
+        z-index: 2;
+        width: 58%;
+        padding: 65px 0 65px 55px;
+    }
 
-	.hero p {
-		max-width: 520px;
-		margin: 0;
-		color: var(--text-subtle);
-		font-size: 14px;
-		line-height: 1.8;
-	}
+    .hero-label,
+    .section-label {
+        color: var(--accent);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .08em;
+    }
 
-	.hero-visual {
-		display: flex;
-		justify-content: flex-end;
-	}
+    .wiki-hero h1 {
+        margin: 15px 0 18px;
+        font-size: clamp(38px, 4.5vw, 58px);
+        line-height: 1.12;
+        letter-spacing: -.075em;
+    }
 
-	.placeholder-image {
-		width: 100%;
-		max-width: 390px;
-		aspect-ratio: 1.45;
-		border-radius: 22px;
-		background: var(--surface-yellow);
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 10px;
-		color: var(--text-muted);
-		text-align: center;
-		font-size: 14px;
-	}
+    .wiki-hero h1 span {
+        color: var(--accent);
+    }
 
-	.placeholder-image svg {
-		width: 38px;
-		height: 38px;
-		color: var(--accent);
-	}
+    .wiki-hero p {
+        margin: 0;
+        color: var(--text-subtle);
+        font-size: 13px;
+        line-height: 1.8;
+    }
 
-	.search-section {
-		margin-bottom: 55px;
-	}
+    .wiki-search {
+        width: min(520px, 100%);
+        height: 55px;
+        display: flex;
+        align-items: center;
+        margin-top: 27px;
+        padding: 4px 4px 4px 16px;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: var(--surface);
+        box-shadow: 0 8px 25px var(--shadow-search);
+    }
 
-	.search-box {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		width: min(700px, 100%);
-		margin: 0 auto;
-		padding: 0 17px;
-		height: 54px;
-		border: 1px solid var(--border);
-		border-radius: 14px;
-		background: var(--surface);
-		box-shadow: 0 8px 25px rgba(15, 23, 42, 0.05);
-	}
+    .wiki-search:focus-within {
+        border-color: var(--primary);
+    }
 
-	.search-box:focus-within {
-		border-color: var(--primary);
-		box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.15);
-	}
+    .wiki-search svg {
+        width: 19px;
+        height: 19px;
+        margin-right: 9px;
+        color: var(--accent);
+    }
 
-	.search-box > svg {
-		width: 19px;
-		height: 19px;
-		color: var(--text-muted);
-	}
+    .wiki-search input {
+        flex: 1;
+        min-width: 0;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: var(--text);
+        font-size: 12px;
+    }
 
-	.search-box input {
-		width: 100%;
-		border: 0;
-		outline: 0;
-		background: transparent;
-		color: var(--text);
-		font-size: 14px;
-	}
+    .wiki-search input::placeholder {
+        color: var(--text-muted);
+    }
 
-	.search-box input::placeholder {
-		color: var(--text-muted);
-	}
+    .wiki-search button {
+        height: 45px;
+        padding: 0 21px;
+        border: 0;
+        border-radius: 10px;
+        background: var(--primary);
+        color: #0f172a;
+        font-size: 11px;
+        font-weight: 750;
+        cursor: pointer;
+    }
 
-	.clear-button {
-		width: 27px;
-		height: 27px;
-		display: grid;
-		place-items: center;
-		flex-shrink: 0;
-		border: 0;
-		border-radius: 7px;
-		background: var(--surface-subtle);
-		color: var(--text-muted);
-		cursor: pointer;
-	}
+    .wiki-hero-image {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 52%;
+        height: 100%;
+        overflow: hidden;
+    }
 
-	.clear-button svg {
-		width: 13px;
-		height: 13px;
-	}
+    .wiki-hero-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 
-	.category-section,
-	.popular-section,
-	.all-section {
-		margin-bottom: 62px;
-	}
+    .hero-image-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            to right,
+            var(--surface-green) 0%,
+            rgb(from var(--surface-green) r g b / .95) 12%,
+            rgb(from var(--surface-green) r g b / .7) 27%,
+            rgb(from var(--surface-green) r g b / .25) 55%,
+            rgba(0, 0, 0, 0) 100%
+        );
+    }
 
-	.section-heading {
-		display: flex;
-		align-items: flex-end;
-		justify-content: space-between;
-		margin-bottom: 19px;
-	}
+    /* =========================================
+       SECTION TITLE
+    ========================================== */
 
-	.section-heading h2 {
-		margin: 7px 0 0;
-		font-size: 20px;
-		letter-spacing: -0.055em;
-	}
+    .section-title {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
 
-	.category-list {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 8px;
-	}
+    .section-title h2 {
+        margin: 8px 0 0;
+        font-size: 25px;
+        letter-spacing: -.065em;
+    }
 
-	.category-list button {
-		display: flex;
-		align-items: center;
-		gap: 7px;
-		padding: 10px 14px;
-		border: 1px solid var(--border);
-		border-radius: 10px;
-		background: var(--surface);
-		color: var(--text-subtle);
-		font-size: 14px;
-		font-weight: 650;
-		cursor: pointer;
-	}
+    .section-title > a {
+        color: var(--accent);
+        font-size: 10px;
+        font-weight: 700;
+    }
 
-	.category-list button:hover {
-		border-color: var(--primary);
-	}
+    .result-count {
+        color: var(--text-subtle);
+        font-size: 10px;
+    }
 
-	.category-list button.active {
-		border-color: var(--primary);
-		background: var(--primary);
-		color: #0f172a;
-	}
+    /* =========================================
+       CATEGORY
+    ========================================== */
 
-	.category-list svg {
-		width: 15px;
-		height: 15px;
-	}
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 10px;
+    }
 
-	.more-link {
-		color: var(--accent);
-		font-size: 14px;
-		font-weight: 700;
-	}
+    .category-card {
+        min-width: 0;
+        height: 125px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 11px;
+        border: 1px solid var(--border);
+        border-radius: 15px;
+        background: var(--surface);
+        color: var(--text);
+        cursor: pointer;
+        transition: .18s ease;
+    }
 
-	.more-link span {
-		margin-left: 3px;
-	}
+    .category-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--primary);
+        background: var(--surface-yellow);
+        box-shadow: 0 8px 20px var(--shadow-card);
+    }
 
-	.result-count {
-		color: var(--text-muted);
-		font-size: 14px;
-	}
+    .category-card.active {
+        border-color: var(--accent);
+        background: var(--surface-green);
+        box-shadow: 0 7px 20px var(--shadow-card);
+    }
 
-	.popular-grid {
-		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		gap: 13px;
-	}
+    .category-icon {
+        width: 52px;
+        height: 52px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background: var(--surface-yellow);
+        font-size: 24px;
+    }
 
-	.popular-card {
-		overflow: hidden;
-		border: 1px solid var(--border);
-		border-radius: 14px;
-		background: var(--surface);
-		transition: transform 0.18s, border-color 0.18s;
-	}
+    .all-icon {
+        color: var(--accent);
+        font-size: 9px;
+        font-weight: 800;
+    }
 
-	.popular-card:hover {
-		transform: translateY(-3px);
-		border-color: var(--primary);
-	}
+    .category-card strong {
+        font-size: 11px;
+    }
 
-	.ingredient-image {
-		aspect-ratio: 1.3;
-		background: var(--surface-subtle);
-		display: grid;
-		place-items: center;
-		color: var(--text-muted);
-		font-size: 14px;
-	}
+    /* =========================================
+       POPULAR
+    ========================================== */
 
-	.popular-content {
-		padding: 13px;
-	}
+    .popular-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+    }
 
-	.popular-content span {
-		color: var(--accent);
-		font-size: 14px;
-		font-weight: 700;
-	}
+    .popular-card {
+        position: relative;
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: 19px;
+        background: var(--surface);
+        transition: .2s ease;
+    }
 
-	.popular-content h3 {
-		margin: 5px 0 0;
-		font-size: 14px;
-		letter-spacing: -0.04em;
-	}
+    .popular-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--primary);
+        box-shadow: 0 12px 25px var(--shadow-card);
+    }
 
-	.ingredient-grid {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 14px;
-	}
+    .popular-image {
+        height: 175px;
+        overflow: hidden;
+        background: var(--surface-yellow);
+    }
 
-	.ingredient-card {
-		overflow: hidden;
-		border: 1px solid var(--border);
-		border-radius: 14px;
-		background: var(--surface);
-		transition: transform 0.18s, border-color 0.18s;
-	}
+    .popular-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform .25s ease;
+    }
 
-	.ingredient-card:hover {
-		transform: translateY(-3px);
-		border-color: var(--primary);
-	}
+    .popular-card:hover .popular-image img {
+        transform: scale(1.04);
+    }
 
-	.card-image {
-		aspect-ratio: 1.75;
-		background: var(--surface-subtle);
-		display: grid;
-		place-items: center;
-		color: var(--text-muted);
-		font-size: 14px;
-	}
+    .popular-content {
+        position: relative;
+        padding: 17px;
+    }
 
-	.card-body {
-		padding: 16px;
-	}
+    .popular-content > span {
+        color: var(--accent);
+        font-size: 9px;
+        font-weight: 750;
+    }
 
-	.card-category {
-		color: var(--accent);
-		font-size: 14px;
-		font-weight: 750;
-	}
+    .popular-content h3 {
+        margin: 6px 0 7px;
+        font-size: 17px;
+        letter-spacing: -.04em;
+    }
 
-	.card-body h3 {
-		margin: 5px 0 8px;
-		font-size: 16px;
-		letter-spacing: -0.04em;
-	}
+    .popular-content p {
+        margin: 0;
+        color: var(--text-subtle);
+        font-size: 9px;
+        line-height: 1.65;
+    }
 
-	.card-body p {
-		height: 34px;
-		margin: 0 0 13px;
-		overflow: hidden;
-		color: var(--text-subtle);
-		font-size: 14px;
-		line-height: 1.7;
-	}
+    .card-arrow {
+        position: absolute;
+        right: 15px;
+        bottom: 15px;
+        width: 27px;
+        height: 27px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--surface-yellow);
+        color: var(--accent);
+    }
 
-	.tags {
-		display: flex;
-		gap: 5px;
-		flex-wrap: wrap;
-	}
+    .card-arrow svg {
+        width: 12px;
+        height: 12px;
+    }
 
-	.tags span {
-		padding: 4px 6px;
-		border-radius: 5px;
-		background: var(--surface-subtle);
-		color: var(--text-muted);
-		font-size: 14px;
-	}
+    /* =========================================
+       INGREDIENT LIST
+    ========================================== */
 
-	.empty-state {
-		padding: 70px 20px;
-		text-align: center;
-		border: 1px dashed var(--border);
-		border-radius: 15px;
-	}
+    .ingredient-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+    }
 
-	.empty-icon {
-		width: 45px;
-		height: 45px;
-		display: grid;
-		place-items: center;
-		margin: 0 auto 13px;
-		border-radius: 13px;
-		background: var(--surface-yellow);
-		color: var(--accent);
-	}
+    .ingredient-card {
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: 17px;
+        background: var(--surface);
+        transition: .18s ease;
+    }
 
-	.empty-icon svg {
-		width: 22px;
-		height: 22px;
-	}
+    .ingredient-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--primary);
+        box-shadow: 0 10px 23px var(--shadow-card);
+    }
 
-	.empty-state h3 {
-		margin: 0 0 7px;
-		font-size: 14px;
-	}
+    .ingredient-image {
+        position: relative;
+        height: 145px;
+        overflow: hidden;
+        background: var(--surface-yellow);
+    }
 
-	.empty-state p {
-		margin: 0 0 17px;
-		color: var(--text-muted);
-		font-size: 14px;
-	}
+    .ingredient-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 
-	.empty-state button {
-		padding: 8px 13px;
-		border: 0;
-		border-radius: 8px;
-		background: var(--primary);
-		color: #0f172a;
-		font-size: 14px;
-		font-weight: 700;
-		cursor: pointer;
-	}
+    .ingredient-category {
+        position: absolute;
+        top: 11px;
+        left: 11px;
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: var(--surface);
+        color: var(--accent);
+        font-size: 8px;
+        font-weight: 750;
+    }
 
-	@media (max-width: 800px) {
-		main {
-			padding-top: 35px;
-		}
-		.hero {
-			grid-template-columns: 1fr;
-			gap: 28px;
-		}
-		.hero-visual {
-			justify-content: flex-start;
-		}
-		.popular-grid {
-			grid-template-columns: repeat(2, 1fr);
-		}
-		.ingredient-grid {
-			grid-template-columns: repeat(2, 1fr);
-		}
-	}
+    .ingredient-card-content {
+        padding: 15px;
+    }
 
-	@media (max-width: 560px) {
-		.hero h1 {
-			font-size: 31px;
-		}
-		.category-list {
-			gap: 6px;
-		}
-		.category-list button {
-			padding: 9px 11px;
-		}
-		.popular-grid,
-		.ingredient-grid {
-			grid-template-columns: 1fr;
-		}
-	}
+    .ingredient-card h3 {
+        margin: 0 0 6px;
+        font-size: 16px;
+        letter-spacing: -.04em;
+    }
+
+    .ingredient-card p {
+        height: 30px;
+        margin: 0 0 12px;
+        overflow: hidden;
+        color: var(--text-subtle);
+        font-size: 9px;
+        line-height: 1.6;
+    }
+
+    .storage {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--text-subtle);
+        font-size: 8px;
+    }
+
+    .storage svg {
+        width: 12px;
+        height: 12px;
+        color: var(--accent);
+    }
+
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 11px;
+    }
+
+    .tags span {
+        padding: 4px 6px;
+        border-radius: 5px;
+        background: var(--surface-green);
+        color: var(--accent);
+        font-size: 7px;
+    }
+
+    .clear-search {
+        padding: 7px 11px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text-subtle);
+        font-size: 9px;
+        cursor: pointer;
+    }
+
+    .clear-search:hover {
+        border-color: var(--primary);
+        color: var(--accent);
+    }
+
+    /* =========================================
+       EMPTY
+    ========================================== */
+
+    .empty-state {
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 1px dashed var(--border);
+        border-radius: 18px;
+        background: var(--surface);
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 55px;
+        height: 55px;
+        display: grid;
+        place-items: center;
+        margin-bottom: 15px;
+        border-radius: 50%;
+        background: var(--surface-yellow);
+        color: var(--accent);
+    }
+
+    .empty-icon svg {
+        width: 21px;
+        height: 21px;
+    }
+
+    .empty-state h3 {
+        margin: 0 0 7px;
+        font-size: 16px;
+    }
+
+    .empty-state p {
+        margin: 0 0 17px;
+        color: var(--text-subtle);
+        font-size: 9px;
+    }
+
+    .empty-state button {
+        padding: 9px 13px;
+        border: 0;
+        border-radius: 8px;
+        background: var(--primary);
+        color: #0f172a;
+        font-size: 9px;
+        font-weight: 750;
+        cursor: pointer;
+    }
+
+    /* =========================================
+       PAGINATION
+    ========================================== */
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        margin-top: 30px;
+    }
+
+    .pagination button {
+        width: 31px;
+        height: 31px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text-subtle);
+        font-size: 9px;
+        cursor: pointer;
+    }
+
+    .pagination button:hover:not(:disabled) {
+        border-color: var(--primary);
+        color: var(--accent);
+    }
+
+    .pagination button.active {
+        border-color: var(--accent);
+        background: var(--accent);
+        color: #fff;
+    }
+
+    .pagination button:disabled {
+        opacity: .35;
+        cursor: default;
+    }
+
+    .pagination .page-arrow svg {
+        width: 13px;
+        height: 13px;
+    }
+
+    /* =========================================
+       INFO
+    ========================================== */
+
+    .info-section {
+        position: relative;
+        min-height: 280px;
+        display: grid;
+        grid-template-columns: 1fr 420px;
+        align-items: center;
+        overflow: hidden;
+        padding: 38px 45px;
+        border: 1px solid var(--border-green);
+        border-radius: 24px;
+        background: var(--surface-green);
+    }
+
+    .info-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .info-content h2 {
+        margin: 10px 0 12px;
+        font-size: 29px;
+        line-height: 1.25;
+        letter-spacing: -.065em;
+    }
+
+    .info-content p {
+        margin: 0 0 20px;
+        color: var(--text-subtle);
+        font-size: 10px;
+        line-height: 1.7;
+    }
+
+    .info-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 11px 15px;
+        border-radius: 10px;
+        background: var(--primary);
+        color: #0f172a;
+        font-size: 9px;
+        font-weight: 750;
+        transition: .18s ease;
+    }
+
+    .info-button:hover {
+        background: var(--accent);
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    .info-button svg {
+        width: 13px;
+        height: 13px;
+    }
+
+    .info-decoration {
+        position: relative;
+        height: 220px;
+    }
+
+    .decoration-circle {
+        position: absolute;
+        border-radius: 50%;
+        background: var(--primary);
+        opacity: .3;
+    }
+
+    .circle-one {
+        width: 180px;
+        height: 180px;
+        right: 35px;
+        top: 15px;
+    }
+
+    .circle-two {
+        width: 95px;
+        height: 95px;
+        right: 185px;
+        bottom: 5px;
+        background: var(--accent);
+        opacity: .18;
+    }
+
+    .decoration-card {
+        position: absolute;
+        right: 70px;
+        top: 48px;
+        width: 180px;
+        padding: 22px;
+        border: 1px solid var(--border);
+        border-radius: 17px;
+        background: var(--surface);
+        box-shadow: 0 12px 30px var(--shadow-card);
+        transform: rotate(4deg);
+    }
+
+    .decoration-card span {
+        color: var(--accent);
+        font-size: 8px;
+        font-weight: 800;
+        letter-spacing: .1em;
+    }
+
+    .decoration-card strong {
+        display: block;
+        margin-top: 8px;
+        font-size: 18px;
+    }
+
+    .decoration-card small {
+        display: block;
+        margin-top: 6px;
+        color: var(--text-subtle);
+        font-size: 8px;
+    }
+
+    /* =========================================
+       RESPONSIVE
+    ========================================== */
+
+    @media (max-width: 1000px) {
+        .category-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .popular-grid,
+        .ingredient-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .wiki-hero-content {
+            width: 65%;
+            padding-left: 35px;
+        }
+
+        .wiki-hero-image {
+            width: 60%;
+        }
+    }
+
+    @media (max-width: 800px) {
+        .wiki-hero {
+            min-height: 520px;
+        }
+
+        .wiki-hero-content {
+            width: 100%;
+            align-self: flex-end;
+            padding: 40px 28px;
+        }
+
+        .wiki-hero-image {
+            width: 100%;
+            height: 100%;
+            opacity: .55;
+        }
+
+        .hero-image-overlay {
+            background: linear-gradient(
+                to bottom,
+                var(--surface-green) 0%,
+                rgb(from var(--surface-green) r g b / .85) 45%,
+                rgb(from var(--surface-green) r g b / .98) 75%,
+                var(--surface-green) 100%
+            );
+        }
+
+        .info-section {
+            grid-template-columns: 1fr;
+        }
+
+        .info-decoration {
+            display: none;
+        }
+    }
+
+    @media (max-width: 600px) {
+        main > section {
+            width: calc(100% - 24px);
+            margin-top: 45px;
+        }
+
+        .wiki-hero {
+            min-height: 500px;
+            border-radius: 19px;
+        }
+
+        .wiki-hero-content {
+            padding: 35px 22px;
+        }
+
+        .wiki-hero h1 {
+            font-size: 39px;
+        }
+
+        .wiki-search {
+            height: 52px;
+        }
+
+        .wiki-search button {
+            height: 42px;
+            padding: 0 15px;
+        }
+
+        .category-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 7px;
+        }
+
+        .category-card {
+            height: 105px;
+            border-radius: 12px;
+        }
+
+        .category-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 11px;
+            font-size: 19px;
+        }
+
+        .category-card strong {
+            font-size: 9px;
+        }
+
+        .popular-grid,
+        .ingredient-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .popular-image {
+            height: 200px;
+        }
+
+        .ingredient-image {
+            height: 190px;
+        }
+
+        .section-title h2 {
+            font-size: 21px;
+        }
+
+        .info-section {
+            padding: 30px 22px;
+        }
+
+        .info-content h2 {
+            font-size: 25px;
+        }
+
+        .pagination {
+            gap: 3px;
+        }
+    }
 </style>
