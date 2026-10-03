@@ -3,6 +3,10 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/state';
 	import { authPost } from '$lib/auth';
+	import PreparingModal from '$lib/components/layouts/PreparingModal.svelte';
+
+	let isPreparingOpen = $state(false);
+
 	let pending = $state(false);
 	let message = $state('');
 
@@ -30,6 +34,8 @@
 	<title>로그인 | 요리위키</title>
 	<meta name="description" content="요리위키 로그인" />
 </svelte:head>
+
+<PreparingModal bind:open={isPreparingOpen} />
 
 <div class="page">
 	<main>
@@ -96,7 +102,13 @@
 					<div class="field">
 						<div class="field-label">
 							<label for="password">비밀번호</label>
-							<a href={appPath('/password/reset')}>비밀번호 찾기</a>
+							<button 
+								type="button" 
+								class="text-link-button" 
+								onclick={() => (isPreparingOpen = true)}
+							>
+								비밀번호 찾기
+							</button>
 						</div>
 
 						<div class="input-wrap">
@@ -308,6 +320,19 @@
 	.field-label a {
 		color: var(--accent);
 		font-size: 14px;
+	}
+
+	.field-label button.text-link-button {
+		padding: 0;
+		border: none;
+		background: transparent;
+		color: var(--accent);
+		font-size: 14px;
+		cursor: pointer;
+	}
+
+	.field-label button.text-link-button:hover {
+		text-decoration: underline;
 	}
 
 	.input-wrap {
