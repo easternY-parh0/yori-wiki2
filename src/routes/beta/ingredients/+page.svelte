@@ -17,14 +17,14 @@
     };
 
     const categories = [
-        { name: '채소', value: 'VEGETABLE', icon: '🥬' },
-        { name: '과일', value: 'FRUIT', icon: '🍎' },
-        { name: '육류', value: 'MEAT', icon: '🥩' },
-        { name: '해산물', value: 'SEAFOOD', icon: '🐟' },
-        { name: '곡류', value: 'GRAIN', icon: '🌾' },
-        { name: '조미료', value: 'SEASONING', icon: '🧂' },
-        { name: '유제품', value: 'DAIRY', icon: '🥛' },
-        { name: '견과류', value: 'NUT', icon: '🥜' }
+        { name: '채소', value: 'VEGETABLE', icon: 'fa-solid fa-carrot' },
+        { name: '과일', value: 'FRUIT', icon: 'fa-solid fa-apple-whole' },
+        { name: '육류', value: 'MEAT', icon: 'fa-solid fa-drumstick-bite' },
+        { name: '해산물', value: 'SEAFOOD', icon: 'fa-solid fa-fish' },
+        { name: '곡류', value: 'GRAIN', icon: 'fa-solid fa-wheat-awn' },
+        { name: '조미료', value: 'SEASONING', icon: 'fa-solid fa-jar' },
+        { name: '유제품', value: 'DAIRY', icon: 'fa-solid fa-cow' },
+        { name: '견과류', value: 'NUT', icon: 'fa-solid fa-seedling' }
     ];
 
     const popularIngredients: Ingredient[] = [
@@ -171,6 +171,10 @@
         name="description"
         content="식재료의 특징과 손질법, 보관법을 찾아보세요."
     />
+    <link 
+        rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
+    />
 </svelte:head>
 
 <PreparingModal bind:open={isPreparingOpen} />
@@ -243,7 +247,6 @@
             </div>
 
             <div class="category-grid">
-
                 <button
                     type="button"
                     class:active={selectedCategory === 'ALL'}
@@ -251,9 +254,8 @@
                     onclick={() => selectCategory('ALL')}
                 >
                     <div class="category-icon all-icon">
-                        ALL
+                        <i class="fa-solid fa-border-all"></i>
                     </div>
-
                     <strong>전체</strong>
                 </button>
 
@@ -265,13 +267,11 @@
                         onclick={() => selectCategory(category.value)}
                     >
                         <div class="category-icon">
-                            {category.icon}
+                            <i class={category.icon}></i>
                         </div>
-
                         <strong>{category.name}</strong>
                     </button>
                 {/each}
-
             </div>
         </section>
 
@@ -767,13 +767,12 @@
         place-items: center;
         border-radius: 14px;
         background: var(--surface-yellow);
-        font-size: 24px;
+        font-size: 20px;
+        color: var(--accent);
     }
 
     .all-icon {
-        color: var(--accent);
-        font-size: 9px;
-        font-weight: 800;
+        font-size: 18px;
     }
 
     .category-card strong {
@@ -781,7 +780,7 @@
     }
 
     /* =========================================
-       POPULAR
+       POPULAR (카드 스타일 업데이트)
     ========================================== */
 
     .popular-grid {
@@ -792,22 +791,25 @@
 
     .popular-card {
         position: relative;
+        display: block;
         min-width: 0;
         overflow: hidden;
         border: 1px solid var(--border);
-        border-radius: 19px;
+        border-radius: 17px;
         background: var(--surface);
-        transition: .2s ease;
+        text-decoration: none;
+        color: inherit;
+        transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
     }
 
     .popular-card:hover {
-        transform: translateY(-4px);
+        transform: translateY(-3px);
         border-color: var(--primary);
         box-shadow: 0 12px 25px var(--shadow-card);
     }
 
     .popular-image {
-        height: 175px;
+        height: 180px;
         overflow: hidden;
         background: var(--surface-yellow);
     }
@@ -825,34 +827,42 @@
 
     .popular-content {
         position: relative;
-        padding: 17px;
+        padding: 16px;
     }
 
     .popular-content > span {
+        display: inline-block;
         color: var(--accent);
-        font-size: 9px;
+        font-size: 11px;
         font-weight: 750;
     }
 
     .popular-content h3 {
-        margin: 6px 0 7px;
+        margin: 6px 0 8px;
         font-size: 17px;
-        letter-spacing: -.04em;
+        font-weight: 700;
+        line-height: 1.3;
+        letter-spacing: -.03em;
     }
 
     .popular-content p {
         margin: 0;
+        padding-right: 28px;
         color: var(--text-subtle);
-        font-size: 9px;
-        line-height: 1.65;
+        font-size: 13px;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
     .card-arrow {
         position: absolute;
-        right: 15px;
-        bottom: 15px;
-        width: 27px;
-        height: 27px;
+        right: 16px;
+        bottom: 16px;
+        width: 30px;
+        height: 30px;
         display: grid;
         place-items: center;
         border-radius: 50%;
@@ -861,12 +871,12 @@
     }
 
     .card-arrow svg {
-        width: 12px;
-        height: 12px;
+        width: 14px;
+        height: 14px;
     }
 
     /* =========================================
-       INGREDIENT LIST
+       INGREDIENT LIST (카드 스타일 업데이트)
     ========================================== */
 
     .ingredient-grid {
@@ -876,22 +886,25 @@
     }
 
     .ingredient-card {
+        display: block;
         overflow: hidden;
         border: 1px solid var(--border);
         border-radius: 17px;
         background: var(--surface);
-        transition: .18s ease;
+        text-decoration: none;
+        color: inherit;
+        transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
     }
 
     .ingredient-card:hover {
         transform: translateY(-3px);
         border-color: var(--primary);
-        box-shadow: 0 10px 23px var(--shadow-card);
+        box-shadow: 0 12px 25px var(--shadow-card);
     }
 
     .ingredient-image {
         position: relative;
-        height: 145px;
+        height: 180px;
         overflow: hidden;
         background: var(--surface-yellow);
     }
@@ -904,62 +917,70 @@
 
     .ingredient-category {
         position: absolute;
-        top: 11px;
-        left: 11px;
-        padding: 5px 8px;
+        top: 10px;
+        left: 10px;
+        padding: 5px 10px;
+        border: 1px solid var(--border);
         border-radius: 999px;
         background: var(--surface);
         color: var(--accent);
-        font-size: 8px;
+        font-size: 11px;
         font-weight: 750;
     }
 
     .ingredient-card-content {
-        padding: 15px;
+        padding: 16px;
     }
 
     .ingredient-card h3 {
-        margin: 0 0 6px;
-        font-size: 16px;
-        letter-spacing: -.04em;
+        margin: 0 0 8px;
+        font-size: 17px;
+        font-weight: 700;
+        line-height: 1.3;
+        letter-spacing: -.03em;
     }
 
     .ingredient-card p {
-        height: 30px;
-        margin: 0 0 12px;
-        overflow: hidden;
+        margin: 0 0 14px;
         color: var(--text-subtle);
-        font-size: 9px;
-        line-height: 1.6;
+        font-size: 13px;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
     .storage {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
         color: var(--text-subtle);
-        font-size: 8px;
+        font-size: 12px;
     }
 
     .storage svg {
-        width: 12px;
-        height: 12px;
+        width: 14px;
+        height: 14px;
         color: var(--accent);
     }
 
     .tags {
         display: flex;
         flex-wrap: wrap;
-        gap: 4px;
-        margin-top: 11px;
+        gap: 6px;
+        margin-top: 10px;
     }
 
     .tags span {
-        padding: 4px 6px;
-        border-radius: 5px;
+        padding: 4px 8px;
+        border-radius: 6px;
         background: var(--surface-green);
         color: var(--accent);
-        font-size: 7px;
+        font-size: 11px;
+        font-weight: 600;
     }
 
     .clear-search {
@@ -968,7 +989,7 @@
         border-radius: 8px;
         background: var(--surface);
         color: var(--text-subtle);
-        font-size: 9px;
+        font-size: 11px;
         cursor: pointer;
     }
 
@@ -1011,22 +1032,22 @@
 
     .empty-state h3 {
         margin: 0 0 7px;
-        font-size: 16px;
+        font-size: 17px;
     }
 
     .empty-state p {
         margin: 0 0 17px;
         color: var(--text-subtle);
-        font-size: 9px;
+        font-size: 13px;
     }
 
     .empty-state button {
-        padding: 9px 13px;
+        padding: 9px 15px;
         border: 0;
         border-radius: 8px;
         background: var(--primary);
         color: #0f172a;
-        font-size: 9px;
+        font-size: 12px;
         font-weight: 750;
         cursor: pointer;
     }
@@ -1039,20 +1060,20 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
         margin-top: 30px;
     }
 
     .pagination button {
-        width: 31px;
-        height: 31px;
+        width: 34px;
+        height: 34px;
         display: grid;
         place-items: center;
         border: 1px solid var(--border);
         border-radius: 8px;
         background: var(--surface);
         color: var(--text-subtle);
-        font-size: 9px;
+        font-size: 12px;
         cursor: pointer;
     }
 
@@ -1073,8 +1094,8 @@
     }
 
     .pagination .page-arrow svg {
-        width: 13px;
-        height: 13px;
+        width: 14px;
+        height: 14px;
     }
 
     /* =========================================
@@ -1109,7 +1130,7 @@
     .info-content p {
         margin: 0 0 20px;
         color: var(--text-subtle);
-        font-size: 10px;
+        font-size: 13px;
         line-height: 1.7;
     }
 
@@ -1117,11 +1138,11 @@
         display: inline-flex;
         align-items: center;
         gap: 7px;
-        padding: 11px 15px;
+        padding: 11px 16px;
         border-radius: 10px;
         background: var(--primary);
         color: #0f172a;
-        font-size: 9px;
+        font-size: 12px;
         font-weight: 750;
         transition: .18s ease;
     }
@@ -1133,8 +1154,8 @@
     }
 
     .info-button svg {
-        width: 13px;
-        height: 13px;
+        width: 14px;
+        height: 14px;
     }
 
     .info-decoration {
@@ -1180,7 +1201,7 @@
 
     .decoration-card span {
         color: var(--accent);
-        font-size: 8px;
+        font-size: 10px;
         font-weight: 800;
         letter-spacing: .1em;
     }
@@ -1195,7 +1216,7 @@
         display: block;
         margin-top: 6px;
         color: var(--text-subtle);
-        font-size: 8px;
+        font-size: 11px;
     }
 
     /* =========================================
@@ -1304,7 +1325,7 @@
         }
 
         .category-card strong {
-            font-size: 9px;
+            font-size: 11px;
         }
 
         .popular-grid,
@@ -1312,12 +1333,9 @@
             grid-template-columns: 1fr;
         }
 
-        .popular-image {
-            height: 200px;
-        }
-
+        .popular-image,
         .ingredient-image {
-            height: 190px;
+            height: 200px;
         }
 
         .section-title h2 {
@@ -1333,7 +1351,7 @@
         }
 
         .pagination {
-            gap: 3px;
+            gap: 4px;
         }
     }
 </style>

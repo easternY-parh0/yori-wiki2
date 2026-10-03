@@ -102,8 +102,8 @@
         position: absolute;
         top: 10px;
         right: 10px;
-        width: 30px;
-        height: 30px;
+        width: 34px;
+        height: 34px;
         display: grid;
         place-items: center;
         border: 1px solid var(--border);
@@ -111,6 +111,7 @@
         background: var(--surface);
         color: var(--text);
         cursor: pointer;
+        transition: background-color .15s ease, color .15s ease;
     }
 
     .bookmark:hover {
@@ -119,38 +120,46 @@
     }
 
     .bookmark svg {
-        width: 15px;
-        height: 15px;
+        width: 17px;
+        height: 17px;
     }
 
     .recipe-info {
-        padding: 14px;
+        padding: 16px;
     }
 
     .tag {
+        display: inline-block;
         color: var(--accent);
-        font-size: 8px;
+        font-size: 11px;
         font-weight: 750;
     }
 
     .recipe h3 {
-        margin: 6px 0;
-        font-size: 15px;
-        letter-spacing: -.04em;
+        margin: 6px 0 8px;
+        font-size: 17px;
+        font-weight: 700;
+        line-height: 1.3;
+        letter-spacing: -.03em;
     }
 
     .recipe p {
-        margin: 0 0 13px;
+        margin: 0 0 14px;
         color: var(--text-subtle);
-        font-size: 9px;
+        font-size: 13px;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
     .recipe-meta {
         display: flex;
         justify-content: space-between;
-        padding-top: 10px;
+        padding-top: 12px;
         border-top: 1px solid var(--border);
         color: var(--text-subtle);
-        font-size: 8px;
+        font-size: 12px;
     }
 </style>
