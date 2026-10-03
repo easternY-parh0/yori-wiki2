@@ -1,33 +1,28 @@
 <script lang="ts">
   import { appPath } from '$lib/app-path';
-  import RecipeCard from '$lib/components/layouts/RecipeCard.svelte'
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
 
   let liked = $state(false);
   let bookmarked = $state(false);
-  let servings = $state(data.food.metadata?.servings ?? 2);
+
+  // Svelte 5 반응성 경고 해결 ($derived 사용)
+  let initialServings = $derived(data.food.metadata?.servings ?? 2);
+  let servingOffset = $state(0);
+  let servings = $derived(initialServings + servingOffset);
 
   function increaseServings() {
-    servings += 1;
+    servingOffset += 1;
   }
 
   function decreaseServings() {
-    if (servings > 1) servings -= 1;
+    if (servings > 1) {
+      servingOffset -= 1;
+    }
   }
 
-  // 숫자 패턴("1. ", "2. ") 또는 줄바꿈(\n)을 기준으로 조리 순서 분리
-  const recipeSteps = $derived(
-    data.food.recipe
-      ? data.food.recipe
-          .split(/(?:\r?\n|\s*(?=\d+\.\s*))/)
-          .map((step) => step.replace(/^\d+\.\s*/, '').trim())
-          .filter((step) => step !== '')
-      : []
-  );
-
-  // 쉼표(,) 또는 줄바꿈(\n)을 기준으로 재료 분리
+  // 재료 파싱
   const ingredientList = $derived(
     data.food.ingredients
       ? data.food.ingredients
@@ -48,14 +43,14 @@
 
 <div class="page">
   <main>
-    <div class="breadcrumb">
+    <!-- 상단 브레드크럼 -->
+    <nav class="breadcrumb">
       <a href={appPath('/recipes')}>레시피</a>
-      <svg viewBox="0 0 24 24">
-        <path d="M9 18l6-6-6-6" />
-      </svg>
+      <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
       <span>{data.food.name}</span>
-    </div>
+    </nav>
 
+    <!-- 1. Hero 섹션 (사진 + 제목 및 개요) -->
     <section class="recipe-hero">
       <div class="hero-image">
         <span>{data.food.name}</span>
@@ -79,62 +74,28 @@
               <path d="M5 20c.8-4 3-6 7-6s6.2 2 7 6" />
             </svg>
           </div>
-
           <div>
             <strong>{data.food.metadata?.author || '요리위키'}</strong>
             <span>{data.food.metadata?.created_at || '최근 업데이트'}</span>
           </div>
         </div>
 
-        <div class="recipe-stats">
-          <div>
-            <svg viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="8" />
-              <path d="M12 8v4l3 2" />
-            </svg>
-            <span>{data.food.estimated_time || '시간 미지정'}</span>
-          </div>
-
-          <div>
-            <svg viewBox="0 0 24 24">
-              <path d="M4 19h16" />
-              <path d="M6 17V9M10 17V5M14 17v-3M18 17V7" />
-            </svg>
-            <span>
-              {data.food.metadata?.difficulty != null
-                ? `난이도 ${data.food.metadata.difficulty}`
-                : '보통'}
-            </span>
-          </div>
-
-          <div>
-            <svg viewBox="0 0 24 24">
-              <path
-                d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"
-              />
-            </svg>
-            <span>4.8</span>
-          </div>
-        </div>
-
         <div class="hero-actions">
           <button
             class:liked
-            class="like-button"
+            class="action-btn"
             type="button"
             onclick={() => (liked = !liked)}
           >
             <svg viewBox="0 0 24 24">
-              <path
-                d="M20.8 8.7c0 5.2-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6z"
-              />
+              <path d="M20.8 8.7c0 5.2-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6z" />
             </svg>
             좋아요 {liked ? 129 : 128}
           </button>
 
           <button
             class:bookmarked
-            class="bookmark-button"
+            class="action-btn"
             type="button"
             onclick={() => (bookmarked = !bookmarked)}
           >
@@ -143,27 +104,18 @@
             </svg>
             {bookmarked ? '저장됨' : '저장'}
           </button>
-
-          <button class="share-button" type="button">
-            <svg viewBox="0 0 24 24">
-              <circle cx="18" cy="5" r="2.5" />
-              <circle cx="6" cy="12" r="2.5" />
-              <circle cx="18" cy="19" r="2.5" />
-              <path d="M8.2 10.8l7.5-4.4M8.2 13.2l7.5 4.4" />
-            </svg>
-            공유
-          </button>
         </div>
       </div>
     </section>
 
+    <!-- 2. 본문 & 우측 사이드바 레이아웃 -->
     <div class="content-layout">
       <div class="main-content">
         <!-- 재료 Section -->
-        <section class="content-section ingredients-section">
+        <section class="content-section">
           <div class="section-title">
             <div>
-              <span>01</span>
+              <span class="num">01</span>
               <h2>재료</h2>
             </div>
 
@@ -176,87 +128,45 @@
           </div>
 
           <div class="ingredient-list">
-            <div class="ingredient-group">
-              <h3>필수 재료</h3>
-              {#if ingredientList.length > 0}
-                {#each ingredientList as item}
-                  <div class="ingredient">
-                    <span>{item}</span>
-                  </div>
-                {/each}
-              {:else}
-                <div class="ingredient">
-                  <span>등록된 재료 정보가 없습니다.</span>
-                </div>
-              {/if}
-            </div>
-          </div>
-        </section>
-
-        <!-- 조리 과정 Section -->
-        <section class="content-section">
-          <div class="section-title">
-            <div>
-              <span>02</span>
-              <h2>조리 과정</h2>
-            </div>
-          </div>
-
-          <div class="steps">
-            {#if recipeSteps.length > 0}
-              {#each recipeSteps as stepText, index}
-                <div class="step">
-                  <div class="step-number">{index + 1}</div>
-
-                  <div class="step-body">
-                    <div class="step-image">
-                      <span>STEP {index + 1}</span>
-                    </div>
-
-                    <div>
-                      <h3>{stepText}</h3>
-                    </div>
-                  </div>
+            {#if ingredientList.length > 0}
+              {#each ingredientList as item}
+                <div class="ingredient-item">
+                  <span class="dot"></span>
+                  <span>{item}</span>
                 </div>
               {/each}
             {:else}
-              <p class="empty-text">등록된 조리 순서 정보가 없습니다.</p>
+              <div class="ingredient-item empty">
+                <span>등록된 재료 정보가 없습니다.</span>
+              </div>
             {/if}
           </div>
         </section>
 
-        <!-- 요리 팁 Section -->
-        {#if data.food.metadata?.tips}
-          <section class="content-section tip-section">
-            <div class="section-title">
-              <div>
-                <span>03</span>
-                <h2>요리 팁</h2>
-              </div>
-            </div>
-
-            <div class="tip-box">
-              <svg viewBox="0 0 24 24">
-                <path d="M9 18h6" />
-                <path d="M10 22h4" />
-                <path
-                  d="M8.5 15.5A7 7 0 1 1 15.5 15c-.8.7-1.5 1.5-1.5 3H10c0-1.5-.7-2.3-1.5-3z"
-                />
-              </svg>
-
-              <p>{data.food.metadata.tips}</p>
-            </div>
-          </section>
-        {/if}
-
-        <!-- 댓글 Section -->
-        <section class="content-section comments-section">
+        <!-- 영양 성분 표 Section (플레이스홀더) -->
+        <section class="content-section">
           <div class="section-title">
             <div>
-              <span>04</span>
+              <span class="num">02</span>
+              <h2>영양 성분 표</h2>
+            </div>
+          </div>
+
+          <div class="nutrition-placeholder">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 20v-6M6 20V10M18 20V4" />
+            </svg>
+            <p>영양 성분 분석 정보가 준비 중입니다.</p>
+          </div>
+        </section>
+
+        <!-- 댓글 Section -->
+        <section class="content-section last">
+          <div class="section-title">
+            <div>
+              <span class="num">03</span>
               <h2>댓글</h2>
             </div>
-
             <span class="comment-count">0개</span>
           </div>
 
@@ -266,7 +176,7 @@
               rows="3"
             ></textarea>
 
-            <div>
+            <div class="form-footer">
               <span>로그인 후 댓글을 작성할 수 있습니다.</span>
               <a href={appPath('/login')}>로그인</a>
             </div>
@@ -274,18 +184,24 @@
         </section>
       </div>
 
-      <!-- 사이드바 -->
+      <!-- 우측 Sticky 사이드바 (헤더 높이 오버랩 문제 수정) -->
       <aside class="recipe-sidebar">
-        <div class="sidebar-card">
-          <h3>레시피 정보</h3>
+        <a href={appPath(`/recipes/${data.food.id}/cook`)} class="cook-button">
+          <svg viewBox="0 0 24 24">
+            <path d="M5 12h14" />
+            <path d="M12 5l7 7-7 7" />
+          </svg>
+          <span>요리 만들기 시작</span>
+        </a>
 
+        <div class="info-rows">
           <div class="info-row">
-            <span>준비시간</span>
+            <span>준비 시간</span>
             <strong>{data.food.metadata?.prep_time || '—'}</strong>
           </div>
 
           <div class="info-row">
-            <span>조리시간</span>
+            <span>조리 시간</span>
             <strong>{data.food.estimated_time || '—'}</strong>
           </div>
 
@@ -299,21 +215,10 @@
           </div>
 
           <div class="info-row">
-            <span>인분</span>
+            <span>분량</span>
             <strong>{servings}인분</strong>
           </div>
         </div>
-
-        <a href={appPath('/recipes/new')} class="sidebar-register">
-          <svg viewBox="0 0 24 24">
-            <path d="M12 5v14" />
-            <path d="M5 12h14" />
-          </svg>
-          <span>
-            <strong>나만의 레시피 등록</strong>
-            <small>요리위키에 레시피를 공유해보세요.</small>
-          </span>
-        </a>
       </aside>
     </div>
   </main>
@@ -321,24 +226,22 @@
 
 <style>
   :global(:root) {
-    --background: #ffffff;
-    --surface: #ffffff;
-    --surface-subtle: #f8fafc;
-    --surface-yellow: #fefce8;
-    --surface-green: #f7fee7;
-    --primary: #facc15;
-    --accent: #65a30d;
+    --bg: #ffffff;
     --text: #0f172a;
-    --text-subtle: #64748b;
+    --text-subtle: #475569;
     --text-muted: #94a3b8;
     --border: #e2e8f0;
+    --primary: #facc15;
+    --primary-hover: #eab308;
+    --accent: #65a30d;
+    --bg-yellow: #fefce8;
+    --bg-green: #f7fee7;
     --border-green: #d9f99d;
-    --border-accent: #a3e635;
   }
 
   .page {
     min-height: 100vh;
-    background: var(--background);
+    background: var(--bg);
     color: var(--text);
   }
 
@@ -351,18 +254,23 @@
   }
 
   main {
-    width: min(1120px, calc(100% - 48px));
+    max-width: 1080px;
     margin: 0 auto;
-    padding-bottom: 80px;
+    padding: 0 24px 100px;
   }
 
   .breadcrumb {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 28px 0 18px;
+    padding: 24px 0 18px;
     color: var(--text-muted);
     font-size: 14px;
+  }
+
+  .breadcrumb a {
+    color: var(--text-subtle);
+    text-decoration: none;
   }
 
   .breadcrumb a:hover {
@@ -374,20 +282,23 @@
     height: 12px;
   }
 
+  /* Hero Section */
   .recipe-hero {
     display: grid;
-    grid-template-columns: 1.02fr 1fr;
-    gap: 45px;
-    padding-bottom: 50px;
+    grid-template-columns: 440px 1fr;
+    gap: 40px;
+    padding-bottom: 40px;
     border-bottom: 1px solid var(--border);
   }
 
   .hero-image {
-    min-height: 430px;
+    min-height: 320px;
     display: grid;
     place-items: center;
-    border-radius: 22px;
-    background: var(--surface-yellow);
+
+    /* 핵심 포인트 라운딩만 유지 */
+    border-radius: 16px;
+    background: var(--bg-yellow);
     color: var(--accent);
     font-size: 16px;
     font-weight: 700;
@@ -397,7 +308,6 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 10px 0;
   }
 
   .category {
@@ -407,126 +317,99 @@
   }
 
   .hero-content h1 {
-    margin: 12px 0 15px;
-    font-size: 40px;
-    line-height: 1.22;
-    letter-spacing: -0.07em;
+    margin: 10px 0 12px;
+    font-size: 36px;
+    letter-spacing: -0.05em;
   }
 
   .description {
-    max-width: 500px;
     margin: 0;
     color: var(--text-subtle);
-    font-size: 14px;
-    line-height: 1.75;
+    font-size: 15px;
+    line-height: 1.6;
   }
 
   .author {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-top: 25px;
+    margin-top: 20px;
   }
 
   .author-avatar {
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: var(--surface-green);
+    background: var(--bg-green);
     color: var(--accent);
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
   }
 
   .author-avatar svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  .author strong,
-  .author span {
-    display: block;
+    width: 18px;
+    height: 18px;
   }
 
   .author strong {
+    display: block;
     font-size: 14px;
   }
 
   .author span {
-    margin-top: 3px;
+    display: block;
+    margin-top: 2px;
     color: var(--text-muted);
-    font-size: 14px;
-  }
-
-  .recipe-stats {
-    display: flex;
-    gap: 22px;
-    margin-top: 25px;
-    padding: 17px 0;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .recipe-stats div {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--text-subtle);
-    font-size: 14px;
-  }
-
-  .recipe-stats svg {
-    width: 15px;
-    height: 15px;
-    color: var(--accent);
+    font-size: 13px;
   }
 
   .hero-actions {
     display: flex;
-    gap: 7px;
-    margin-top: 18px;
+    gap: 8px;
+    margin-top: 20px;
   }
 
-  .hero-actions button {
+  .action-btn {
     height: 38px;
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 0 13px;
+    padding: 0 14px;
     border: 1px solid var(--border);
-    border-radius: 9px;
-    background: var(--surface);
+    border-radius: 8px;
+    background: #ffffff;
     color: var(--text-subtle);
     font-size: 14px;
     cursor: pointer;
   }
 
-  .hero-actions button:hover {
+  .action-btn:hover {
     border-color: var(--primary);
   }
 
-  .hero-actions svg {
+  .action-btn svg {
     width: 15px;
     height: 15px;
   }
 
-  .hero-actions .liked {
+  .action-btn.liked {
     border-color: var(--primary);
-    background: var(--surface-yellow);
+    background: var(--bg-yellow);
     color: #ca8a04;
   }
 
-  .hero-actions .bookmarked {
-    border-color: var(--border-accent);
-    background: var(--surface-green);
+  .action-btn.bookmarked {
+    border-color: var(--accent);
+    background: var(--bg-green);
     color: var(--accent);
   }
 
+  /* Content Layout */
   .content-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 260px;
-    gap: 50px;
-    margin-top: 55px;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 48px;
+    margin-top: 40px;
   }
 
   .main-content {
@@ -534,25 +417,29 @@
   }
 
   .content-section {
-    padding-bottom: 55px;
-    margin-bottom: 50px;
+    padding-bottom: 40px;
+    margin-bottom: 40px;
     border-bottom: 1px solid var(--border);
+  }
+
+  .content-section.last {
+    border-bottom: none;
   }
 
   .section-title {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
   }
 
   .section-title > div:first-child {
     display: flex;
     align-items: baseline;
-    gap: 11px;
+    gap: 10px;
   }
 
-  .section-title span:first-child {
+  .section-title .num {
     color: var(--accent);
     font-size: 14px;
     font-weight: 800;
@@ -560,24 +447,24 @@
 
   .section-title h2 {
     margin: 0;
-    font-size: 23px;
-    letter-spacing: -0.06em;
+    font-size: 22px;
+    letter-spacing: -0.04em;
   }
 
   .servings {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     color: var(--text-muted);
     font-size: 14px;
   }
 
   .servings button {
-    width: 27px;
-    height: 27px;
+    width: 28px;
+    height: 28px;
     border: 1px solid var(--border);
-    border-radius: 7px;
-    background: var(--surface);
+    border-radius: 6px;
+    background: #ffffff;
     color: var(--text);
     cursor: pointer;
   }
@@ -587,109 +474,69 @@
   }
 
   .servings strong {
-    min-width: 15px;
+    min-width: 16px;
     color: var(--text);
     text-align: center;
   }
 
+  /* Ingredients */
   .ingredient-list {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 35px;
-  }
-
-  .ingredient-group {
-    padding: 20px;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    background: var(--surface);
-  }
-
-  .ingredient-group h3 {
-    margin: 0 0 12px;
-    font-size: 14px;
-  }
-
-  .ingredient {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 11px 0;
-    border-top: 1px solid var(--border);
-    font-size: 14px;
-  }
-
-  .ingredient span {
-    color: var(--text-subtle);
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-  }
-
-  .steps {
     display: flex;
     flex-direction: column;
-    gap: 28px;
   }
 
-  .step {
+  .ingredient-item {
     display: flex;
-    gap: 17px;
-  }
-
-  .step-number {
-    width: 29px;
-    height: 29px;
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
-    border-radius: 50%;
-    background: var(--primary);
-    color: #0f172a;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--border);
     font-size: 14px;
-    font-weight: 800;
+    color: var(--text-subtle);
   }
 
-  .step-body {
-    display: grid;
-    grid-template-columns: 170px 1fr;
-    gap: 18px;
-    flex: 1;
-  }
-
-  .step-image {
-    height: 125px;
-    display: grid;
-    place-items: center;
-    border-radius: 13px;
-    background: var(--surface-yellow);
-    color: var(--accent);
-    font-size: 14px;
-    font-weight: 700;
-  }
-
-  .step-body h3 {
-    margin: 4px 0 8px;
-    font-size: 14px;
-    line-height: 1.7;
-    letter-spacing: -0.03em;
-    font-weight: 400;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-  }
-
-  .empty-text {
+  .ingredient-item.empty {
+    border-bottom: none;
     color: var(--text-muted);
+  }
+
+  .dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* Nutrition Placeholder */
+  .nutrition-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 36px;
+    border: 1px dashed var(--border);
+    color: var(--text-muted);
+  }
+
+  .nutrition-placeholder svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .nutrition-placeholder p {
+    margin: 0;
     font-size: 14px;
   }
 
+  /* Tip Box */
   .tip-box {
     display: flex;
     align-items: flex-start;
-    gap: 13px;
-    padding: 18px;
-    border: 1px solid var(--border-green);
-    border-radius: 13px;
-    background: var(--surface-green);
+    gap: 12px;
+    padding: 16px 18px;
+    background: var(--bg-green);
+    border-left: 3px solid var(--accent);
   }
 
   .tip-box svg {
@@ -703,20 +550,20 @@
     margin: 0;
     color: var(--text-subtle);
     font-size: 14px;
-    line-height: 1.7;
+    line-height: 1.65;
     white-space: pre-wrap;
   }
 
+  /* Comment Form */
   .comment-count {
     color: var(--text-muted);
     font-size: 14px;
   }
 
   .comment-form {
-    padding: 15px;
+    padding: 14px;
     border: 1px solid var(--border);
-    border-radius: 13px;
-    background: var(--surface-subtle);
+    border-radius: 8px;
   }
 
   .comment-form textarea {
@@ -728,44 +575,66 @@
     color: var(--text);
     font-size: 14px;
     line-height: 1.6;
+    box-sizing: border-box;
   }
 
   .comment-form textarea::placeholder {
     color: var(--text-muted);
   }
 
-  .comment-form > div {
+  .form-footer {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     gap: 8px;
-    padding-top: 9px;
+    padding-top: 10px;
     border-top: 1px solid var(--border);
     color: var(--text-muted);
-    font-size: 14px;
+    font-size: 13px;
   }
 
-  .comment-form a {
+  .form-footer a {
     color: var(--accent);
-    font-weight: 750;
+    font-weight: 700;
+    text-decoration: none;
   }
 
+  /* Sticky Sidebar (핵심 수정: top 96px로 상단 헤더 여백 확보) */
   .recipe-sidebar {
     position: sticky;
-    top: 95px;
+    top: 96px;
     align-self: start;
   }
 
-  .sidebar-card {
-    padding: 20px;
-    border: 1px solid var(--border);
-    border-radius: 15px;
-    background: var(--surface);
+  .cook-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 52px;
+    background: var(--primary);
+    color: #0f172a;
+    font-size: 16px;
+    font-weight: 800;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: background 0.15s ease;
+    box-sizing: border-box;
   }
 
-  .sidebar-card h3 {
-    margin: 0 0 14px;
-    font-size: 14px;
+  .cook-button:hover {
+    background: var(--primary-hover);
+  }
+
+  .cook-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .info-rows {
+    margin-top: 20px;
+    border-top: 1px solid var(--border);
   }
 
   .info-row {
@@ -773,7 +642,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 0;
-    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
     font-size: 14px;
   }
 
@@ -782,83 +651,26 @@
   }
 
   .info-row strong {
-    font-weight: 650;
+    font-weight: 600;
   }
 
-  .sidebar-register {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 12px;
-    padding: 14px;
-    border: 1px solid var(--border-green);
-    border-radius: 13px;
-    background: var(--surface-green);
-  }
-
-  .sidebar-register > svg {
-    width: 21px;
-    height: 21px;
-    flex-shrink: 0;
-    color: var(--accent);
-  }
-
-  .sidebar-register strong,
-  .sidebar-register small {
-    display: block;
-  }
-
-  .sidebar-register strong {
-    font-size: 14px;
-  }
-
-  .sidebar-register small {
-    margin-top: 3px;
-    color: var(--text-muted);
-    font-size: 14px;
-    line-height: 1.4;
-  }
-
+  /* Responsive */
   @media (max-width: 900px) {
     .recipe-hero {
       grid-template-columns: 1fr;
     }
+
     .hero-image {
-      min-height: 360px;
+      min-height: 260px;
     }
+
     .content-layout {
       grid-template-columns: 1fr;
     }
+
     .recipe-sidebar {
       position: static;
       order: -1;
-    }
-  }
-
-  @media (max-width: 650px) {
-    main {
-      width: calc(100% - 28px);
-    }
-    .recipe-hero {
-      gap: 25px;
-    }
-    .hero-image {
-      min-height: 280px;
-    }
-    .hero-content h1 {
-      font-size: 31px;
-    }
-    .recipe-stats {
-      gap: 14px;
-    }
-    .hero-actions {
-      flex-wrap: wrap;
-    }
-    .step-body {
-      grid-template-columns: 1fr;
-    }
-    .step-image {
-      height: 180px;
     }
   }
 </style>
