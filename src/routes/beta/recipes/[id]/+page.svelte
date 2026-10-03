@@ -49,7 +49,7 @@
 <div class="page">
   <main>
     <div class="breadcrumb">
-      <a href={appPath('/recipes/beta')}>레시피</a>
+      <a href={appPath('/recipes')}>레시피</a>
       <svg viewBox="0 0 24 24">
         <path d="M9 18l6-6-6-6" />
       </svg>
