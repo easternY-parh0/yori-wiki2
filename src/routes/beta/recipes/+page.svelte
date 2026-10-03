@@ -5,6 +5,7 @@
     import type { loadSearch } from '$lib/load-search';
     import RecipeCard from '$lib/components/layouts/RecipeCard.svelte';
     import Breadcrumb from '$lib/components/layouts/Breadcrumb.svelte';
+    import { getSearchSuggestions } from '../search-suggestions'; 
 
     let { data }: { data: Awaited<ReturnType<typeof loadSearch>> } = $props();
 
@@ -30,6 +31,28 @@
     // URL 반응형 데이터 ($derived)
     const params = $derived(page.url.searchParams);
     const result = $derived(data.result);
+    // 추가 시작
+    let recipeQuery = $state('');
+    let recipeSearchFocused = $state(false);
+
+    let recipeFoods = $state<
+    {
+        id: number;
+        name: string;
+        estimated_time?: string;
+    }[]
+    >([]);
+
+    let recipeFoodsLoading = $state(false);
+    let recipeFoodsLoaded = $state(false);
+
+    const recipeSuggestions = $derived.by(() =>
+    getSearchSuggestions(
+        recipeFoods,
+        recipeQuery,
+        10
+    )
+    );  // 추가 끝
 
     // 검색 파라미터 업데이트 제출 처리
     async function updateSearchParams(updates: Record<string, string | null>) {
@@ -51,20 +74,95 @@
         await goto(`${page.url.pathname}?${next}`, { keepFocus: true, noScroll: true });
     }
 
-    // 폼 제출 함수
-    async function handleSearchSubmit(e: SubmitEvent) {
-        e.preventDefault();
-        const form = e.currentTarget as HTMLFormElement;
-        const formData = new FormData(form);
-        const query = formData.get('q')?.toString().trim() ?? '';
-        
-        updateSearchParams({ q: query || null });
-    }
+    // 폼 제출 함수 
+    //교체 시작
+    async function handleSearchSubmit(
+    e: SubmitEvent
+) {
+    e.preventDefault();
+
+    const form =
+        e.currentTarget as HTMLFormElement;
+
+    const formData =
+        new FormData(form);
+
+    const query =
+        formData
+            .get('q')
+            ?.toString()
+            .trim() ?? '';
+
+    recipeQuery = query;
+    recipeSearchFocused = false;
+
+    await updateSearchParams({
+        q: query || null
+    });
+}  // 교체 끝
 
     // 필터 초기화
     async function resetFilters() {
         await goto(page.url.pathname, { keepFocus: true, noScroll: true });
     }
+    // 추가 시작
+    async function loadRecipeFoods() {
+    if (
+        recipeFoodsLoaded ||
+        recipeFoodsLoading
+    ) {
+        return;
+    }
+
+    recipeFoodsLoading = true;
+
+    try {
+        const response = await fetch(
+            appPath('/api/food')
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                '레시피 목록을 불러오지 못했습니다.'
+            );
+        }
+
+        const data = await response.json();
+
+        recipeFoods = Array.isArray(data)
+            ? data
+            : [];
+
+        recipeFoodsLoaded = true;
+    } catch (error) {
+        console.error(
+            '레시피 연관검색어 로딩 실패:',
+            error
+        );
+    } finally {
+        recipeFoodsLoading = false;
+    }
+}
+
+function closeRecipeSuggestions() {
+    window.setTimeout(() => {
+        recipeSearchFocused = false;
+    }, 150);
+}
+
+async function selectRecipeSuggestion(
+    recipe: {
+        id: number;
+        name: string;
+    }
+) {
+    recipeSearchFocused = false;
+
+    await goto(
+        appPath(`/recipes/${recipe.id}`)
+    );
+}
+// 추가 끝
 
     // 페이지 이동 링크 생성
     function pageHref(number: number) {
@@ -114,25 +212,91 @@
             </a>
         </section>
 
-        <!-- 검색 바 & 추천 검색어 -->
+        <!-- 검색 바 & 추천 검색어 -->  <!-- 교체 시작 -->
         <section class="search-section">
-            <form class="recipe-search" onsubmit={handleSearchSubmit} aria-busy={Boolean(navigating.to)}>
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="10.5" cy="10.5" r="6" />
-                <path d="M15 15l5 5" />
-                </svg>
+            <div class="recipe-search-wrapper">
+    <form
+        class="recipe-search"
+        onsubmit={handleSearchSubmit}
+        aria-busy={Boolean(navigating.to)}
+    >
+        <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+        >
+            <circle
+                cx="10.5"
+                cy="10.5"
+                r="6"
+            />
+            <path d="M15 15l5 5" />
+        </svg>
 
-                <input
-                name="q"
-                type="search"
-                maxlength="100"
-                value={params.get('q') ?? ''}
-                placeholder="예: 김치볶음밥, 두부, 파스타"
-                />
+        <input
+            name="q"
+            type="search"
+            maxlength="100"
+            value={params.get('q') ?? ''}
+            autocomplete="off"
+            placeholder="예: 김치볶음밥, 두부, 파스타"
+            onfocus={(event) => {
+                recipeQuery =
+                    event.currentTarget.value;
 
-                <button type="submit">검색</button>
-            </form>
+                recipeSearchFocused = true;
 
+                void loadRecipeFoods();
+            }}
+            oninput={(event) => {
+                recipeQuery =
+                    event.currentTarget.value;
+
+                recipeSearchFocused = true;
+            }}
+            onblur={closeRecipeSuggestions}
+        />
+
+        <button type="submit">
+            검색
+        </button>
+    </form>
+
+    {#if recipeSearchFocused && recipeQuery.trim()}
+        {#if recipeFoodsLoading}
+            <div class="suggestion-list">
+                <div class="suggestion-message">
+                    불러오는 중...
+                </div>
+            </div>
+
+        {:else if recipeSuggestions.length > 0}
+            <div
+                class="suggestion-list"
+                role="listbox"
+                aria-label="레시피 연관검색어"
+            >
+                {#each recipeSuggestions as recipe}
+                    <button
+                        type="button"
+                        // 여기에 role="option"이 있었는데 일단 삭제함 
+                        class="suggestion-item"
+                        onmousedown={(event) =>
+                            event.preventDefault()
+                        }
+                        onclick={() =>
+                            selectRecipeSuggestion(
+                                recipe
+                            )
+                        }
+                    >
+                        {recipe.name}
+                    </button>
+                {/each}
+            </div>
+        {/if}
+    {/if}
+</div>
+<!-- 교체 끝 -->
             <div class="popular-searches">
                 <span>추천 검색어</span>
                 {#each popularKeywords as keyword}
@@ -442,6 +606,12 @@
         background: var(--surface);
     }
 
+    /*추가 */
+    .recipe-search-wrapper {
+    position: relative;
+    width: 100%;
+    }
+
     .recipe-search {
         height: 56px;
         display: flex;
@@ -489,7 +659,59 @@
         background: var(--accent);
         color: #ffffff;
     }
+/*추가 시작*/
+.suggestion-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 100;
 
+    max-height: 320px;
+    overflow-y: auto;
+
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background: var(--surface);
+
+    box-shadow: 0 12px 30px var(--shadow-menu);
+}
+
+.suggestion-item {
+    width: 100%;
+    min-height: 44px;
+    display: block;
+
+    padding: 10px 16px;
+
+    border: 0;
+    border-bottom: 1px solid var(--border);
+
+    background: var(--surface);
+    color: var(--text);
+
+    font-size: 14px;
+    text-align: left;
+
+    cursor: pointer;
+}
+
+.suggestion-item:last-child {
+    border-bottom: 0;
+}
+
+.suggestion-item:hover,
+.suggestion-item:focus {
+    background: var(--surface-yellow);
+}
+
+.suggestion-message {
+    padding: 12px 16px;
+
+    color: var(--text-subtle);
+    font-size: 13px;
+}
+/*추가 끝*/
     .popular-searches {
         display: flex;
         align-items: center;
