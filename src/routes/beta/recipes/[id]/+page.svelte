@@ -184,7 +184,7 @@
         </section>
       </div>
 
-      <!-- 우측 Sticky 사이드바 (헤더 높이 오버랩 문제 수정) -->
+      <!-- 우측 Sticky 사이드바 -->
       <aside class="recipe-sidebar">
         <a href={appPath(`/recipes/${data.food.id}/cook`)} class="cook-button">
           <svg viewBox="0 0 24 24">
@@ -225,23 +225,9 @@
 </div>
 
 <style>
-  :global(:root) {
-    --bg: #ffffff;
-    --text: #0f172a;
-    --text-subtle: #475569;
-    --text-muted: #94a3b8;
-    --border: #e2e8f0;
-    --primary: #facc15;
-    --primary-hover: #eab308;
-    --accent: #65a30d;
-    --bg-yellow: #fefce8;
-    --bg-green: #f7fee7;
-    --border-green: #d9f99d;
-  }
-
   .page {
     min-height: 100vh;
-    background: var(--bg);
+    background: var(--background);
     color: var(--text);
   }
 
@@ -295,10 +281,9 @@
     min-height: 320px;
     display: grid;
     place-items: center;
-
-    /* 핵심 포인트 라운딩만 유지 */
     border-radius: 16px;
-    background: var(--bg-yellow);
+    background: var(--surface-yellow);
+    border: 1px solid var(--border);
     color: var(--accent);
     font-size: 16px;
     font-weight: 700;
@@ -320,6 +305,7 @@
     margin: 10px 0 12px;
     font-size: 36px;
     letter-spacing: -0.05em;
+    color: var(--text);
   }
 
   .description {
@@ -340,7 +326,7 @@
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: var(--bg-green);
+    background: var(--surface-green);
     color: var(--accent);
     width: 36px;
     height: 36px;
@@ -354,6 +340,7 @@
   .author strong {
     display: block;
     font-size: 14px;
+    color: var(--text);
   }
 
   .author span {
@@ -377,14 +364,16 @@
     padding: 0 14px;
     border: 1px solid var(--border);
     border-radius: 8px;
-    background: #ffffff;
+    background: var(--surface);
     color: var(--text-subtle);
     font-size: 14px;
     cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
   }
 
   .action-btn:hover {
     border-color: var(--primary);
+    background: var(--surface-subtle);
   }
 
   .action-btn svg {
@@ -394,13 +383,13 @@
 
   .action-btn.liked {
     border-color: var(--primary);
-    background: var(--bg-yellow);
-    color: #ca8a04;
+    background: var(--surface-yellow);
+    color: var(--text);
   }
 
   .action-btn.bookmarked {
-    border-color: var(--accent);
-    background: var(--bg-green);
+    border-color: var(--border-accent);
+    background: var(--surface-green);
     color: var(--accent);
   }
 
@@ -449,6 +438,7 @@
     margin: 0;
     font-size: 22px;
     letter-spacing: -0.04em;
+    color: var(--text);
   }
 
   .servings {
@@ -464,13 +454,14 @@
     height: 28px;
     border: 1px solid var(--border);
     border-radius: 6px;
-    background: #ffffff;
+    background: var(--surface);
     color: var(--text);
     cursor: pointer;
   }
 
   .servings button:hover {
     border-color: var(--primary);
+    background: var(--surface-subtle);
   }
 
   .servings strong {
@@ -516,6 +507,8 @@
     gap: 10px;
     padding: 36px;
     border: 1px dashed var(--border);
+    border-radius: 8px;
+    background: var(--surface-subtle);
     color: var(--text-muted);
   }
 
@@ -535,8 +528,9 @@
     align-items: flex-start;
     gap: 12px;
     padding: 16px 18px;
-    background: var(--bg-green);
+    background: var(--surface-green);
     border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
   }
 
   .tip-box svg {
@@ -564,6 +558,7 @@
     padding: 14px;
     border: 1px solid var(--border);
     border-radius: 8px;
+    background: var(--surface);
   }
 
   .comment-form textarea {
@@ -599,13 +594,14 @@
     text-decoration: none;
   }
 
-  /* Sticky Sidebar (핵심 수정: top 96px로 상단 헤더 여백 확보) */
+  /* Sticky Sidebar */
   .recipe-sidebar {
     position: sticky;
     top: 96px;
     align-self: start;
   }
 
+  /* 메인 액션 버튼의 가독성을 위한 명확한 노란색/검은글씨 처리 */
   .cook-button {
     display: flex;
     align-items: center;
@@ -652,6 +648,7 @@
 
   .info-row strong {
     font-weight: 600;
+    color: var(--text);
   }
 
   /* Responsive */

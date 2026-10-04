@@ -120,18 +120,6 @@
 </div>
 
 <style>
-  :global(:root) {
-    --bg: #ffffff;
-    --text: #0f172a;
-    --text-subtle: #475569;
-    --text-muted: #94a3b8;
-    --border: #e2e8f0;
-    --primary: #facc15;
-    --accent: #65a30d;
-    --bg-green: #f7fee7;
-    --border-green: #d9f99d;
-  }
-
   :global(*, *::before, *::after) {
     box-sizing: border-box;
   }
@@ -142,7 +130,7 @@
     height: 100dvh;
     display: flex;
     flex-direction: column;
-    background: #ffffff;
+    background: var(--background);
     color: var(--text);
     overflow: hidden;
     font-size: 13px;
@@ -164,7 +152,7 @@
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid var(--border);
-    background: #ffffff;
+    background: var(--surface);
     flex-shrink: 0;
   }
 
@@ -185,7 +173,7 @@
   }
 
   .breadcrumb .sep {
-    color: #cbd5e1;
+    color: var(--text-muted);
   }
 
   .breadcrumb .active {
@@ -198,8 +186,9 @@
     align-items: center;
     gap: 5px;
     font-size: 12px;
-    color: var(--text-subtle);
-    background: var(--bg-green);
+    color: var(--accent);
+    background: var(--surface-green);
+    border: 1px solid var(--border-accent, transparent);
     padding: 3px 10px;
     border-radius: 16px;
     font-weight: 600;
@@ -224,7 +213,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: #ffffff;
+    background: var(--background);
     border-right: 1px solid var(--border);
     overflow: hidden;
     position: relative;
@@ -238,20 +227,20 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 30;
     transition: all 0.15s ease;
-    color: #334155;
+    color: var(--text-subtle);
   }
 
   .arrow-nav-btn:hover:not(:disabled) {
-    background: #ffffff;
+    background: var(--surface-subtle);
     transform: translateY(-50%) scale(1.06);
     border-color: var(--accent);
     color: var(--accent);
@@ -287,8 +276,8 @@
   .hero-image-card {
     width: 100%;
     height: 100%;
-    background: #fafaf9;
-    border: 1px solid #e7e5e4;
+    background: var(--surface-subtle);
+    border: 1px solid var(--border);
     border-radius: 12px;
     overflow: hidden;
   }
@@ -298,7 +287,7 @@
     height: 100%;
     display: grid;
     place-items: center;
-    color: #a8a29e;
+    color: var(--text-muted);
     font-size: 14px;
     font-weight: 600;
   }
@@ -338,7 +327,7 @@
     margin: 0;
     font-size: 15px;
     line-height: 1.6;
-    color: #1e293b;
+    color: var(--text);
     font-weight: 500;
     white-space: pre-wrap;
     word-break: break-word;
