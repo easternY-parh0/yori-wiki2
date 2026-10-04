@@ -1,4 +1,5 @@
 <script lang="ts">
+ import RoleBadge from './RoleBadge.svelte';
 	import { appPath } from '$lib/app-path';
 	import { page } from '$app/state';
 	import { invalidateAll, goto } from '$app/navigation';
@@ -61,7 +62,7 @@
 		</div>
 
 		<div class="profile-text">
-			<strong>{page.data.user?.nickname ?? "방문자"}님</strong>
+			<strong>{page.data.user?.nickname ?? "방문자"}님 <RoleBadge role={page.data.user?.role} /></strong>
 			<span>마이페이지</span>
 		</div>
 
@@ -151,7 +152,8 @@
 		<a href={appPath('/search')} class="login-button">탐색</a>
 
 		{#if page.data.user}
-		<span>{page.data.user.nickname}님</span>
+		{#if page.data.user.role === 'super_admin'}<a href={appPath('/admin')}>관리자 등록</a>{/if}
+		<span>{page.data.user.nickname}님 <RoleBadge role={page.data.user.role} /></span>
 		<button type="button" class="login-button" onclick={logout} disabled={logoutPending}>로그아웃</button>
 		{:else}<a href={appPath('/login')} class="login-button">로그인</a>{/if}
 		{#if authError}<span role="alert">{authError}</span>{/if}

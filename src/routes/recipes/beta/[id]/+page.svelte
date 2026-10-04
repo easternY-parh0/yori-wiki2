@@ -1,4 +1,5 @@
 <script lang="ts">
+ import RecipeActions from '$lib/components/RecipeActions.svelte';
   import { appPath } from '$lib/app-path';
   import type { PageData } from './$types';
 
@@ -38,6 +39,7 @@
     content={data.food.metadata?.description || `${data.food.name} 레시피 상세 정보`}
   />
 </svelte:head>
+<div style="max-width:900px;margin:auto;padding:0 24px"><RecipeActions food={data.food} /></div>
 
 <div class="page">
   <main>

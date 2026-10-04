@@ -1,6 +1,7 @@
 import { appPath } from '$lib/app-path';
 export type FoodSummary = { id: number; name: string; estimated_time: string };
-export type Food = FoodSummary & { ingredients: string; recipe: string };
+export type RecipeMetadata = { description?: string; category?: string; difficulty?: number; servings?: number; tags?: string[]; aliases?: string[]; ingredient_names?: string[]; image_url?: string; tips?: string };
+export type Food = FoodSummary & { ingredients: string; recipe: string; author_id?: number | null; metadata?: RecipeMetadata };
 export type FoodInput = Omit<Food, 'id'>;
 
 export async function api<T>(path: string, options?: RequestInit, fetcher: typeof fetch = fetch): Promise<T> {
