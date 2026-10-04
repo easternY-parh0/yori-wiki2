@@ -45,7 +45,105 @@
 
     let recipeFoodsLoading = $state(false);
     let recipeFoodsLoaded = $state(false);
+    let timeFilterOpen = $state(false);  // 추가
+    // 추가 시작
+    const timeLabels = [
+    '제한 없음',
+    '15분',
+    '30분',
+    '1시간',
+    '1시간 30분',
+    '2시간',
+    '2시간 이상'
+    ];
 
+    let timeHandleA = $state(0);
+    let timeHandleB = $state(6);
+
+    const timeRangeStart = $derived(
+    Math.min(timeHandleA, timeHandleB)
+    );
+
+    const timeRangeEnd = $derived(
+    Math.max(timeHandleA, timeHandleB)
+    );
+    //추가 끝
+    // 추가 시작 
+    let difficultyFilterOpen = $state(false);
+
+    let difficultyHandleA = $state(1);
+    let difficultyHandleB = $state(10);
+
+    const difficultyRangeStart = $derived(
+        Math.min(difficultyHandleA, difficultyHandleB)
+    );
+
+    const difficultyRangeEnd = $derived(
+        Math.max(difficultyHandleA, difficultyHandleB)
+    );
+
+    const difficultyLabels = [
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        '10'
+    ];
+    // 추가 끝
+    // 추가 시작 
+    async function applyTimeFilter() {
+    const timeValues = [
+        0,
+        15,
+        30,
+        60,
+        90,
+        120,
+        120
+    ];
+
+    const minTime =
+        timeRangeStart === 0
+            ? null
+            : String(timeValues[timeRangeStart]);
+
+    const maxTime =
+        timeRangeEnd === 6
+            ? null
+            : String(timeValues[timeRangeEnd]);
+
+    await updateSearchParams({
+        minTime,
+        maxTime
+    });
+
+    timeFilterOpen = false;
+    }
+
+    async function applyDifficultyFilter() {
+    const minDifficulty =
+        difficultyRangeStart === 1
+            ? null
+            : String(difficultyRangeStart);
+
+    const maxDifficulty =
+        difficultyRangeEnd === 10
+            ? null
+            : String(difficultyRangeEnd);
+
+    await updateSearchParams({
+        minDifficulty,
+        maxDifficulty
+    });
+
+    difficultyFilterOpen = false;
+    }
+    //추가 끝
     const recipeSuggestions = $derived.by(() =>
     getSearchSuggestions(
         recipeFoods,
@@ -103,8 +201,20 @@
 
     // 필터 초기화
     async function resetFilters() {
-        await goto(page.url.pathname, { keepFocus: true, noScroll: true });
-    }
+    timeHandleA = 0;
+    timeHandleB = 6;
+
+    difficultyHandleA = 1;
+    difficultyHandleB = 10;
+
+    timeFilterOpen = false;
+    difficultyFilterOpen = false;
+
+    await goto(page.url.pathname, {
+        keepFocus: true,
+        noScroll: true
+    });
+}
     // 추가 시작
     async function loadRecipeFoods() {
     if (
@@ -365,35 +475,163 @@ async function selectRecipeSuggestion(
                     <option value="or">하나 이상 (OR)</option>
                 </select>
                 </div>
+<!--교체 시작-->
+               <!-- 조리시간 필터 -->
+<div class="filter-group">
+    <span class="filter-label">조리시간</span>
 
-                <div class="filter-group">
-                <label for="maxTime">조리시간</label>
-                <select
-                    id="maxTime"
-                    value={params.get('maxTime') || ''}
-                    onchange={(e) => updateSearchParams({ maxTime: e.currentTarget.value || null })}
-                >
-                    <option value="">제한 없음</option>
-                    <option value="15">15분 이내</option>
-                    <option value="30">30분 이내</option>
-                    <option value="60">1시간 이내</option>
-                </select>
+    <div class="filter-dropdown">
+        <button
+            class="filter-trigger"
+            type="button"
+            onclick={() => {
+                timeFilterOpen = !timeFilterOpen;
+            }}
+        >
+            {timeRangeStart === 0 && timeRangeEnd === 6
+                ? '제한 없음'
+                : `${timeLabels[timeRangeStart]} ~ ${timeLabels[timeRangeEnd]}`}
+        </button>
+
+        {#if timeFilterOpen}
+            <div class="filter-popup">
+                <div class="range-value">
+                    {timeLabels[timeRangeStart]} ~ {timeLabels[timeRangeEnd]}
                 </div>
+                <!--교체 시작--> 
+                <div class="range-slider">
+    <div class="range-track">
+        <div
+            class="range-selection"
+            style={`left: ${(timeRangeStart / 6) * 100}%; right: ${100 - (timeRangeEnd / 6) * 100}%;`}
+        ></div>
+    </div> <!--교체 끝-->
 
-                <div class="filter-group">
-                <label for="maxDifficulty">난이도</label>
-                <select
-                    id="maxDifficulty"
-                    value={params.get('maxDifficulty') || ''}
-                    onchange={(e) => updateSearchParams({ maxDifficulty: e.currentTarget.value || null })}
-                >
-                    <option value="">전체</option>
-                    {#each Array.from({ length: 10 }, (_, i) => i + 1) as level}
-                    <option value={level}>{level}단계 이하</option>
+    <input
+    class="range-control range-control-a"
+    type="range"
+    min="0"
+    max="6"
+    step="1"
+    value={timeHandleA}
+    aria-label="조리시간 범위 손잡이 A"
+    oninput={(event) => {
+        timeHandleA = Number(
+            event.currentTarget.value
+        );
+    }}
+    onchange={applyTimeFilter}
+/>
+
+<input
+    class="range-control range-control-b"
+    type="range"
+    min="0"
+    max="6"
+    step="1"
+    value={timeHandleB}
+    aria-label="조리시간 범위 손잡이 B"
+    oninput={(event) => {
+        timeHandleB = Number(
+            event.currentTarget.value
+        );
+    }}
+    onchange={applyTimeFilter}
+/>
+        </div>
+
+                <div class="range-ticks">
+                    {#each timeLabels as label}
+                        <span>{label}</span>
                     {/each}
-                </select>
+                </div>
+            </div>  
+        {/if}
+    </div>
+</div>
+<!--교체 끝-->
+<!--교체 시작-->
+                <div class="filter-group">
+    <span class="filter-label">난이도</span>
+
+    <div class="filter-dropdown">
+        <button
+            class="filter-trigger"
+            type="button"
+            onclick={() => {
+                difficultyFilterOpen =
+                    !difficultyFilterOpen;
+            }}
+        >
+            {difficultyRangeStart === 1 &&
+            difficultyRangeEnd === 10
+                ? '전체'
+                : `${difficultyRangeStart}단계 ~ ${difficultyRangeEnd}단계`}
+        </button>
+
+        {#if difficultyFilterOpen}
+            <div class="filter-popup">
+                <div class="range-value">
+                    {difficultyRangeStart}단계 ~ {difficultyRangeEnd}단계
                 </div>
 
+                <div class="range-slider">
+                    <div class="range-track">
+                        <div
+                            class="range-selection"
+                            style={`left: ${((difficultyRangeStart - 1) / 9) * 100}%; right: ${100 - ((difficultyRangeEnd - 1) / 9) * 100}%;`}
+                        ></div>
+                    </div>
+
+                    <input
+                        class="range-control range-control-a"
+                        type="range"
+                        min="1"
+                        max="10"
+                        step="1"
+                        value={difficultyHandleA}
+                        aria-label="난이도 범위 손잡이 A"
+                        oninput={(event) => {
+                            difficultyHandleA =
+                                Number(
+                                    event.currentTarget.value
+                                );
+                        }}
+                        onchange={applyDifficultyFilter}
+                    />
+
+                    <input
+                        class="range-control range-control-b"
+                        type="range"
+                        min="1"
+                        max="10"
+                        step="1"
+                        value={difficultyHandleB}
+                        aria-label="난이도 범위 손잡이 B"
+                        oninput={(event) => {
+                            difficultyHandleB =
+                                Number(
+                                    event.currentTarget.value
+                                );
+                        }}
+                        onchange={applyDifficultyFilter}
+                    />
+                </div>
+
+                <div class="difficulty-ticks">
+                    {#each difficultyLabels as label, index}
+                        <span
+                            style={`left: ${(index / 9) * 100}%`}
+                        >
+                            {label}
+                        </span>
+                    {/each}
+                </div>
+            </div>
+        {/if}
+    </div>
+</div>
+<!--교체 끝-->
                 <button class="reset-button" type="button" onclick={resetFilters}>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M4 12a8 8 0 1 0 2.34-5.66" />
@@ -1020,27 +1258,273 @@ async function selectRecipeSuggestion(
         padding: 18px;
         }
 
-        .recipe-search {
-        height: 52px;
-        }
+            .recipe-search {
+            height: 52px;
+            }
 
-        .recipe-search button {
-        height: 42px;
-        padding: 0 15px;
-        }
+            .recipe-search button {
+            height: 42px;
+            padding: 0 15px;
+            }
 
-        .category-tabs button {
-        padding: 8px 12px;
-        }
+            .category-tabs button {
+            padding: 8px 12px;
+            }
 
-        .recipe-grid {
-        grid-template-columns: 1fr;
-        }
+            .recipe-grid {
+            grid-template-columns: 1fr;
+            }
 
-        .register-section {
-        align-items: flex-start;
-        flex-direction: column;
-        padding: 25px 22px;
+            .register-section {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 25px 22px;
+            }
         }
+            /* 추가 시작 */
+
+            .filter-dropdown {
+        position: relative;
     }
+    .filter-label {
+        color: var(--text-muted);
+        font-size: 12px;
+    }
+
+.filter-trigger {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.filter-trigger:hover {
+    border-color: var(--primary);
+}
+
+.filter-popup {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 50;
+
+    width: 480px; /*추가*/
+    max-width: calc(100vw - 32px); /*추가*/
+    padding: 20px;
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+
+    box-shadow: 0 10px 30px var(--shadow-menu);
+}
+
+.range-value {
+    margin-bottom: 16px;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.range-slider {
+    position: relative;
+    width: 100%;
+    height: 40px;
+}
+
+/* 실제 화면에 보이는 선은 이것 딱 하나 */
+.range-track {
+    position: absolute;
+    top: 18px;
+    left: 9px;
+    right: 9px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--border);
+    pointer-events: none;
+}
+
+/* 두 range를 같은 위치에 완전히 겹침 */
+input.range-control {
+    position: absolute;
+    top: 6px; 
+    left: 0;
+
+    width: 100%;
+    height: 28px;
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+    background: transparent;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    pointer-events: none;
+}
+
+/* Chrome / Edge 기본 바 완전히 숨김 */
+input.range-control::-webkit-slider-runnable-track {
+    height: 4px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+/* Chrome / Edge 손잡이만 표시 */
+input.range-control::-webkit-slider-thumb {
+    width: 18px;
+    height: 18px;
+    margin-top: -7px;
+
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    background: var(--surface);
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+/* 조리시간 손잡이 A */
+.range-control-a::-webkit-slider-thumb {
+    border: 2px solid var(--accent);
+    background: var(--accent);
+}
+
+/* 조리시간 손잡이 B */
+.range-control-b::-webkit-slider-thumb {
+    border: 2px solid #d59b00;
+    background: var(--primary);
+}
+
+.range-control-a::-moz-range-thumb {
+    border: 2px solid var(--accent);
+    background: var(--accent);
+}
+
+.range-control-b::-moz-range-thumb {
+    border: 2px solid #d59b00;
+    background: var(--primary);
+}
+
+/* Firefox 기본 바 숨김 */
+input.range-control::-moz-range-track {
+    height: 4px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+input.range-control::-moz-range-progress {
+    background: transparent;
+}
+
+/* Firefox 손잡이만 표시 */
+input.range-control::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    background: var(--surface);
+
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.range-control-a {
+    z-index: 2;
+}
+
+.range-control-b {
+    z-index: 3;
+}
+
+.range-ticks {
+    position: relative;
+    height: 18px;
+    margin-top: 6px;
+    margin-left: 9px;
+    margin-right: 9px;
+}
+
+.range-ticks span {
+    position: absolute;
+    top: 0;
+    color: var(--text-muted);
+    font-size: 10px;
+    line-height: 1.25;
+    white-space: nowrap;
+    transform: translateX(-50%);
+}
+
+.range-ticks span:nth-child(1) {
+    left: 0%;
+    transform: translateX(-50%);
+}
+
+.range-ticks span:nth-child(2) {
+    left: 16.6667%;
+}
+
+.range-ticks span:nth-child(3) {
+    left: 33.3333%;
+}
+
+.range-ticks span:nth-child(4) {
+    left: 50%;
+}
+
+.range-ticks span:nth-child(5) {
+    left: 66.6667%;
+}
+
+.range-ticks span:nth-child(6) {
+    left: 83.3333%;
+}
+
+.range-ticks span:nth-child(7) {
+    left: 100%;
+    transform: translateX(-50%);
+}
+.range-selection {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+
+    border-radius: inherit;
+    background: var(--accent);
+
+    pointer-events: none;
+}
+
+
+.difficulty-ticks {
+    position: relative;
+    height: 18px;
+    margin-top: 6px;
+    margin-left: 9px;
+    margin-right: 9px;
+}
+
+.difficulty-ticks span {
+    position: absolute;
+    top: 0;
+
+    color: var(--text-muted);
+    font-size: 10px;
+    line-height: 1.25;
+    white-space: nowrap;
+
+    transform: translateX(-50%);
+}
+/*추가 끝*/
+
 </style>
