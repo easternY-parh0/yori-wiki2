@@ -1,6 +1,8 @@
 <script lang="ts">
     import { appPath } from '$lib/app-path';
     import { onMount } from 'svelte';
+    import type { SearchResults } from '$lib/load-search';
+
     import RecipeCard from '$lib/components/layouts/RecipeCard.svelte'
     import banner1Img from '$lib/assets/image/banner1.jpg';
     import banner2Img from '$lib/assets/image/banner2.jpg';
@@ -26,9 +28,15 @@
         { title: '자취생용 혼밥 추천', description: '배너 설명이 들어가는 영역입니다.', image: banner3Img }
     ];
 
-    const popularRecipes = ['레시피 제목', '레시피 제목', '레시피 제목', '레시피 제목'];
-    const recentRecipes = ['새로 등록된 레시피', '새로 등록된 레시피', '새로 등록된 레시피', '새로 등록된 레시피'];
-
+    let { data }: {
+        data: {
+            popularRecipes: SearchResults['items'];
+            recentRecipes: SearchResults['items'];
+            popularError: string;
+            recentError: string;
+        };
+    } = $props();
+    
     const posts = [
         '커뮤니티 게시글 제목이 들어갑니다.',
         '커뮤니티 게시글 제목이 들어갑니다.',
@@ -178,14 +186,27 @@
         <section>
             <div class="section-title">
                 <h2>인기 레시피</h2>
-                <a href={appPath('/recipes')}>전체보기</a>
+                <a href={appPath('/recipes?sort=likes')}>전체보기</a>
             </div>
 
             <div class="recipe-grid">
-                {#each popularRecipes as recipe}
-                    <RecipeCard 
-                        title={recipe} 
-                        views={128} 
+                {#each data.popularRecipes.slice(0, 4) as recipe (recipe.id)}
+                    <RecipeCard
+                        id={recipe.id}
+                        title={recipe.name}
+                        description={
+                            typeof recipe.metadata?.description === 'string'
+                                ? recipe.metadata.description
+                                : recipe.ingredients
+                        }
+                        category={
+                            categories.find(
+                                (category) =>
+                                    category.value === recipe.metadata?.category
+                            )?.name ?? '미분류'
+                        }
+                        cookingTime={recipe.estimated_time}
+                        href={appPath(`/recipes/${recipe.id}`)}
                     />
                 {/each}
             </div>
@@ -195,14 +216,27 @@
         <section>
             <div class="section-title">
                 <h2>최근 등록된 레시피</h2>
-                <a href={appPath('/recipes?sort=recent')}>전체보기</a>
+                <a href={appPath('/recipes?sort=newest')}>전체보기</a>
             </div>
 
             <div class="recipe-grid">
-                {#each recentRecipes as recipe}
-                    <RecipeCard 
-                        title={recipe} 
-                        views={12} 
+                {#each data.recentRecipes.slice(0, 4) as recipe (recipe.id)}
+                    <RecipeCard
+                        id={recipe.id}
+                        title={recipe.name}
+                        description={
+                            typeof recipe.metadata?.description === 'string'
+                                ? recipe.metadata.description
+                                : recipe.ingredients
+                        }
+                        category={
+                            categories.find(
+                                (category) =>
+                                    category.value === recipe.metadata?.category
+                            )?.name ?? '미분류'
+                        }
+                        cookingTime={recipe.estimated_time}
+                        href={appPath(`/recipes/${recipe.id}`)}
                     />
                 {/each}
             </div>
