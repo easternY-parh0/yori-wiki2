@@ -21,13 +21,13 @@
         { name: '베이킹', value: 'BAKING' },
         { name: '간식', value: 'SNACK' }
     ];
-
-    const banners = [
-        { title: '시원한 스무디 먹고 무더위 날려버리자!', description: '배너 설명이 들어가는 영역입니다.', image: banner1Img },
-        { title: '집에 손님이 찾아왔다! 대접용 요리 총출동', description: '배너 설명이 들어가는 영역입니다.', image: banner2Img },
-        { title: '자취생용 혼밥 추천', description: '배너 설명이 들어가는 영역입니다.', image: banner3Img }
+// 교체 시작
+    const banners = [ 
+        { title: '시원한 스무디 먹고 무더위 날려버리자!', description: '냉동 과일로 만드는 시원하고 간단한 여름 스무디 가이드', image: banner1Img, href: '/beta/articles/summer-smoothie' },
+        { title: '집에 손님이 찾아왔다! 대접용 요리 총출동', description: '손님상에 잘 어울리는 메뉴와 준비 팁을 한눈에', image: banner2Img, href: '/beta/articles/guest-meal' },
+        { title: '자취생용 혼밥 추천', description: '적은 재료로 빠르고 든든하게 만드는 현실적인 혼밥 메뉴', image: banner3Img, href: '/beta/articles/solo-meal' }
     ];
-
+// 교체 끝
     let { data }: {
         data: {
             popularRecipes: SearchResults['items'];
@@ -103,7 +103,7 @@
 
                     <!-- 3. 하단: 바로가기 버튼과 < > 버튼 나란히 배치 -->
                     <div class="banner-bottom-bar">
-                        <a href={appPath('/recipes')} class="banner-button">
+                        <a href={appPath(banners[currentBanner].href)} class="banner-button">  <!--교체-->
                             자세히 보기
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M5 12h14" />
