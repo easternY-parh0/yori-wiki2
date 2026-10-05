@@ -29,7 +29,7 @@
 	// IntersectionObserver를 사용한 스크롤 감지 하이라이팅
 	onMount(() => {
 		const sections = document.querySelectorAll('section[id]');
-		
+
 		const observer = new IntersectionObserver(
 			(entries) => {
 				entries.forEach((entry) => {
@@ -56,6 +56,7 @@
 <svelte:head>
 	<title>설정 | 요리위키</title>
 	<meta name="description" content="요리위키 계정 및 서비스 설정" />
+
 	<!-- Font Awesome CDN -->
 	<link
 		rel="stylesheet"
@@ -74,24 +75,28 @@
 	</section>
 
 	<div class="settings-layout">
-		<!-- 좌측 사이드바 네비게이션 (activeSection에 따라 동적 클래스 적용) -->
+		<!-- 좌측 사이드바 네비게이션 -->
 		<aside class="settings-nav">
 			<a href="#account" class:active={activeSection === 'account'}>
 				<i class="fa-solid fa-user"></i>
 				<span>계정</span>
 			</a>
+
 			<a href="#display" class:active={activeSection === 'display'}>
 				<i class="fa-solid fa-palette"></i>
 				<span>화면 테마</span>
 			</a>
+
 			<a href="#notifications" class:active={activeSection === 'notifications'}>
 				<i class="fa-solid fa-bell"></i>
 				<span>알림</span>
 			</a>
+
 			<a href="#privacy" class:active={activeSection === 'privacy'}>
 				<i class="fa-solid fa-shield-halved"></i>
 				<span>개인정보</span>
 			</a>
+
 			<a href="#service" class:active={activeSection === 'service'}>
 				<i class="fa-solid fa-circle-info"></i>
 				<span>서비스 정보</span>
@@ -106,6 +111,7 @@
 					<div class="heading-icon">
 						<i class="fa-solid fa-user"></i>
 					</div>
+
 					<div>
 						<h2>계정 정보</h2>
 						<p>프로필 및 기본 계정 정보를 관리합니다.</p>
@@ -116,53 +122,78 @@
 					<!-- 프로필 사진 -->
 					<div class="form-row profile-row">
 						<div>
-							<label>프로필 사진</label>
+							<span class="form-label">프로필 사진</span>
 							<span>커뮤니티 및 작성한 레시피에 표시되는 이미지입니다.</span>
 						</div>
+
 						<div class="avatar-group">
 							<div class="avatar-preview">
 								<i class="fa-solid fa-utensils"></i>
 							</div>
+
 							<div class="avatar-actions">
-								<button type="button" class="outline-button sm">사진 변경</button>
-								<button type="button" class="text-button text-danger">삭제</button>
+								<button type="button" class="outline-button sm">
+									사진 변경
+								</button>
+
+								<button type="button" class="text-button text-danger">
+									삭제
+								</button>
 							</div>
 						</div>
 					</div>
 
+					<!-- 닉네임 -->
 					<div class="form-row">
 						<div>
-							<label>닉네임</label>
+							<label for="nickname">닉네임</label>
 							<span>다른 사용자에게 표시되는 이름입니다.</span>
 						</div>
+
 						<div class="input-wrap">
-							<input value="사용자님" placeholder="닉네임을 입력하세요" />
+							<input
+								id="nickname"
+								value="사용자님"
+								placeholder="닉네임을 입력하세요"
+							/>
 						</div>
 					</div>
 
+					<!-- 이메일 -->
 					<div class="form-row">
 						<div>
-							<label>이메일</label>
+							<label for="email">이메일</label>
 							<span>계정에 등록된 이메일 주소입니다. (변경 불가)</span>
 						</div>
+
 						<div class="input-wrap">
-							<input value="placeholder@example.com" disabled />
+							<input
+								id="email"
+								type="email"
+								value="placeholder@example.com"
+								disabled
+							/>
 						</div>
 					</div>
 
+					<!-- 비밀번호 -->
 					<div class="form-row">
 						<div>
-							<label>비밀번호</label>
+							<span class="form-label">비밀번호</span>
 							<span>주기적으로 비밀번호를 변경하여 보안을 유지하세요.</span>
 						</div>
+
 						<a href={appPath('/profile/password')} class="outline-button">
-							<i class="fa-solid fa-key icon-left"></i>비밀번호 변경
+							<i class="fa-solid fa-key icon-left"></i>
+							비밀번호 변경
 						</a>
 					</div>
 				</div>
 
 				<div class="card-footer">
-					<button class="primary-button" type="button">변경사항 저장</button>
+					<button class="primary-button" type="button">
+						변경사항 저장
+					</button>
 				</div>
 			</section>
 
@@ -172,6 +203,7 @@
 					<div class="heading-icon">
 						<i class="fa-solid fa-palette"></i>
 					</div>
+
 					<div>
 						<h2>화면 테마 및 디스플레이</h2>
 						<p>앱의 가독성과 화면 모양을 맞춤 설정합니다.</p>
@@ -179,13 +211,15 @@
 				</div>
 
 				<div class="form-list">
+					<!-- 테마 모드 -->
 					<div class="form-row">
 						<div>
-							<label>테마 모드</label>
+							<label for="theme">테마 모드</label>
 							<span>선호하는 화면 색상 모드를 선택하세요.</span>
 						</div>
+
 						<div class="select-wrap">
-							<select bind:value={theme}>
+							<select id="theme" bind:value={theme}>
 								<option value="system">시스템 설정 따름</option>
 								<option value="light">라이트 모드</option>
 								<option value="dark">다크 모드</option>
@@ -193,13 +227,15 @@
 						</div>
 					</div>
 
+					<!-- 글자 크기 -->
 					<div class="form-row">
 						<div>
-							<label>본문 글자 크기</label>
+							<label for="font-size">본문 글자 크기</label>
 							<span>레시피 상세 보기의 기본 텍스트 크기를 설정합니다.</span>
 						</div>
+
 						<div class="select-wrap">
-							<select bind:value={fontSize}>
+							<select id="font-size" bind:value={fontSize}>
 								<option value="small">작게</option>
 								<option value="medium">보통 (기본)</option>
 								<option value="large">크게</option>
@@ -215,6 +251,7 @@
 					<div class="heading-icon">
 						<i class="fa-solid fa-bell"></i>
 					</div>
+
 					<div>
 						<h2>알림 설정</h2>
 						<p>원하는 수신 푸시/이메일 알림 항목을 지정합니다.</p>
@@ -227,16 +264,26 @@
 							<strong>전체 푸시 알림</strong>
 							<span>요리위키의 주요 기능 수신 알림을 활성화합니다.</span>
 						</div>
-						<input type="checkbox" bind:checked={notifications} />
+
+						<input
+							type="checkbox"
+							bind:checked={notifications}
+						/>
 						<span class="toggle"></span>
 					</label>
 
 					<label class="option-row">
 						<div>
 							<strong>레시피 알림</strong>
-							<span>구독한 채널 및 관심 레시피의 신규 업데이트를 안내받습니다.</span>
+							<span>
+								구독한 채널 및 관심 레시피의 신규 업데이트를 안내받습니다.
+							</span>
 						</div>
-						<input type="checkbox" bind:checked={recipeUpdates} />
+
+						<input
+							type="checkbox"
+							bind:checked={recipeUpdates}
+						/>
 						<span class="toggle"></span>
 					</label>
 
@@ -245,16 +292,26 @@
 							<strong>커뮤니티 알림</strong>
 							<span>내 글의 댓글, 좋아요 및 답글 소식을 알려드립니다.</span>
 						</div>
-						<input type="checkbox" bind:checked={communityUpdates} />
+
+						<input
+							type="checkbox"
+							bind:checked={communityUpdates}
+						/>
 						<span class="toggle"></span>
 					</label>
 
 					<label class="option-row">
 						<div>
 							<strong>이벤트 및 혜택 알림 (선택)</strong>
-							<span>맞춤형 요리 클래스, 할인 쿠폰 및 이벤트 소식을 받습니다.</span>
+							<span>
+								맞춤형 요리 클래스, 할인 쿠폰 및 이벤트 소식을 받습니다.
+							</span>
 						</div>
-						<input type="checkbox" bind:checked={marketingUpdates} />
+
+						<input
+							type="checkbox"
+							bind:checked={marketingUpdates}
+						/>
 						<span class="toggle"></span>
 					</label>
 				</div>
@@ -266,6 +323,7 @@
 					<div class="heading-icon">
 						<i class="fa-solid fa-shield-halved"></i>
 					</div>
+
 					<div>
 						<h2>개인정보 및 공개 설정</h2>
 						<p>프로필 및 내 활동 내역의 공개 범위를 조정합니다.</p>
@@ -276,27 +334,45 @@
 					<label class="option-row">
 						<div>
 							<strong>비공개 프로필</strong>
-							<span>다른 사용자가 내 프로필 방문 시 정보를 제한적으로 표시합니다.</span>
+							<span>
+								다른 사용자가 내 프로필 방문 시 정보를 제한적으로 표시합니다.
+							</span>
 						</div>
-						<input type="checkbox" bind:checked={privateProfile} />
+
+						<input
+							type="checkbox"
+							bind:checked={privateProfile}
+						/>
 						<span class="toggle"></span>
 					</label>
 
 					<label class="option-row">
 						<div>
 							<strong>활동 내역 공개</strong>
-							<span>스크랩한 레시피, 작성한 후기 등의 활동 내역을 공개합니다.</span>
+							<span>
+								스크랩한 레시피, 작성한 후기 등의 활동 내역을 공개합니다.
+							</span>
 						</div>
-						<input type="checkbox" bind:checked={showActivity} />
+
+						<input
+							type="checkbox"
+							bind:checked={showActivity}
+						/>
 						<span class="toggle"></span>
 					</label>
 
 					<label class="option-row">
 						<div>
 							<strong>검색 엔진 수집 허용</strong>
-							<span>외부 검색 엔진(구글, 네이버 등)에 내 공개 프로필 노출을 허용합니다.</span>
+							<span>
+								외부 검색 엔진(구글, 네이버 등)에 내 공개 프로필 노출을 허용합니다.
+							</span>
 						</div>
-						<input type="checkbox" bind:checked={allowSearchEngine} />
+
+						<input
+							type="checkbox"
+							bind:checked={allowSearchEngine}
+						/>
 						<span class="toggle"></span>
 					</label>
 				</div>
@@ -308,6 +384,7 @@
 					<div class="heading-icon">
 						<i class="fa-solid fa-circle-info"></i>
 					</div>
+
 					<div>
 						<h2>서비스 정보 및 약관</h2>
 						<p>요리위키 서비스 약관 및 버전 정보를 확인합니다.</p>
@@ -320,6 +397,7 @@
 							<strong>이용약관</strong>
 							<span>요리위키 서비스 이용 약관을 확인합니다.</span>
 						</div>
+
 						<i class="fa-solid fa-chevron-right arrow-icon"></i>
 					</a>
 
@@ -328,6 +406,7 @@
 							<strong>개인정보처리방침</strong>
 							<span>개인정보 수집 및 처리 보호 지침을 확인합니다.</span>
 						</div>
+
 						<i class="fa-solid fa-chevron-right arrow-icon"></i>
 					</a>
 
@@ -336,6 +415,7 @@
 							<strong>자주 묻는 질문 (FAQ)</strong>
 							<span>서비스 궁금증이나 이용 안내를 찾을 수 있습니다.</span>
 						</div>
+
 						<i class="fa-solid fa-chevron-right arrow-icon"></i>
 					</a>
 
@@ -344,6 +424,7 @@
 							<strong>현재 앱 버전</strong>
 							<span>v2.4.0 (최신 버전 사용 중)</span>
 						</div>
+
 						<span class="badge">최신</span>
 					</div>
 				</div>
@@ -354,11 +435,19 @@
 				<div>
 					<span class="danger-label">DANGER ZONE</span>
 					<h2>계정 삭제</h2>
-					<p>계정을 삭제하면 등록한 레시피 및 북마크 정보가 모두 복구 불가능하게 삭제됩니다.</p>
+					<p>
+						계정을 삭제하면 등록한 레시피 및 북마크 정보가 모두
+						복구 불가능하게 삭제됩니다.
+					</p>
 				</div>
 
-				<button class="danger-button" type="button" onclick={() => (showDeleteModal = true)}>
-					<i class="fa-solid fa-trash-can icon-left"></i>계정 삭제
+				<button
+					class="danger-button"
+					type="button"
+					onclick={() => (showDeleteModal = true)}
+				>
+					<i class="fa-solid fa-trash-can icon-left"></i>
+					계정 삭제
 				</button>
 			</section>
 		</div>
@@ -368,19 +457,37 @@
 <!-- 삭제 확인 모달 -->
 {#if showDeleteModal}
 	<div class="modal-backdrop">
-		<div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-title">
+		<div
+			class="modal"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="delete-title"
+		>
 			<div class="modal-icon">
 				<i class="fa-solid fa-triangle-exclamation"></i>
 			</div>
 
 			<h2 id="delete-title">정말 계정을 삭제하시겠습니까?</h2>
-			<p>삭제된 계정과 모든 데이터는 복구할 수 없습니다. 계속하시겠습니까?</p>
+
+			<p>
+				삭제된 계정과 모든 데이터는 복구할 수 없습니다.
+				계속하시겠습니까?
+			</p>
 
 			<div class="modal-actions">
-				<button type="button" class="cancel-button" onclick={() => (showDeleteModal = false)}>
+				<button
+					type="button"
+					class="cancel-button"
+					onclick={() => (showDeleteModal = false)}
+				>
 					취소
 				</button>
-				<button type="button" class="danger-button" onclick={() => (showDeleteModal = false)}>
+
+				<button
+					type="button"
+					class="danger-button"
+					onclick={() => (showDeleteModal = false)}
+				>
 					삭제하기
 				</button>
 			</div>
@@ -435,7 +542,7 @@
 	/* Navigation */
 	.settings-nav {
 		position: sticky;
-		top: 100px; /* 상단 헤더 높이를 고려하여 조정 */
+		top: 100px;
 		align-self: start;
 		display: flex;
 		flex-direction: column;
@@ -483,7 +590,6 @@
 		padding: 0 0 38px;
 		margin-bottom: 38px;
 		border-bottom: 1px solid var(--border);
-		/* 상단 고정 헤더에 가려지지 않도록 스크롤 마진 추가 */
 		scroll-margin-top: 100px;
 	}
 
@@ -542,7 +648,8 @@
 		min-width: 0;
 	}
 
-	.form-row label {
+	.form-row label,
+	.form-label {
 		display: block;
 		margin-bottom: 4px;
 		color: var(--text);
@@ -550,7 +657,7 @@
 		font-weight: 650;
 	}
 
-	.form-row span {
+	.form-row > div:first-child > span:not(.form-label) {
 		display: block;
 		color: var(--text-muted);
 		font-size: 11px;

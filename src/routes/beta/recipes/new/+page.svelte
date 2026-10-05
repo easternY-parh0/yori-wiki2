@@ -9,9 +9,15 @@
 	let difficulty = $state('5');
 	let cookingTime = $state('');
 	let servings = $state('2');
+
+	// 이미지 관련 상태
+	let uploadMode = $state<'file' | 'url'>('file'); // 'file' | 'url'
 	let imageUrl = $state('');
- let imageFile = $state<File | null>(null);
- let createdId: number | null = null;
+	let imageFile = $state<File | null>(null);
+	let imagePreviewUrl = $state<string | null>(null);
+	let isDragging = $state(false);
+
+	let createdId: number | null = null;
 
 	let ingredients = $state([{ name: '', amount: '' }]);
 	let steps = $state([{ description: '' }]);
@@ -28,7 +34,6 @@
 
 	function removeIngredient(index: number) {
 		if (ingredients.length === 1) return;
-
 		ingredients = ingredients.filter((_, i) => i !== index);
 	}
 
@@ -38,20 +43,16 @@
 
 	function removeStep(index: number) {
 		if (steps.length === 1) return;
-
 		steps = steps.filter((_, i) => i !== index);
 	}
 
 	function addTag() {
 		const value = tagInput.trim();
-
 		if (!value) return;
-
 		if (tags.includes(value)) {
 			tagInput = '';
 			return;
 		}
-
 		tags = [...tags, value];
 		tagInput = '';
 	}
@@ -67,6 +68,61 @@
 		}
 	}
 
+	// 이미지 파일 선택 및 처리
+	function handleFileSelect(file: File | null) {
+		if (!file) return;
+
+		// 확장자 및 용량 체크 (5MB)
+		if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+			errorMessage = 'PNG, JPEG, WebP 형식의 이미지 파일만 업로드 가능합니다.';
+			return;
+		}
+
+		if (file.size > 5 * 1024 * 1024) {
+			errorMessage = '이미지 용량은 5MB 이하만 가능합니다.';
+			return;
+		}
+
+		errorMessage = '';
+		imageFile = file;
+
+		// 미리보기 생성
+		const reader = new FileReader();
+		reader.onload = (e) => {
+			imagePreviewUrl = e.target?.result as string;
+		};
+		reader.readAsDataURL(file);
+	}
+
+	function handleFileInputChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		const file = target.files?.[0] ?? null;
+		handleFileSelect(file);
+	}
+
+	function handleDrop(event: DragEvent) {
+		event.preventDefault();
+		isDragging = false;
+
+		if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+			handleFileSelect(event.dataTransfer.files[0]);
+		}
+	}
+
+	function handleDragOver(event: DragEvent) {
+		event.preventDefault();
+		isDragging = true;
+	}
+
+	function handleDragLeave() {
+		isDragging = false;
+	}
+
+	function clearSelectedFile() {
+		imageFile = null;
+		imagePreviewUrl = null;
+	}
+
 	function getValidationError() {
 		if (!title.trim()) {
 			return '레시피 이름을 입력해주세요.';
@@ -77,45 +133,33 @@
 		}
 
 		const cookingTimeNumber = Number(cookingTime);
-
 		if (!cookingTime || !Number.isInteger(cookingTimeNumber) || cookingTimeNumber < 1) {
 			return '조리 시간을 1분 이상 입력해주세요.';
 		}
 
 		const servingsNumber = Number(servings);
-
 		if (!servings || !Number.isInteger(servingsNumber) || servingsNumber < 1) {
 			return '인분을 1 이상 입력해주세요.';
 		}
 
-		const validIngredients = ingredients.filter(
-			(item) => item.name.trim() !== ''
-		);
-
+		const validIngredients = ingredients.filter((item) => item.name.trim() !== '');
 		if (validIngredients.length === 0) {
 			return '재료를 하나 이상 입력해주세요.';
 		}
 
-		const invalidIngredient = validIngredients.find(
-			(item) => item.amount.trim() === ''
-		);
-
+		const invalidIngredient = validIngredients.find((item) => item.amount.trim() === '');
 		if (invalidIngredient) {
 			return `${invalidIngredient.name.trim()}의 분량을 입력해주세요.`;
 		}
 
-		const validSteps = steps.filter(
-			(step) => step.description.trim() !== ''
-		);
-
+		const validSteps = steps.filter((step) => step.description.trim() !== '');
 		if (validSteps.length === 0) {
 			return '조리 순서를 하나 이상 입력해주세요.';
 		}
 
-		if (imageUrl.trim()) {
+		if (uploadMode === 'url' && imageUrl.trim()) {
 			try {
 				const url = new URL(imageUrl.trim());
-
 				if (url.protocol !== 'http:' && url.protocol !== 'https:') {
 					return '대표 이미지 URL은 HTTP 또는 HTTPS 주소만 사용할 수 있습니다.';
 				}
@@ -135,7 +179,6 @@
 		errorMessage = '';
 
 		const validationError = getValidationError();
-
 		if (validationError) {
 			errorMessage = validationError;
 			window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -145,13 +188,8 @@
 		const cookingTimeNumber = Number(cookingTime);
 		const servingsNumber = Number(servings);
 
-		const validIngredients = ingredients.filter(
-			(item) => item.name.trim() !== ''
-		);
-
-		const validSteps = steps.filter(
-			(step) => step.description.trim() !== ''
-		);
+		const validIngredients = ingredients.filter((item) => item.name.trim() !== '');
+		const validSteps = steps.filter((step) => step.description.trim() !== '');
 
 		const ingredientText = validIngredients
 			.map((item) => `${item.name.trim()} ${item.amount.trim()}`.trim())
@@ -161,15 +199,13 @@
 			.map((step, index) => `${index + 1}. ${step.description.trim()}`)
 			.join('\n');
 
+		const finalImageUrl = uploadMode === 'url' ? imageUrl.trim() : null;
+
 		const food = {
 			name: title.trim(),
-
 			ingredients: ingredientText,
-
 			recipe: recipeText,
-
 			estimated_time: `${cookingTimeNumber}분`,
-
 			metadata: {
 				description: description.trim(),
 				category,
@@ -177,20 +213,21 @@
 				cooking_time_minutes: cookingTimeNumber,
 				servings: servingsNumber,
 				tags,
-				ingredient_names: validIngredients.map(
-					(item) => item.name.trim()
-				),
+				ingredient_names: validIngredients.map((item) => item.name.trim()),
 				aliases: [],
-				image_url: imageUrl.trim() || null
+				image_url: finalImageUrl
 			}
 		};
 
 		try {
 			submitting = true;
 
-			const id = createdId ?? await createFood(food);
- createdId = id;
- if(imageFile) await uploadRecipeImage(id, imageFile);
+			const id = createdId ?? (await createFood(food));
+			createdId = id;
+
+			if (uploadMode === 'file' && imageFile) {
+				await uploadRecipeImage(id, imageFile);
+			}
 
 			if (!id || !Number.isInteger(id)) {
 				throw new Error('레시피 등록은 완료되었지만 생성된 레시피 ID를 받지 못했습니다.');
@@ -199,7 +236,6 @@
 			await goto(appPath(`/recipes/${id}`));
 		} catch (error) {
 			console.error(error);
-
 			errorMessage =
 				error instanceof Error
 					? error.message || '레시피 등록에 실패했습니다.'
@@ -212,42 +248,27 @@
 
 <svelte:head>
 	<title>레시피 등록 | 요리위키</title>
-	<meta
-		name="description"
-		content="나만의 레시피를 요리위키에 등록해보세요."
-	/>
+	<meta name="description" content="나만의 레시피를 요리위키에 등록해보세요." />
 </svelte:head>
 
 <div class="page">
 	<main>
 		<nav class="breadcrumb">
 			<a href={appPath('/')}>홈</a>
-
-			<svg viewBox="0 0 24 24">
-				<path d="M9 18l6-6-6-6" />
-			</svg>
-
+			<svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
 			<a href={appPath('/recipes')}>레시피</a>
-
-			<svg viewBox="0 0 24 24">
-				<path d="M9 18l6-6-6-6" />
-			</svg>
-
+			<svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
 			<span>레시피 등록</span>
 		</nav>
 
 		<section class="page-heading">
 			<div>
 				<span class="heading-label">레시피 공유</span>
-
 				<h1>
 					나만의 레시피를<br />
 					<span>등록해보세요.</span>
 				</h1>
-
-				<p>
-					직접 만든 요리와 맛있는 레시피를 다른 사람들과 공유해보세요.
-				</p>
+				<p>직접 만든 요리와 맛있는 레시피를 다른 사람들과 공유해보세요.</p>
 			</div>
 
 			<div class="heading-icon">
@@ -265,7 +286,6 @@
 					<path d="M12 8v5" />
 					<path d="M12 16h.01" />
 				</svg>
-
 				<span>{errorMessage}</span>
 			</div>
 		{/if}
@@ -274,44 +294,128 @@
 			<section class="form-section">
 				<div class="section-heading">
 					<div class="section-number">01</div>
-
 					<div>
 						<h2>기본 정보</h2>
 						<p>레시피를 소개할 기본 정보를 입력해주세요.</p>
 					</div>
 				</div>
 
-				<label>대표 이미지 파일 (PNG/JPEG/WebP, 5MB 이하)<input type="file" accept="image/png,image/jpeg,image/webp" onchange={(e)=>imageFile=e.currentTarget.files?.[0] ?? null} /></label>
-<div class="image-upload">
-					<div class="upload-icon">
-						<svg viewBox="0 0 24 24">
-							<rect x="3" y="4" width="18" height="16" rx="2" />
-							<circle cx="8.5" cy="9" r="1.5" />
-							<path d="M3 16l5-5 4 4 2.5-2.5L21 18" />
-						</svg>
+				<!-- 개선된 대표 이미지 등록 영역 -->
+				<div class="image-section-container">
+					<div class="image-mode-selector">
+						<span class="image-mode-title">대표 이미지</span>
+						<div class="image-mode-tabs">
+							<button
+								type="button"
+								class="tab-btn"
+								class:active={uploadMode === 'file'}
+								onclick={() => (uploadMode = 'file')}
+							>
+								파일 업로드
+							</button>
+							<button
+								type="button"
+								class="tab-btn"
+								class:active={uploadMode === 'url'}
+								onclick={() => (uploadMode = 'url')}
+							>
+								URL 입력
+							</button>
+						</div>
 					</div>
 
-					<div class="upload-content">
-						<strong>대표 이미지</strong>
-						<span>대표 이미지의 HTTP(S) URL을 입력해주세요.</span>
-						<small>이미지 파일 자체 업로드는 지원하지 않습니다.</small>
-					</div>
+					{#if uploadMode === 'file'}
+						{#if imagePreviewUrl}
+							<div class="image-preview-card">
+								<div class="preview-wrapper">
+									<img src={imagePreviewUrl} alt="대표 이미지 미리보기" />
+								</div>
+								<div class="preview-info">
+									<div class="file-details">
+										<span class="file-name">{imageFile?.name}</span>
+										<span class="file-size"
+											>{((imageFile?.size ?? 0) / (1024 * 1024)).toFixed(2)} MB</span
+										>
+									</div>
+									<div class="preview-actions">
+										<label class="change-file-btn">
+											변경
+											<input
+												type="file"
+												accept="image/png,image/jpeg,image/webp"
+												onchange={handleFileInputChange}
+												hidden
+											/>
+										</label>
+										<button type="button" class="remove-file-btn" onclick={clearSelectedFile}>
+											삭제
+										</button>
+									</div>
+								</div>
+							</div>
+						{:else}
+							<label
+								class="dropzone"
+								class:is-dragging={isDragging}
+								ondrop={handleDrop}
+								ondragover={handleDragOver}
+								ondragleave={handleDragLeave}
+							>
+								<input
+									type="file"
+									accept="image/png,image/jpeg,image/webp"
+									onchange={handleFileInputChange}
+									hidden
+								/>
+								<div class="dropzone-icon">
+									<svg viewBox="0 0 24 24">
+										<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+										<polyline points="17 8 12 3 7 8" />
+										<line x1="12" y1="3" x2="12" y2="15" />
+									</svg>
+								</div>
+								<div class="dropzone-text">
+									<strong>클릭하여 대표 이미지 첨부</strong>
+									<span>또는 드래그 앤 드롭으로 파일을 여기에 끌어놓으세요</span>
+									<small>PNG, JPEG, WebP (최대 5MB)</small>
+								</div>
+							</label>
+						{/if}
+					{:else}
+						<div class="url-input-container">
+							<div class="field">
+								<input
+									bind:value={imageUrl}
+									type="url"
+									placeholder="https://example.com/recipe-image.jpg"
+								/>
+							</div>
+							{#if imageUrl.trim()}
+								<div class="url-preview-wrapper">
+									<img
+										src={imageUrl}
+										alt="URL 이미지 미리보기"
+										onerror={(e) => {
+											(e.currentTarget as HTMLImageElement).style.display = 'none';
+										}}
+										onload={(e) => {
+											(e.currentTarget as HTMLImageElement).style.display = 'block';
+										}}
+									/>
+								</div>
+							{/if}
+						</div>
+					{/if}
 				</div>
 
 				<div class="form-grid">
 					<label class="field field-wide">
 						<span>레시피 이름 <b>*</b></span>
-
-						<input
-							bind:value={title}
-							placeholder="예: 매콤한 김치볶음밥"
-							maxlength="100"
-						/>
+						<input bind:value={title} placeholder="예: 매콤한 김치볶음밥" maxlength="100" />
 					</label>
 
 					<label class="field field-wide">
 						<span>한 줄 소개</span>
-
 						<input
 							bind:value={description}
 							placeholder="이 레시피를 간단하게 소개해주세요."
@@ -319,46 +423,30 @@
 						/>
 					</label>
 
-					<label class="field field-wide">
-						<span>대표 이미지 URL</span>
-
-						<input
-							bind:value={imageUrl}
-							type="url"
-							placeholder="https://example.com/image.jpg"
-						/>
-					</label>
-
 					<label class="field">
 						<span>카테고리 <b>*</b></span>
-
 						<select bind:value={category}>
 							<option value="" disabled>카테고리 선택</option>
 							<option value="KOREAN">한식</option>
 							<option value="CHINESE">중식</option>
 							<option value="JAPANESE">일식</option>
 							<option value="WESTERN">양식</option>
-							<option value="SNACK">분식</option>
-							<option value="DESSERT">디저트</option>
-							<option value="DRINK">음료</option>
+							<option value="BAKING">베이킹</option>
+							<option value="SNACK">간식</option>
 						</select>
 					</label>
 
 					<label class="field">
 						<span>난이도 <b>*</b></span>
-
 						<select bind:value={difficulty}>
 							{#each Array(10) as _, index}
-								<option value={String(index + 1)}>
-									{index + 1}단계
-								</option>
+								<option value={String(index + 1)}>{index + 1}단계</option>
 							{/each}
 						</select>
 					</label>
 
 					<label class="field">
 						<span>조리 시간 <b>*</b></span>
-
 						<div class="input-with-unit">
 							<input
 								bind:value={cookingTime}
@@ -367,22 +455,14 @@
 								step="1"
 								placeholder="30"
 							/>
-
 							<span>분</span>
 						</div>
 					</label>
 
 					<label class="field">
 						<span>인분 <b>*</b></span>
-
 						<div class="input-with-unit">
-							<input
-								bind:value={servings}
-								type="number"
-								min="1"
-								step="1"
-							/>
-
+							<input bind:value={servings} type="number" min="1" step="1" />
 							<span>인분</span>
 						</div>
 					</label>
@@ -392,7 +472,6 @@
 			<section class="form-section">
 				<div class="section-heading">
 					<div class="section-number">02</div>
-
 					<div>
 						<h2>재료</h2>
 						<p>레시피에 필요한 재료와 양을 입력해주세요.</p>
@@ -408,40 +487,25 @@
 
 					{#each ingredients as ingredient, index}
 						<div class="ingredient-row">
-							<input
-								bind:value={ingredient.name}
-								placeholder="예: 김치"
-							/>
-
-							<input
-								bind:value={ingredient.amount}
-								placeholder="예: 1컵"
-							/>
-
+							<input bind:value={ingredient.name} placeholder="예: 김치" />
+							<input bind:value={ingredient.amount} placeholder="예: 1컵" />
 							<button
 								class="remove-button"
 								type="button"
 								aria-label="재료 삭제"
 								onclick={() => removeIngredient(index)}
 							>
-								<svg viewBox="0 0 24 24">
-									<path d="M5 12h14" />
-								</svg>
+								<svg viewBox="0 0 24 24"><path d="M5 12h14" /></svg>
 							</button>
 						</div>
 					{/each}
 				</div>
 
-				<button
-					class="add-button"
-					type="button"
-					onclick={addIngredient}
-				>
+				<button class="add-button" type="button" onclick={addIngredient}>
 					<svg viewBox="0 0 24 24">
 						<path d="M12 5v14" />
 						<path d="M5 12h14" />
 					</svg>
-
 					재료 추가
 				</button>
 			</section>
@@ -449,7 +513,6 @@
 			<section class="form-section">
 				<div class="section-heading">
 					<div class="section-number">03</div>
-
 					<div>
 						<h2>조리 순서</h2>
 						<p>요리를 만드는 과정을 순서대로 작성해주세요.</p>
@@ -459,10 +522,7 @@
 				<div class="steps-list">
 					{#each steps as step, index}
 						<div class="step-row">
-							<div class="step-number">
-								{String(index + 1).padStart(2, '0')}
-							</div>
-
+							<div class="step-number">{String(index + 1).padStart(2, '0')}</div>
 							<div class="step-content">
 								<textarea
 									bind:value={step.description}
@@ -470,31 +530,23 @@
 									placeholder="조리 과정을 자세하게 작성해주세요."
 								></textarea>
 							</div>
-
 							<button
 								class="remove-button step-remove"
 								type="button"
 								aria-label="조리 단계 삭제"
 								onclick={() => removeStep(index)}
 							>
-								<svg viewBox="0 0 24 24">
-									<path d="M5 12h14" />
-								</svg>
+								<svg viewBox="0 0 24 24"><path d="M5 12h14" /></svg>
 							</button>
 						</div>
 					{/each}
 				</div>
 
-				<button
-					class="add-button"
-					type="button"
-					onclick={addStep}
-				>
+				<button class="add-button" type="button" onclick={addStep}>
 					<svg viewBox="0 0 24 24">
 						<path d="M12 5v14" />
 						<path d="M5 12h14" />
 					</svg>
-
 					조리 단계 추가
 				</button>
 			</section>
@@ -502,7 +554,6 @@
 			<section class="form-section">
 				<div class="section-heading">
 					<div class="section-number">04</div>
-
 					<div>
 						<h2>추가 정보</h2>
 						<p>레시피를 더 잘 찾을 수 있도록 정보를 추가해주세요.</p>
@@ -521,10 +572,7 @@
 							onkeydown={handleTagKeydown}
 							placeholder="태그를 입력하고 추가해주세요."
 						/>
-
-						<button type="button" onclick={addTag}>
-							추가
-						</button>
+						<button type="button" onclick={addTag}>추가</button>
 					</div>
 
 					{#if tags.length > 0}
@@ -537,7 +585,6 @@
 									aria-label={`${tag} 태그 삭제`}
 								>
 									#{tag}
-
 									<span>×</span>
 								</button>
 							{/each}
@@ -547,24 +594,15 @@
 			</section>
 
 			<div class="form-actions">
-				<a
-					href={appPath('/recipes')}
-					class="cancel-button"
-					aria-disabled={submitting}
-				>
+				<a href={appPath('/recipes')} class="cancel-button" aria-disabled={submitting}>
 					취소
 				</a>
 
-				<button
-					class="submit-button"
-					type="submit"
-					disabled={submitting}
-				>
+				<button class="submit-button" type="submit" disabled={submitting}>
 					{#if submitting}
 						등록 중...
 					{:else}
 						레시피 등록하기
-
 						<svg viewBox="0 0 24 24">
 							<path d="M5 12h14" />
 							<path d="M13 6l6 6-6 6" />
@@ -736,49 +774,218 @@
 		font-size: 14px;
 	}
 
-	.image-upload {
+	/* 이미지 업로드 섹션 스타일 추가 */
+	.image-section-container {
+		margin-bottom: 30px;
+	}
+
+	.image-mode-selector {
 		display: flex;
 		align-items: center;
-		gap: 15px;
-		margin-bottom: 25px;
-		padding: 17px;
-		border: 1px dashed var(--border-accent);
-		border-radius: 12px;
-		background: var(--surface-green);
+		justify-content: space-between;
+		margin-bottom: 12px;
 	}
 
-	.upload-icon {
+	.image-mode-title {
+		font-size: 14px;
+		font-weight: 700;
+		color: var(--text);
+	}
+
+	.image-mode-tabs {
+		display: flex;
+		background: var(--surface-subtle);
+		padding: 3px;
+		border-radius: 8px;
+		border: 1px solid var(--border);
+	}
+
+	.tab-btn {
+		padding: 5px 12px;
+		font-size: 12px;
+		font-weight: 600;
+		border: 0;
+		border-radius: 6px;
+		background: transparent;
+		color: var(--text-muted);
+		cursor: pointer;
+		transition: all 0.15s ease;
+	}
+
+	.tab-btn.active {
+		background: var(--surface);
+		color: var(--text);
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+	}
+
+	.dropzone {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 12px;
+		padding: 36px 20px;
+		border: 2px dashed var(--border-accent);
+		border-radius: 14px;
+		background: var(--surface-green);
+		cursor: pointer;
+		transition: all 0.2s ease;
+		text-align: center;
+	}
+
+	.dropzone:hover,
+	.dropzone.is-dragging {
+		border-color: var(--accent);
+		background: var(--surface-yellow);
+	}
+
+	.dropzone-icon {
 		display: grid;
 		place-items: center;
-		flex-shrink: 0;
-		width: 46px;
-		height: 46px;
-		border-radius: 11px;
+		width: 48px;
+		height: 48px;
+		border-radius: 12px;
 		background: var(--surface);
 		color: var(--accent);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 	}
 
-	.upload-icon svg {
-		width: 23px;
-		height: 23px;
+	.dropzone-icon svg {
+		width: 24px;
+		height: 24px;
 	}
 
-	.upload-content {
+	.dropzone-text {
 		display: flex;
-		flex: 1;
 		flex-direction: column;
 		gap: 4px;
 	}
 
-	.upload-content strong {
-		font-size: 14px;
+	.dropzone-text strong {
+		font-size: 15px;
 		color: var(--text);
 	}
 
-	.upload-content span,
-	.upload-content small {
-		color: var(--text-muted);
+	.dropzone-text span {
 		font-size: 13px;
+		color: var(--text-subtle);
+	}
+
+	.dropzone-text small {
+		font-size: 12px;
+		color: var(--text-muted);
+		margin-top: 4px;
+	}
+
+	.image-preview-card {
+		display: flex;
+		align-items: center;
+		gap: 20px;
+		padding: 16px;
+		border: 1px solid var(--border);
+		border-radius: 14px;
+		background: var(--surface);
+	}
+
+	.preview-wrapper {
+		width: 110px;
+		height: 110px;
+		border-radius: 10px;
+		overflow: hidden;
+		flex-shrink: 0;
+		background: var(--surface-subtle);
+		border: 1px solid var(--border);
+	}
+
+	.preview-wrapper img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.preview-info {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		flex: 1;
+	}
+
+	.file-details {
+		display: flex;
+		flex-direction: column;
+		gap: 3px;
+	}
+
+	.file-name {
+		font-size: 14px;
+		font-weight: 700;
+		color: var(--text);
+		word-break: break-all;
+	}
+
+	.file-size {
+		font-size: 12px;
+		color: var(--text-muted);
+	}
+
+	.preview-actions {
+		display: flex;
+		gap: 8px;
+	}
+
+	.change-file-btn {
+		display: inline-flex;
+		align-items: center;
+		padding: 6px 12px;
+		border: 1px solid var(--border);
+		border-radius: 6px;
+		background: var(--surface-subtle);
+		color: var(--text);
+		font-size: 13px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.change-file-btn:hover {
+		background: var(--surface);
+		border-color: var(--accent);
+	}
+
+	.remove-file-btn {
+		padding: 6px 12px;
+		border: 1px solid var(--danger);
+		border-radius: 6px;
+		background: transparent;
+		color: var(--danger);
+		font-size: 13px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.remove-file-btn:hover {
+		background: var(--surface);
+		opacity: 0.8;
+	}
+
+	.url-input-container {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.url-preview-wrapper {
+		width: 100%;
+		max-height: 220px;
+		border-radius: 10px;
+		overflow: hidden;
+		border: 1px solid var(--border);
+		background: var(--surface-subtle);
+	}
+
+	.url-preview-wrapper img {
+		width: 100%;
+		height: 220px;
+		object-fit: cover;
 	}
 
 	.form-grid {
@@ -1138,6 +1345,16 @@
 		.submit-button {
 			width: 100%;
 		}
+
+		.image-preview-card {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+
+		.preview-wrapper {
+			width: 100%;
+			height: 160px;
+		}
 	}
 
 	@media (max-width: 500px) {
@@ -1152,10 +1369,6 @@
 		.page-heading p {
 			font-size: 14px;
 			line-height: 1.6;
-		}
-
-		.image-upload {
-			align-items: flex-start;
 		}
 
 		.ingredient-header {
