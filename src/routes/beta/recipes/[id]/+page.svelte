@@ -24,22 +24,26 @@
   });
   let likesCount = $derived(liked ? initialLikes() + 1 : initialLikes());
 
-  // 4. 인분 수 (최상위 servings 우선 조회)
+  // 4. 인분 수 (최상위 servings 우선 조회)  교체 시작
   let initialServings = $derived(
-    data.food.servings ?? data.food.metadata?.servings ?? 2
-  );
-  let servingOffset = $state(0);
-  let servings = $derived(initialServings + servingOffset);
+  Math.max(
+    1,
+    Number(data.food.servings ?? data.food.metadata?.servings ?? 2) || 2
+  )
+);
 
-  function increaseServings() {
-    servingOffset += 1;
-  }
+let servingOffset = $state(0);
+let servings = $derived(initialServings + servingOffset);
 
-  function decreaseServings() {
-    if (servings > 1) {
-      servingOffset -= 1;
-    }
+function increaseServings() {
+  servingOffset += 1;
+}
+
+function decreaseServings() {
+  if (servings > 1) {
+    servingOffset -= 1;
   }
+}    // 교체 끝
 
   // ISO 날짜 문자열 포맷팅 함수 (예: 2026. 10. 5.)
   function formatDate(dateString?: string) {
@@ -62,6 +66,135 @@
           .filter((item) => item !== '')
       : []
   );
+//추가 시작 
+//교체 시작
+// 조리 순서 파싱
+function parseRecipeSteps(recipe?: string) {
+  if (!recipe) return [];
+
+  const raw = recipe.trim();
+
+  // 한 줄에 "1. 내용 2. 내용 3. 내용"으로 저장된 경우 분리
+  const normalized = raw.replace(/\r?\n/g, ' ');
+
+  const numberedSteps = [
+    ...normalized.matchAll(
+      /(?:^|\s)(\d+)[.)]\s*(.*?)(?=(?:\s+\d+[.)]\s*)|$)/g
+    )
+  ]
+    .map((match) => match[2].trim())
+    .filter(Boolean);
+
+  if (numberedSteps.length > 0) {
+    return numberedSteps;
+  }
+
+  // 번호가 없는 경우에는 줄바꿈 기준으로 분리
+  return raw
+    .split(/\r?\n/)
+    .map((step) => step.trim())
+    .filter(Boolean)
+    .map((step) =>
+      step.replace(/^[-•]\s*/, '')
+    );
+}
+
+const recipeSteps = $derived(
+  parseRecipeSteps(data.food.recipe)
+);
+// 교체 끝
+
+// 인분 수에 맞게 재료 수량 변경
+function parseQuantity(value: string) {
+  return value
+    .trim()
+    .split(/\s+/)
+    .reduce((sum, part) => {
+      // 1/2 같은 분수
+      if (part.includes('/')) {
+        const [numerator, denominator] = part.split('/').map(Number);
+
+        if (denominator) {
+          return sum + numerator / denominator;
+        }
+
+        return sum;
+      }
+
+      const number = Number(part);
+      return Number.isFinite(number) ? sum + number : sum;
+    }, 0);
+}
+
+function formatQuantity(value: number) {
+  return String(Math.round(value * 100) / 100);
+}
+
+function scaleIngredient(item: string, ratio: number) {
+  if (ratio === 1) return item;
+
+  const quantityPattern =
+    String.raw`(?:\d+(?:\.\d+)?(?:\s+\d+\/\d+)?|\d+\/\d+)`;
+
+  const unitPattern =
+    'kg|g|mg|ml|mL|L|cc|컵|큰술|작은술|숟가락|스푼|티스푼|테이블스푼|개|알|장|쪽|대|줄기|줌|봉지|봉|캔|팩|공기|조각|토막|마리|근|꼬집|모'; //모 추가
+
+  const quantityWithUnit = new RegExp(
+    `(${quantityPattern})(?:\\s*([~～-])\\s*(${quantityPattern}))?(\\s*(?:${unitPattern}))`,
+    'gi'
+  );
+
+  return item.replace(
+    quantityWithUnit,
+    (
+      _match,
+      first: string,
+      separator: string | undefined,
+      second: string | undefined,
+      unit: string
+    ) => {
+      const firstQuantity =
+        formatQuantity(parseQuantity(first) * ratio);
+
+      if (separator && second) {
+        const secondQuantity =
+          formatQuantity(parseQuantity(second) * ratio);
+
+        return `${firstQuantity}${separator}${secondQuantity}${unit}`;
+      }
+
+      return `${firstQuantity}${unit}`;
+    }
+  );
+}
+
+const scaledIngredientList = $derived(
+  ingredientList.map((item) =>
+    scaleIngredient(
+      item,
+      servings / initialServings
+    )
+  )
+);
+
+function scaleCookingTime(time: string | undefined, ratio: number) {
+  if (!time) return '—';
+  if (ratio === 1) return time;
+
+  return time.replace(/\d+(?:\.\d+)?/g, (value) => {
+    const scaled = Number(value) * ratio;
+    return String(Math.round(scaled));
+  });
+}
+
+let scaledCookingTime = $derived(
+  scaleCookingTime(
+    data.food.estimated_time,
+    servings / initialServings
+  )
+);
+//추가 끝
+
 </script>
 
 <svelte:head>
@@ -159,8 +292,8 @@
           </div>
 
           <div class="ingredient-list">
-            {#if ingredientList.length > 0}
-              {#each ingredientList as item}
+            {#if scaledIngredientList.length > 0}  <!--교체-->
+            {#each scaledIngredientList as item}   <!--교체-->
                 <div class="ingredient-item">
                   <span class="dot"></span>
                   <span>{item}</span>
@@ -173,24 +306,37 @@
             {/if}
           </div>
         </section>
+<!--추가 시작-->
+<!-- 조리 순서 Section -->
+<section class="content-section">
+  <div class="section-title">
+    <div>
+      <span class="num">02</span>
+      <h2>조리 순서</h2>
+    </div>
+  </div>
 
-        <!-- 영양 성분 표 Section (플레이스홀더) -->
-        <section class="content-section">
-          <div class="section-title">
-            <div>
-              <span class="num">02</span>
-              <h2>영양 성분 표</h2>
-            </div>
+  {#if recipeSteps.length > 0}
+    <div class="recipe-steps">
+      {#each recipeSteps as step, index}
+        <div class="recipe-step">
+          <div class="step-number">
+            {index + 1}
           </div>
 
-          <div class="nutrition-placeholder">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 20v-6M6 20V10M18 20V4" />
-            </svg>
-            <p>영양 성분 분석 정보가 준비 중입니다.</p>
+          <div class="step-content">
+            {step}
           </div>
-        </section>
-
+        </div>
+      {/each}
+    </div>
+  {:else}
+    <div class="recipe-empty">
+      등록된 조리 방법이 없습니다.
+    </div>
+  {/if}
+</section>
+<!--추가 끝-->
         <!-- 댓글 Section -->
         <section class="content-section last">
           <div class="section-title">
@@ -230,12 +376,12 @@
             <span>준비 시간</span>
             <strong>{data.food.metadata?.prep_time || '—'}</strong>
           </div>
-
-          <div class="info-row">
-            <span>조리 시간</span>
-            <strong>{data.food.estimated_time || '—'}</strong>
-          </div>
-
+<!--교체 시작-->
+          <div class="info-row">  
+  <span>조리 시간</span>
+  <strong>{scaledCookingTime}</strong>
+</div>
+<!-- 교체 끝-->
           <div class="info-row">
             <span>난이도</span>
             <strong>
@@ -529,30 +675,6 @@
     background: var(--accent);
   }
 
-  /* Nutrition Placeholder */
-  .nutrition-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 36px;
-    border: 1px dashed var(--border);
-    border-radius: 8px;
-    background: var(--surface-subtle);
-    color: var(--text-muted);
-  }
-
-  .nutrition-placeholder svg {
-    width: 28px;
-    height: 28px;
-  }
-
-  .nutrition-placeholder p {
-    margin: 0;
-    font-size: 14px;
-  }
-
   /* Comment Form */
   .comment-count {
     color: var(--text-muted);
@@ -674,4 +796,56 @@
       order: -1;
     }
   }
+/*추가 시작*/
+/* Recipe Steps */
+.recipe-steps {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+}
+
+.recipe-step {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  align-items: start;
+  gap: 18px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.step-number {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.step-content {
+  padding-top: 5px;
+
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.8;
+
+  word-break: keep-all;
+}
+
+.recipe-empty {
+  padding: 28px 0;
+
+  color: var(--text-muted);
+  font-size: 14px;
+}
+/*추가 끝*/
 </style>
