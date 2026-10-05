@@ -26,11 +26,11 @@
 
                 <h1>
                     집에 손님이 찾아왔다!<br />
-                    <strong>대접용 요리 총출동</strong>
+                    <span>대접용 요리 총출동</span>
                 </h1>
 
                 <p>
-                    메뉴를 많이 만드는 것보다 중요한 건 조합과 타이밍.
+                    메뉴를 많이 만드는 것보다 중요한 건 조합과 타이밍.<br />
                     부담은 줄이고 식탁은 근사하게 만들어보자.
                 </p>
             </div>
@@ -105,7 +105,7 @@
             </div>
 
             <div class="recipe-grid">
-                <div class="recipe-card bulgogi">
+                <div class="recipe-card">
                     <div class="recipe-emoji">🥩</div>
 
                     <h3>불고기</h3>
@@ -120,7 +120,7 @@
                     </div>
                 </div>
 
-                <div class="recipe-card roll">
+                <div class="recipe-card">
                     <div class="recipe-emoji">🥬</div>
 
                     <h3>월남쌈</h3>
@@ -135,7 +135,7 @@
                     </div>
                 </div>
 
-                <div class="recipe-card pasta">
+                <div class="recipe-card">
                     <div class="recipe-emoji">🍝</div>
 
                     <h3>파스타</h3>
@@ -150,7 +150,7 @@
                     </div>
                 </div>
 
-                <div class="recipe-card oven">
+                <div class="recipe-card">
                     <div class="recipe-emoji">🍗</div>
 
                     <h3>오븐 · 에어프라이어 요리</h3>
@@ -320,277 +320,304 @@
 <style>
     .article-page {
         min-height: 100vh;
-        padding: 28px 20px 90px;
-        background:
-            radial-gradient(
-                circle at 90% 0%,
-                rgba(255, 185, 120, 0.1),
-                transparent 30%
-            ),
-            var(--background, #fff);
-        color: var(--text-color, #202124);
+        padding: 32px 20px 90px;
+        background: var(--background);
+        color: var(--text);
     }
 
     .article {
-        width: min(900px, 100%);
+        width: min(840px, 100%);
         margin: 0 auto;
     }
 
     .top-bar {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         margin-bottom: 24px;
-        font-size: 0.85rem;
+        font-size: 12px;
     }
 
     .top-bar span {
         font-weight: 700;
-        opacity: 0.45;
+        color: var(--text-subtle);
     }
 
     .back-link {
-        color: inherit;
+        color: var(--accent);
         font-weight: 700;
         text-decoration: none;
-        opacity: 0.7;
+        transition: opacity 0.18s ease;
     }
 
+    .back-link:hover {
+        opacity: 0.8;
+    }
+
+    /* Hero 영역 디자인 통일 */
     .hero {
+        position: relative;
         display: flex;
-        min-height: 360px;
         align-items: center;
         justify-content: space-between;
         gap: 30px;
-        padding: 58px;
-        border-radius: 30px;
-        background: linear-gradient(135deg, #fff1df, #f9e5d0);
-        color: #3c2d25;
+        padding: 48px 42px;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        background: var(--surface-yellow);
     }
 
     .hero-text {
-        max-width: 650px;
+        max-width: 580px;
     }
 
     .badge {
         display: inline-block;
-        margin-bottom: 18px;
-        padding: 7px 11px;
+        margin-bottom: 16px;
+        padding: 6px 12px;
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.65);
-        font-size: 0.7rem;
-        font-weight: 900;
-        letter-spacing: 0.1em;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--accent);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
     }
 
     .hero h1 {
         margin: 0;
-        font-size: clamp(2.3rem, 6vw, 4.2rem);
-        line-height: 1.08;
-        letter-spacing: -0.055em;
+        font-size: clamp(2.2rem, 5vw, 3.2rem);
+        line-height: 1.15;
+        letter-spacing: -0.06em;
+        color: var(--text);
     }
 
-    .hero h1 strong {
-        color: #bc623e;
+    .hero h1 span {
+        color: var(--accent);
     }
 
     .hero p {
-        margin-top: 24px;
-        font-size: 1.05rem;
-        line-height: 1.8;
-        color: #705a4f;
+        margin-top: 18px;
+        font-size: 14px;
+        line-height: 1.7;
+        color: var(--text-subtle);
     }
 
     .hero-icon {
-        flex: 0 0 170px;
-        font-size: 6rem;
+        flex: 0 0 120px;
+        font-size: 4.5rem;
         text-align: center;
     }
 
+    /* 본문 공통 섹션 */
     .intro,
     section {
-        width: min(740px, 100%);
+        width: 100%;
         margin-right: auto;
         margin-left: auto;
     }
 
     .intro {
-        padding-top: 64px;
+        padding-top: 48px;
     }
 
     .intro p,
     section > p {
-        margin: 15px 0;
-        font-size: 1.04rem;
-        line-height: 1.95;
+        margin: 14px 0;
+        font-size: 14px;
+        line-height: 1.85;
+        color: var(--text);
         word-break: keep-all;
     }
 
     section {
-        margin-top: 90px;
+        margin-top: 60px;
     }
 
     .section-title {
         display: flex;
-        gap: 15px;
+        gap: 10px;
         align-items: center;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
     }
 
     .section-title span {
-        font-size: 0.75rem;
-        font-weight: 900;
-        color: #bc623e;
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--accent);
     }
 
     .section-title h2 {
         margin: 0;
-        font-size: clamp(1.55rem, 4vw, 2.2rem);
-        letter-spacing: -0.035em;
+        font-size: 22px;
+        letter-spacing: -0.05em;
+        color: var(--text);
     }
 
+    /* 포뮬러 카드 세트 */
     .formula {
         display: grid;
         grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
-        gap: 10px;
+        gap: 8px;
         align-items: center;
-        margin: 30px 0;
+        margin: 24px 0;
     }
 
     .formula div {
         display: flex;
-        min-height: 130px;
+        min-height: 110px;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        border-radius: 18px;
-        background: var(--card-bg, #faf7f4);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        padding: 12px 8px;
         text-align: center;
     }
 
     .formula div span {
         margin-bottom: 8px;
-        font-size: 2rem;
+        font-size: 1.8rem;
+    }
+
+    .formula div strong {
+        font-size: 12px;
     }
 
     .formula b {
-        color: #aaa;
+        color: var(--text-muted, #94a3b8);
+        font-size: 14px;
     }
 
+    /* 레시피 그리드 통일 */
     .recipe-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
+        margin-top: 20px;
     }
 
     .recipe-card {
-        padding: 27px;
-        border-radius: 22px;
-        color: #352b27;
+        padding: 24px;
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
     }
 
-    .bulgogi {
-        background: #f9eee7;
-    }
-
-    .roll {
-        background: #edf8ed;
-    }
-
-    .pasta {
-        background: #fff2df;
-    }
-
-    .oven {
-        background: #f6eee4;
+    .recipe-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px var(--shadow-card, rgba(0, 0, 0, 0.04));
     }
 
     .recipe-emoji {
-        margin-bottom: 15px;
-        font-size: 2.2rem;
+        margin-bottom: 12px;
+        font-size: 2rem;
     }
 
     .recipe-card h3 {
-        margin: 0 0 13px;
-        font-size: 1.3rem;
+        margin: 0 0 10px;
+        font-size: 16px;
+        letter-spacing: -0.03em;
     }
 
     .recipe-card p {
         margin: 0;
-        font-size: 0.92rem;
-        line-height: 1.75;
+        font-size: 12px;
+        line-height: 1.65;
+        color: var(--text-subtle);
     }
 
     .recipe-tip {
-        margin-top: 18px;
-        padding-top: 15px;
-        border-top: 1px solid rgba(0, 0, 0, 0.08);
-        font-size: 0.82rem;
-        font-weight: 750;
-        line-height: 1.6;
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.5;
+        color: var(--accent);
     }
 
+    /* 팁 박스 통일 (Green Surface) */
     .tip-box {
         display: flex;
-        gap: 18px;
-        margin: 25px 0;
-        padding: 23px;
-        border-radius: 20px;
-        background: #eef8ef;
-        color: #314334;
+        gap: 16px;
+        margin: 20px 0;
+        padding: 20px;
+        border-radius: 18px;
+        border: 1px solid var(--border-green, var(--border));
+        background: var(--surface-green);
     }
 
     .tip-box > span {
         font-size: 1.8rem;
     }
 
-    .tip-box p {
-        margin: 4px 0 0;
-        line-height: 1.7;
+    .tip-box strong {
+        font-size: 13px;
     }
 
+    .tip-box p {
+        margin: 4px 0 0;
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--text-subtle);
+    }
+
+    /* 타임라인 영역 */
     .timeline {
         display: grid;
-        gap: 12px;
-        margin: 27px 0;
+        gap: 10px;
+        margin: 24px 0;
     }
 
     .timeline > div {
         display: flex;
-        gap: 17px;
-        padding: 20px;
-        border: 1px solid var(--border-color, #e8e8e8);
-        border-radius: 18px;
+        gap: 16px;
+        align-items: center;
+        padding: 18px 20px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: var(--surface);
     }
 
     .timeline > div > span {
         display: grid;
-        width: 34px;
-        height: 34px;
-        flex: 0 0 34px;
+        width: 32px;
+        height: 32px;
+        flex: 0 0 32px;
         place-items: center;
         border-radius: 50%;
-        background: #bc623e;
-        color: white;
-        font-weight: 900;
+        background: var(--primary);
+        color: #0f172a;
+        font-weight: 800;
+        font-size: 13px;
+    }
+
+    .timeline strong {
+        font-size: 13px;
     }
 
     .timeline p {
-        margin: 5px 0 0;
-        font-size: 0.9rem;
-        opacity: 0.7;
+        margin: 3px 0 0;
+        font-size: 12px;
+        color: var(--text-subtle);
     }
 
+    /* 비주얼 팁 3분할 */
     .visual-tips {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 12px;
-        margin: 28px 0;
+        margin: 24px 0;
     }
 
     .visual-tips > div {
-        padding: 22px;
-        border-radius: 18px;
-        background: var(--card-bg, #fafafa);
+        padding: 20px 14px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: var(--surface);
         text-align: center;
     }
 
@@ -601,68 +628,85 @@
     }
 
     .visual-tips span {
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         font-size: 1.8rem;
     }
 
-    .visual-tips small {
-        margin-top: 5px;
-        opacity: 0.55;
+    .visual-tips strong {
+        font-size: 13px;
     }
 
+    .visual-tips small {
+        margin-top: 4px;
+        font-size: 11px;
+        color: var(--text-subtle);
+    }
+
+    /* 체크박스 */
     .check-box {
-        margin-top: 25px;
-        padding: 24px 27px;
-        border-radius: 20px;
-        background: var(--card-bg, #f7f7f7);
+        margin-top: 20px;
+        padding: 22px 24px;
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+    }
+
+    .check-box strong {
+        font-size: 14px;
     }
 
     .check-box ul {
-        margin: 15px 0 0;
-        padding-left: 22px;
+        margin: 12px 0 0;
+        padding-left: 20px;
     }
 
     .check-box li {
-        margin: 8px 0;
+        margin: 6px 0;
+        font-size: 12px;
         line-height: 1.6;
+        color: var(--text-subtle);
     }
 
+    /* 엔딩 영역 통일 */
     .ending {
-        width: min(800px, 100%);
-        margin: 100px auto 0;
-        padding: 52px;
-        border-radius: 28px;
-        background: #352921;
-        color: white;
+        width: 100%;
+        margin: 80px auto 0;
+        padding: 48px 32px;
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        background: var(--surface-yellow);
         text-align: center;
     }
 
     .ending > span {
-        font-size: 0.68rem;
-        font-weight: 900;
-        letter-spacing: 0.14em;
-        color: #cba98d;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        color: var(--accent);
     }
 
     .ending h2 {
-        margin: 15px 0 26px;
-        font-size: clamp(1.8rem, 5vw, 2.7rem);
+        margin: 14px 0 20px;
+        font-size: clamp(1.6rem, 4vw, 2.2rem);
         line-height: 1.3;
+        letter-spacing: -0.05em;
+        color: var(--text);
     }
 
     .ending p {
-        color: #dfd5cf;
-        line-height: 1.8;
+        font-size: 13px;
+        color: var(--text-subtle);
+        line-height: 1.7;
     }
 
     .ending strong {
         display: block;
-        margin-top: 28px;
-        padding-top: 26px;
-        border-top: 1px solid rgba(255, 255, 255, 0.12);
-        font-size: 1.2rem;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        font-size: 14px;
         line-height: 1.7;
-        color: #f3c4a7;
+        color: var(--text);
     }
 
     .bottom-nav {
@@ -671,14 +715,16 @@
     }
 
     .bottom-nav a {
-        color: inherit;
+        color: var(--accent);
+        font-size: 12px;
         font-weight: 700;
         text-decoration: none;
     }
 
+    /* 반응형 레이아웃 */
     @media (max-width: 700px) {
         .hero {
-            padding: 40px 27px;
+            padding: 36px 24px;
         }
 
         .hero-icon {
@@ -687,6 +733,7 @@
 
         .formula {
             grid-template-columns: 1fr;
+            gap: 10px;
         }
 
         .formula b {
@@ -699,11 +746,11 @@
         }
 
         section {
-            margin-top: 72px;
+            margin-top: 50px;
         }
 
         .ending {
-            padding: 38px 23px;
+            padding: 36px 20px;
         }
     }
 </style>
