@@ -7,8 +7,27 @@
   let liked = $state(false);
   let bookmarked = $state(false);
 
-  // Svelte 5 반응성 경고 해결 ($derived 사용)
-  let initialServings = $derived(data.food.metadata?.servings ?? 2);
+  // 1. 작성자 ID (최상위 author_id 우선 조회)
+  let authorDisplay = $derived(
+    data.food.author_id ?? data.food.metadata?.author_id ?? '요리위키'
+  );
+
+  // 2. 생성일자 (최상위 created_at 우선 조회)
+  let createdAt = $derived(
+    data.food.created_at ?? data.food.metadata?.created_at
+  );
+
+  // 3. 좋아요 수 (최상위 likes 우선 조회, number/string 모두 대응)
+  let initialLikes = $derived(() => {
+    const rawLikes = data.food.likes ?? data.food.metadata?.likes ?? 0;
+    return typeof rawLikes === 'number' ? rawLikes : parseInt(rawLikes, 10) || 0;
+  });
+  let likesCount = $derived(liked ? initialLikes() + 1 : initialLikes());
+
+  // 4. 인분 수 (최상위 servings 우선 조회)
+  let initialServings = $derived(
+    data.food.servings ?? data.food.metadata?.servings ?? 2
+  );
   let servingOffset = $state(0);
   let servings = $derived(initialServings + servingOffset);
 
@@ -20,6 +39,18 @@
     if (servings > 1) {
       servingOffset -= 1;
     }
+  }
+
+  // ISO 날짜 문자열 포맷팅 함수 (예: 2026. 10. 5.)
+  function formatDate(dateString?: string) {
+    if (!dateString) return '최근 업데이트';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    return date.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   }
 
   // 재료 파싱
@@ -37,7 +68,7 @@
   <title>{data.food.name} | 요리위키</title>
   <meta
     name="description"
-    content={data.food.metadata?.description || `${data.food.name} 레시피 상세 정보`}
+    content={data.food.description || data.food.metadata?.description || `${data.food.name} 레시피 상세 정보`}
   />
 </svelte:head>
 
@@ -58,13 +89,13 @@
 
       <div class="hero-content">
         <div class="category">
-          {data.food.metadata?.category || '요리위키 레시피'}
+          {data.food.category || data.food.metadata?.category || '요리위키 레시피'}
         </div>
 
         <h1>{data.food.name}</h1>
 
         <p class="description">
-          {data.food.metadata?.description || '맛있는 레시피 정보를 확인해보세요.'}
+          {data.food.description || data.food.metadata?.description || '맛있는 레시피 정보를 확인해보세요.'}
         </p>
 
         <div class="author">
@@ -75,8 +106,8 @@
             </svg>
           </div>
           <div>
-            <strong>{data.food.metadata?.author || '요리위키'}</strong>
-            <span>{data.food.metadata?.created_at || '최근 업데이트'}</span>
+            <strong>{authorDisplay}</strong>
+            <span>{formatDate(createdAt)}</span>
           </div>
         </div>
 
@@ -90,7 +121,7 @@
             <svg viewBox="0 0 24 24">
               <path d="M20.8 8.7c0 5.2-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6z" />
             </svg>
-            좋아요 {liked ? 129 : 128}
+            좋아요 {likesCount}
           </button>
 
           <button
@@ -208,8 +239,8 @@
           <div class="info-row">
             <span>난이도</span>
             <strong>
-              {data.food.metadata?.difficulty != null
-                ? `${data.food.metadata.difficulty}단계`
+              {(data.food.difficulty ?? data.food.metadata?.difficulty) != null
+                ? `${data.food.difficulty ?? data.food.metadata?.difficulty}단계`
                 : '보통'}
             </strong>
           </div>
@@ -522,32 +553,6 @@
     font-size: 14px;
   }
 
-  /* Tip Box */
-  .tip-box {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 16px 18px;
-    background: var(--surface-green);
-    border-left: 3px solid var(--accent);
-    border-radius: 0 8px 8px 0;
-  }
-
-  .tip-box svg {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-    color: var(--accent);
-  }
-
-  .tip-box p {
-    margin: 0;
-    color: var(--text-subtle);
-    font-size: 14px;
-    line-height: 1.65;
-    white-space: pre-wrap;
-  }
-
   /* Comment Form */
   .comment-count {
     color: var(--text-muted);
@@ -601,7 +606,6 @@
     align-self: start;
   }
 
-  /* 메인 액션 버튼의 가독성을 위한 명확한 노란색/검은글씨 처리 */
   .cook-button {
     display: flex;
     align-items: center;
