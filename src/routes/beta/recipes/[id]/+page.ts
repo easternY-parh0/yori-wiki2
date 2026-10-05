@@ -3,12 +3,18 @@ import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 
 export interface Food {
-  id: number;
+  id: string | number;
   name: string;
-  estimated_time: string;
-  ingredients: string;
-  recipe: string;
-  author_id?: number | null;
+  estimated_time?: string;
+  ingredients?: string;
+  recipe?: string;
+  author_id?: number | string;
+  likes?: number | string;
+  created_at?: string;
+  description?: string;
+  category?: string;
+  difficulty?: number;
+  servings?: number;
   metadata?: {
     category?: string;
     description?: string;
@@ -16,9 +22,9 @@ export interface Food {
     servings?: number;
     prep_time?: string;
     cook_time?: string;
-    author?: string;
+    author_id?: string;
+    likes?: string | number;
     created_at?: string;
-    tips?: string;
   };
 }
 
