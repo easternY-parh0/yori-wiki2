@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createFood } from '$lib/api';
+	import { createFood, uploadRecipeImage } from '$lib/api';
 	import { goto } from '$app/navigation';
 	import { appPath } from '$lib/app-path';
 	let error = $state('');
@@ -7,6 +7,8 @@
 	let tags = $state('');
 	let tips = $state('');
 	let imageUrl = $state('');
+ let imageFile = $state<File | null>(null);
+ let createdId: number | null = null;
 	let title = $state('');
 	let description = $state('');
 	let category = $state('');
@@ -42,9 +44,10 @@
             error = '이름, 카테고리, 조리 시간(1~10080분), 인분(1~100), 재료와 분량, 조리 순서를 확인해주세요.';
             return;
         }
+        if (imageFile && (!['image/png', 'image/jpeg', 'image/webp'].includes(imageFile.type) || imageFile.size > 5 * 1024 * 1024)) { error = 'PNG, JPEG, WebP 이미지(5MB 이하)를 선택해주세요.'; return; }
         submitting = true;
         try {
-            const id = await createFood({
+            const id = createdId ?? await createFood({
                 name: title.trim(), estimated_time: `${cookingTime}분`,
                 ingredients: ingredients.map(i => `${i.name.trim()} ${i.amount.trim()}`).join('\n'),
                 recipe: steps.map((s, i) => `${i + 1}. ${s.description.trim()}`).join('\n'),
@@ -52,8 +55,10 @@
                     ingredient_names: ingredients.map(i => i.name.trim()),
                     tags: tags.split(',').map(t => t.trim()).filter(Boolean), tips, image_url: imageUrl }
             });
+            createdId = id;
+            if (imageFile) await uploadRecipeImage(id, imageFile);
             await goto(appPath(`/recipes/${id}`));
-        } catch (cause) { error = cause instanceof Error ? cause.message : '등록에 실패했습니다.'; }
+        } catch (cause) { error = (createdId ? '레시피는 등록되었습니다. 이미지 업로드를 다시 시도해주세요. ' : '') + (cause instanceof Error ? cause.message : '등록에 실패했습니다.'); }
         finally { submitting = false; }
     }
 
@@ -104,6 +109,7 @@
 					</div>
 				</div>
 
+                <label class="field"><span>대표 이미지 파일 (선택, PNG/JPEG/WebP, 5MB 이하)</span><input type="file" accept="image/png,image/jpeg,image/webp" onchange={(e) => imageFile = e.currentTarget.files?.[0] ?? null} /></label>
                 <label class="field"><span>대표 이미지 URL (선택)</span><input bind:value={imageUrl} type="url" placeholder="https://example.com/recipe.jpg" /></label>
 
 				<div class="form-grid">

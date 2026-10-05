@@ -1,6 +1,11 @@
 <script lang="ts">
-	import { appPath } from '$lib/app-path';
-	let notifications = $state(true);
+	import { page } from '$app/state';
+ import { invalidateAll } from '$app/navigation';
+ import { api } from '$lib/api';
+ import { appPath } from '$lib/app-path';
+	let nickname = $state(''); let nicknameError = $state(''); let nicknameBusy = $state(false);
+ async function saveNickname(e:SubmitEvent){e.preventDefault();nicknameBusy=true;nicknameError='';try{await api('/auth/nickname',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({nickname})});await invalidateAll();nicknameError='닉네임을 변경했습니다.';}catch(e){nicknameError=(e as Error).message;}finally{nicknameBusy=false;}}
+ let notifications = $state(true);
 	let recipeUpdates = $state(true);
 	let communityUpdates = $state(false);
 	let privateProfile = $state(false);
@@ -72,14 +77,15 @@
 					</div>
 				</div>
 
-				<div class="form-list">
+				<form onsubmit={saveNickname}><label>닉네임 변경 (현재: {page.data.user?.nickname ?? '로그인 필요'})<input bind:value={nickname} required minlength="2" maxlength="20" /></label><button disabled={nicknameBusy || !page.data.user}>닉네임 저장</button><p role="status">{nicknameError}</p></form>
+<div class="form-list">
 					<div class="form-row">
 						<div>
 							<label>닉네임</label>
 							<span>다른 사용자에게 표시되는 이름입니다.</span>
 						</div>
 						<div class="input-wrap">
-							<input value="사용자님" />
+							<input value={page.data.user?.nickname ?? ''} disabled />
 						</div>
 					</div>
 
@@ -89,7 +95,7 @@
 							<span>계정에 등록된 이메일 주소입니다.</span>
 						</div>
 						<div class="input-wrap">
-							<input value="placeholder@example.com" disabled />
+							<input value={page.data.user?.email ?? ''} disabled />
 						</div>
 					</div>
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createFood } from '$lib/api';
+	import { createFood, uploadRecipeImage } from '$lib/api';
 	import { appPath } from '$lib/app-path';
 	import { goto } from '$app/navigation';
 
@@ -10,6 +10,8 @@
 	let cookingTime = $state('');
 	let servings = $state('2');
 	let imageUrl = $state('');
+ let imageFile = $state<File | null>(null);
+ let createdId: number | null = null;
 
 	let ingredients = $state([{ name: '', amount: '' }]);
 	let steps = $state([{ description: '' }]);
@@ -186,7 +188,9 @@
 		try {
 			submitting = true;
 
-			const id = await createFood(food);
+			const id = createdId ?? await createFood(food);
+ createdId = id;
+ if(imageFile) await uploadRecipeImage(id, imageFile);
 
 			if (!id || !Number.isInteger(id)) {
 				throw new Error('레시피 등록은 완료되었지만 생성된 레시피 ID를 받지 못했습니다.');
@@ -277,7 +281,8 @@
 					</div>
 				</div>
 
-				<div class="image-upload">
+				<label>대표 이미지 파일 (PNG/JPEG/WebP, 5MB 이하)<input type="file" accept="image/png,image/jpeg,image/webp" onchange={(e)=>imageFile=e.currentTarget.files?.[0] ?? null} /></label>
+<div class="image-upload">
 					<div class="upload-icon">
 						<svg viewBox="0 0 24 24">
 							<rect x="3" y="4" width="18" height="16" rx="2" />

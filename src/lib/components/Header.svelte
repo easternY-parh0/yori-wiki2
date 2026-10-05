@@ -10,15 +10,15 @@
 
     async function logout() {
         logoutPending = true;
-        try { 
-            await authPost('logout', {}); 
-            await invalidateAll(); 
-            closeMenu(); 
-            await goto(appPath('/login')); 
-        } catch (error) { 
-            authError = error instanceof Error ? error.message : '로그아웃에 실패했습니다.'; 
-        } finally { 
-            logoutPending = false; 
+        try {
+            await authPost('logout', {});
+            await invalidateAll();
+            closeMenu();
+            await goto(appPath('/login'));
+        } catch (error) {
+            authError = error instanceof Error ? error.message : '로그아웃에 실패했습니다.';
+        } finally {
+            logoutPending = false;
         }
     }
 
@@ -67,27 +67,17 @@
     {#if page.data.user}
         <a href={appPath('/profile')} class="profile-card" onclick={closeMenu}>
             <div class="profile-icon">
-                {#if page.data.user.avatarUrl}
-                    <img src={page.data.user.avatarUrl} alt="프로필" class="avatar-img" />
-                {:else}
                     <svg viewBox="0 0 24 24">
                         <circle cx="12" cy="8" r="3" />
                         <path d="M5 20c.8-4 3.2-6 7-6s6.2 2 7 6" />
                     </svg>
-                {/if}
+
             </div>
 
-<<<<<<< HEAD
-		<div class="profile-text">
-			<strong>{page.data.user?.nickname ?? "방문자"}님 <RoleBadge role={page.data.user?.role} /></strong>
-			<span>마이페이지</span>
-		</div>
-=======
             <div class="profile-text">
-                <strong>{page.data.user.nickname}님</strong>
+                <strong>{page.data.user.nickname}님 <RoleBadge role={page.data.user.role} /></strong>
                 <span>마이페이지 보기</span>
             </div>
->>>>>>> e49e81c6c2b31e0cd5a3c037bcba123dd8c78549
 
             <svg class="profile-arrow" viewBox="0 0 24 24">
                 <path d="M9 5l7 7-7 7" />
@@ -196,29 +186,17 @@
 
         <a href={appPath('/search')} class="header-link-btn">탐색</a>
 
-<<<<<<< HEAD
-		{#if page.data.user}
-		{#if page.data.user.role === 'super_admin'}<a href={appPath('/admin')}>관리자 등록</a>{/if}
-		<span>{page.data.user.nickname}님 <RoleBadge role={page.data.user.role} /></span>
-		<button type="button" class="login-button" onclick={logout} disabled={logoutPending}>로그아웃</button>
-		{:else}<a href={appPath('/login')} class="login-button">로그인</a>{/if}
-		{#if authError}<span role="alert">{authError}</span>{/if}
-	</div>
-=======
         {#if page.data.user}
             <!-- 로그인 시: 프로필 정보 + 로그아웃 버튼 -->
             <a href={appPath('/profile')} class="user-profile-badge">
                 <div class="header-avatar">
-                    {#if page.data.user.avatarUrl}
-                        <img src={page.data.user.avatarUrl} alt="프로필" />
-                    {:else}
                         <svg viewBox="0 0 24 24">
                             <circle cx="12" cy="8" r="3" />
                             <path d="M5 20c.8-4 3.2-6 7-6s6.2 2 7 6" />
                         </svg>
-                    {/if}
+
                 </div>
-                <span class="user-nickname">{page.data.user.nickname}님</span>
+                <span class="user-nickname">{page.data.user.nickname}님 <RoleBadge role={page.data.user.role} /></span>
             </a>
             <button type="button" class="logout-button" onclick={logout} disabled={logoutPending}>로그아웃</button>
         {:else}
@@ -228,7 +206,6 @@
 
         {#if authError}<span role="alert" class="auth-error-msg">{authError}</span>{/if}
     </div>
->>>>>>> e49e81c6c2b31e0cd5a3c037bcba123dd8c78549
 </header>
 
 <style>

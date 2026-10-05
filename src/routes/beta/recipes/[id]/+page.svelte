@@ -1,34 +1,18 @@
 <script lang="ts">
-  import { appPath } from '$lib/app-path';
+  import RecipeSocial from '$lib/components/RecipeSocial.svelte';
+ import RecipeActions from '$lib/components/RecipeActions.svelte';
+ import { appPath } from '$lib/app-path';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
 
-  let liked = $state(false);
-  let bookmarked = $state(false);
-
-  // 1. 작성자 ID (최상위 author_id 우선 조회)
-  let authorDisplay = $derived(
-    data.food.author_id ?? data.food.metadata?.author_id ?? '요리위키'
-  );
-
-  // 2. 생성일자 (최상위 created_at 우선 조회)
-  let createdAt = $derived(
-    data.food.created_at ?? data.food.metadata?.created_at
-  );
-
-  // 3. 좋아요 수 (최상위 likes 우선 조회, number/string 모두 대응)
-  let initialLikes = $derived(() => {
-    const rawLikes = data.food.likes ?? data.food.metadata?.likes ?? 0;
-    return typeof rawLikes === 'number' ? rawLikes : parseInt(rawLikes, 10) || 0;
-  });
-  let likesCount = $derived(liked ? initialLikes() + 1 : initialLikes());
-
+  let authorDisplay = $derived(data.food.author ?? '요리위키');
+  let createdAt = $derived(data.food.metadata?.created_at);
   // 4. 인분 수 (최상위 servings 우선 조회)  교체 시작
   let initialServings = $derived(
   Math.max(
     1,
-    Number(data.food.servings ?? data.food.metadata?.servings ?? 2) || 2
+    Number(data.food.metadata?.servings ?? 2) || 2
   )
 );
 
@@ -201,7 +185,7 @@ let scaledCookingTime = $derived(
   <title>{data.food.name} | 요리위키</title>
   <meta
     name="description"
-    content={data.food.description || data.food.metadata?.description || `${data.food.name} 레시피 상세 정보`}
+    content={data.food.metadata?.description || `${data.food.name} 레시피 상세 정보`}
   />
 </svelte:head>
 
@@ -217,18 +201,18 @@ let scaledCookingTime = $derived(
     <!-- 1. Hero 섹션 (사진 + 제목 및 개요) -->
     <section class="recipe-hero">
       <div class="hero-image">
-        <span>{data.food.name}</span>
+        {#if data.food.metadata?.image_url}<img src={data.food.metadata.image_url.startsWith('/api/') ? appPath(data.food.metadata.image_url) : data.food.metadata.image_url} alt={data.food.name} style="width:100%;height:100%;object-fit:cover" />{:else}<span>{data.food.name}</span>{/if}
       </div>
 
       <div class="hero-content">
         <div class="category">
-          {data.food.category || data.food.metadata?.category || '요리위키 레시피'}
+          {data.food.metadata?.category || '요리위키 레시피'}
         </div>
 
         <h1>{data.food.name}</h1>
 
         <p class="description">
-          {data.food.description || data.food.metadata?.description || '맛있는 레시피 정보를 확인해보세요.'}
+          {data.food.metadata?.description || '맛있는 레시피 정보를 확인해보세요.'}
         </p>
 
         <div class="author">
@@ -245,29 +229,6 @@ let scaledCookingTime = $derived(
         </div>
 
         <div class="hero-actions">
-          <button
-            class:liked
-            class="action-btn"
-            type="button"
-            onclick={() => (liked = !liked)}
-          >
-            <svg viewBox="0 0 24 24">
-              <path d="M20.8 8.7c0 5.2-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6z" />
-            </svg>
-            좋아요 {likesCount}
-          </button>
-
-          <button
-            class:bookmarked
-            class="action-btn"
-            type="button"
-            onclick={() => (bookmarked = !bookmarked)}
-          >
-            <svg viewBox="0 0 24 24">
-              <path d="M6 4h12v17l-6-4-6 4z" />
-            </svg>
-            {bookmarked ? '저장됨' : '저장'}
-          </button>
         </div>
       </div>
     </section>
@@ -363,7 +324,7 @@ let scaledCookingTime = $derived(
 
       <!-- 우측 Sticky 사이드바 -->
       <aside class="recipe-sidebar">
-        <a href={appPath(`/recipes/${data.food.id}/cook`)} class="cook-button">
+        <a href={appPath(`/beta/recipes/${data.food.id}/cook`)} class="cook-button">
           <svg viewBox="0 0 24 24">
             <path d="M5 12h14" />
             <path d="M12 5l7 7-7 7" />
@@ -385,8 +346,8 @@ let scaledCookingTime = $derived(
           <div class="info-row">
             <span>난이도</span>
             <strong>
-              {(data.food.difficulty ?? data.food.metadata?.difficulty) != null
-                ? `${data.food.difficulty ?? data.food.metadata?.difficulty}단계`
+              {(data.food.metadata?.difficulty) != null
+                ? `${data.food.metadata?.difficulty}단계`
                 : '보통'}
             </strong>
           </div>
@@ -398,7 +359,9 @@ let scaledCookingTime = $derived(
         </div>
       </aside>
     </div>
-  </main>
+  <RecipeActions food={data.food} />
+{#key data.food.id}<RecipeSocial food={data.food} />{/key}
+</main>
 </div>
 
 <style>
@@ -533,42 +496,10 @@ let scaledCookingTime = $derived(
     margin-top: 20px;
   }
 
-  .action-btn {
-    height: 38px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 0 14px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--surface);
-    color: var(--text-subtle);
-    font-size: 14px;
-    cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease;
-  }
 
-  .action-btn:hover {
-    border-color: var(--primary);
-    background: var(--surface-subtle);
-  }
 
-  .action-btn svg {
-    width: 15px;
-    height: 15px;
-  }
 
-  .action-btn.liked {
-    border-color: var(--primary);
-    background: var(--surface-yellow);
-    color: var(--text);
-  }
 
-  .action-btn.bookmarked {
-    border-color: var(--border-accent);
-    background: var(--surface-green);
-    color: var(--accent);
-  }
 
   /* Content Layout */
   .content-layout {

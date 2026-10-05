@@ -1,4 +1,5 @@
 <script lang="ts">
+ import RecipeLibrary from '$lib/components/RecipeLibrary.svelte';
     import { appPath } from '$lib/app-path';
     import RecipeCard from '$lib/components/layouts/RecipeCard.svelte';
     import baseProfileImg from '$lib/assets/image/base-profile.png';
@@ -1549,3 +1550,4 @@
         }
     }
 </style>
+<RecipeLibrary />

@@ -5,12 +5,12 @@ import type { RequestHandler } from './$types';
 
 const proxy: RequestHandler = async ({ params, url, request, fetch }) => {
   const path = params.path;
-  if (!['test', 'food', 'food/rate', 'food/rating', 'explore', 'search', 'auth/signup', 'auth/check-email', 'auth/login', 'auth/me', 'auth/logout', 'auth/cooked'].includes(path)) {
+  if (!['food/save', 'auth/recipes', 'auth/likes', 'auth/saved', 'food/like', 'food/comments', 'food/image', 'auth/nickname', 'posts', 'auth/admins', 'test', 'food', 'food/rate', 'food/rating', 'explore', 'search', 'auth/signup', 'auth/check-email', 'auth/login', 'auth/me', 'auth/logout', 'auth/cooked'].includes(path)) {
     return new Response('API를 찾을 수 없습니다.', { status: 404 });
   }
   const target = new URL(`/${path}`, env.BACKEND_URL || 'http://127.0.0.1:8080');
   target.search = url.search;
-  if (path.startsWith('auth/') && request.method !== 'GET') {
+  if (!['GET', 'HEAD'].includes(request.method)) {
     const requestOrigin = request.headers.get('origin');
     let expectedOrigin: string;
     try {

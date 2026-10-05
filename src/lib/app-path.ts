@@ -6,7 +6,7 @@ import type { Pathname } from '$app/types';
  */
 export function appPath(path: string): string {
   if (!path.startsWith('/') || path.startsWith('//')) return path;
-  const resolved = resolve(path as Pathname);
+  const resolved = (resolve as (path: Pathname) => string)(path as Pathname);
   // The application uses SvelteKit's default trailingSlash = 'never'.
   return path === '/' ? resolved.replace(/\/$/, '') || '/' : resolved;
 }

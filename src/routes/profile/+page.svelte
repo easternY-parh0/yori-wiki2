@@ -1,4 +1,5 @@
 <script lang="ts">
+ import RecipeLibrary from '$lib/components/RecipeLibrary.svelte';
     import Exploration from '$lib/components/Exploration.svelte';
     import type { PageData } from './$types';
     let { data }: { data: PageData } = $props();
@@ -9,3 +10,4 @@
 </svelte:head>
 
 <Exploration {data} view="profile" />
+<RecipeLibrary />
