@@ -3,7 +3,7 @@
     import { onMount } from 'svelte';
     import type { SearchResults } from '$lib/load-search';
 
-    import RecipeCard from '$lib/components/layouts/RecipeCard.svelte'
+    import RecipeCard from '$lib/components/layouts/RecipeCard.svelte';
     import banner1Img from '$lib/assets/image/banner1.jpg';
     import banner2Img from '$lib/assets/image/banner2.jpg';
     import banner3Img from '$lib/assets/image/banner3.jpg';
@@ -21,13 +21,13 @@
         { name: '베이킹', value: 'BAKING' },
         { name: '간식', value: 'SNACK' }
     ];
-// 교체 시작
-    const banners = [ 
-        { title: '시원한 스무디 먹고 무더위 날려버리자!', description: '냉동 과일로 만드는 시원하고 간단한 여름 스무디 가이드', image: banner1Img, href: '/beta/articles/summer-smoothie' },
-        { title: '집에 손님이 찾아왔다! 대접용 요리 총출동', description: '손님상에 잘 어울리는 메뉴와 준비 팁을 한눈에', image: banner2Img, href: '/beta/articles/guest-meal' },
-        { title: '자취생용 혼밥 추천', description: '적은 재료로 빠르고 든든하게 만드는 현실적인 혼밥 메뉴', image: banner3Img, href: '/beta/articles/solo-meal' }
+
+    const banners = [
+        { title: '시원한 스무디 먹고 무더위 날려버리자!', description: '배너 설명이 들어가는 영역입니다.', image: banner1Img },
+        { title: '집에 손님이 찾아왔다! 대접용 요리 총출동', description: '배너 설명이 들어가는 영역입니다.', image: banner2Img },
+        { title: '자취생용 혼밥 추천', description: '배너 설명이 들어가는 영역입니다.', image: banner3Img }
     ];
-// 교체 끝
+
     let { data }: {
         data: {
             popularRecipes: SearchResults['items'];
@@ -45,6 +45,11 @@
     ];
 
     let bannerTimer: ReturnType<typeof setInterval>;
+
+    function getImageUrl(url?: string) {
+        if (!url) return undefined;
+        return url.startsWith('/api/') ? appPath(url) : url;
+    }
 
     onMount(() => {
         bannerTimer = setInterval(() => {
@@ -103,7 +108,7 @@
 
                     <!-- 3. 하단: 바로가기 버튼과 < > 버튼 나란히 배치 -->
                     <div class="banner-bottom-bar">
-                        <a href={appPath(banners[currentBanner].href)} class="banner-button">  <!--교체-->
+                        <a href={appPath('/recipes')} class="banner-button">
                             자세히 보기
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M5 12h14" />
@@ -199,13 +204,21 @@
                                 ? recipe.metadata.description
                                 : recipe.ingredients
                         }
+                        image={getImageUrl(
+                            typeof recipe.metadata?.image_url === 'string'
+                                ? recipe.metadata.image_url
+                                : undefined
+                        )}
                         category={
-                            categories.find(
-                                (category) =>
-                                    category.value === recipe.metadata?.category
-                            )?.name ?? '미분류'
+                            (categories.find(
+                                (category) => category.value === recipe.metadata?.category
+                            )?.name ??
+                            (typeof recipe.metadata?.category === 'string'
+                                ? recipe.metadata.category
+                                : undefined))
                         }
                         cookingTime={recipe.estimated_time}
+                        views={typeof recipe.metadata?.likes === 'number' ? recipe.metadata.likes : 0}
                         href={appPath(`/recipes/${recipe.id}`)}
                     />
                 {/each}
@@ -229,13 +242,21 @@
                                 ? recipe.metadata.description
                                 : recipe.ingredients
                         }
+                        image={getImageUrl(
+                            typeof recipe.metadata?.image_url === 'string'
+                                ? recipe.metadata.image_url
+                                : undefined
+                        )}
                         category={
-                            categories.find(
-                                (category) =>
-                                    category.value === recipe.metadata?.category
-                            )?.name ?? '미분류'
+                            (categories.find(
+                                (category) => category.value === recipe.metadata?.category
+                            )?.name ??
+                            (typeof recipe.metadata?.category === 'string'
+                                ? recipe.metadata.category
+                                : undefined))
                         }
                         cookingTime={recipe.estimated_time}
+                        views={typeof recipe.metadata?.likes === 'number' ? recipe.metadata.likes : 0}
                         href={appPath(`/recipes/${recipe.id}`)}
                     />
                 {/each}
@@ -302,6 +323,7 @@
 </div>
 
 <style>
+    /* CSS 스타일 영역은 기존과 동일합니다 */
     .page {
         min-height: 100vh;
         background: var(--background);
@@ -327,7 +349,6 @@
         margin-right: auto;
     }
 
-    /* === Full Width 및 배너 디자인 === */
     .banner-wrapper {
         width: 100%;
         margin-top: 24px;
@@ -359,7 +380,6 @@
         object-fit: cover;
     }
 
-    /* 우측 글래스 패널 컨테이너 */
     .banner-content-wrapper {
         position: absolute;
         top: 0;
@@ -384,7 +404,6 @@
         padding-right: 24px;
     }
 
-    /* 1. 상단 페이지네이션 (우측 정렬) */
     .banner-top-bar {
         display: flex;
         align-items: center;
@@ -412,7 +431,6 @@
         background: var(--accent);
     }
 
-    /* 2. 중앙 제목 & 설명 (좌측 정렬) */
     .banner-content {
         width: 100%;
         display: flex;
@@ -440,7 +458,6 @@
         width: 100%;
     }
 
-    /* 3. 하단 컨트롤 바 (우측 정렬 유지) */
     .banner-bottom-bar {
         display: flex;
         align-items: center;
@@ -499,7 +516,6 @@
         height: 12px;
     }
 
-    /* === HERO 영역 === */
     .hero-wrapper {
         width: 100%;
         margin-top: 32px;

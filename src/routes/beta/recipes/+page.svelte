@@ -31,7 +31,7 @@
     // URL 반응형 데이터 ($derived)
     const params = $derived(page.url.searchParams);
     const result = $derived(data.result);
-    // 추가 시작
+
     let recipeQuery = $state('');
     let recipeSearchFocused = $state(false);
 
@@ -45,30 +45,29 @@
 
     let recipeFoodsLoading = $state(false);
     let recipeFoodsLoaded = $state(false);
-    let timeFilterOpen = $state(false);  // 추가
-    // 추가 시작
+    let timeFilterOpen = $state(false);
+
     const timeLabels = [
-    '제한 없음',
-    '15분',
-    '30분',
-    '1시간',
-    '1시간 30분',
-    '2시간',
-    '2시간 이상'
+        '제한 없음',
+        '15분',
+        '30분',
+        '1시간',
+        '1시간 30분',
+        '2시간',
+        '2시간 이상'
     ];
 
     let timeHandleA = $state(0);
     let timeHandleB = $state(6);
 
     const timeRangeStart = $derived(
-    Math.min(timeHandleA, timeHandleB)
+        Math.min(timeHandleA, timeHandleB)
     );
 
     const timeRangeEnd = $derived(
-    Math.max(timeHandleA, timeHandleB)
+        Math.max(timeHandleA, timeHandleB)
     );
-    //추가 끝
-    // 추가 시작 
+
     let difficultyFilterOpen = $state(false);
 
     let difficultyHandleA = $state(1);
@@ -83,205 +82,156 @@
     );
 
     const difficultyLabels = [
-        '1',
-        '2',
-        '3',
-        '4',
-        '5',
-        '6',
-        '7',
-        '8',
-        '9',
-        '10'
+        '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'
     ];
-    // 추가 끝
-    // 추가 시작 
+
     async function applyTimeFilter() {
-    const timeValues = [
-        0,
-        15,
-        30,
-        60,
-        90,
-        120,
-        120
-    ];
+        const timeValues = [0, 15, 30, 60, 90, 120, 120];
 
-    const minTime =
-        timeRangeStart === 0
-            ? null
-            : String(timeValues[timeRangeStart]);
+        const minTime =
+            timeRangeStart === 0
+                ? null
+                : String(timeValues[timeRangeStart]);
 
-    const maxTime =
-        timeRangeEnd === 6
-            ? null
-            : String(timeValues[timeRangeEnd]);
+        const maxTime =
+            timeRangeEnd === 6
+                ? null
+                : String(timeValues[timeRangeEnd]);
 
-    await updateSearchParams({
-        minTime,
-        maxTime
-    });
+        await updateSearchParams({
+            minTime,
+            maxTime
+        });
 
-    timeFilterOpen = false;
+        timeFilterOpen = false;
     }
 
     async function applyDifficultyFilter() {
-    const minDifficulty =
-        difficultyRangeStart === 1
-            ? null
-            : String(difficultyRangeStart);
+        const minDifficulty =
+            difficultyRangeStart === 1
+                ? null
+                : String(difficultyRangeStart);
 
-    const maxDifficulty =
-        difficultyRangeEnd === 10
-            ? null
-            : String(difficultyRangeEnd);
+        const maxDifficulty =
+            difficultyRangeEnd === 10
+                ? null
+                : String(difficultyRangeEnd);
 
-    await updateSearchParams({
-        minDifficulty,
-        maxDifficulty
-    });
+        await updateSearchParams({
+            minDifficulty,
+            maxDifficulty
+        });
 
-    difficultyFilterOpen = false;
+        difficultyFilterOpen = false;
     }
-    //추가 끝
+
     const recipeSuggestions = $derived.by(() =>
-    getSearchSuggestions(
-        recipeFoods,
-        recipeQuery,
-        10
-    )
-    );  // 추가 끝
+        getSearchSuggestions(
+            recipeFoods,
+            recipeQuery,
+            10
+        )
+    );
+
+    // 이미지 URL 변환 헬퍼 함수
+    function getImageUrl(url?: string) {
+        if (!url) return undefined;
+        return url.startsWith('/api/') ? appPath(url) : url;
+    }
 
     // 검색 파라미터 업데이트 제출 처리
     async function updateSearchParams(updates: Record<string, string | null>) {
         const next = new URLSearchParams(params);
         
         Object.entries(updates).forEach(([key, value]) => {
-        if (value === null || value === '') {
-            next.delete(key);
-        } else {
-            next.set(key, value);
-        }
+            if (value === null || value === '') {
+                next.delete(key);
+            } else {
+                next.set(key, value);
+            }
         });
 
-        // 검색 파라미터 변경 시 페이지 1로 리셋
         if (!('page' in updates)) {
-        next.delete('page');
+            next.delete('page');
         }
 
         await goto(`${page.url.pathname}?${next}`, { keepFocus: true, noScroll: true });
     }
 
     // 폼 제출 함수 
-    //교체 시작
-    async function handleSearchSubmit(
-    e: SubmitEvent
-) {
-    e.preventDefault();
+    async function handleSearchSubmit(e: SubmitEvent) {
+        e.preventDefault();
 
-    const form =
-        e.currentTarget as HTMLFormElement;
+        const form = e.currentTarget as HTMLFormElement;
+        const formData = new FormData(form);
+        const query = formData.get('q')?.toString().trim() ?? '';
 
-    const formData =
-        new FormData(form);
+        recipeQuery = query;
+        recipeSearchFocused = false;
 
-    const query =
-        formData
-            .get('q')
-            ?.toString()
-            .trim() ?? '';
-
-    recipeQuery = query;
-    recipeSearchFocused = false;
-
-    await updateSearchParams({
-        q: query || null
-    });
-}  // 교체 끝
+        await updateSearchParams({
+            q: query || null
+        });
+    }
 
     // 필터 초기화
     async function resetFilters() {
-    timeHandleA = 0;
-    timeHandleB = 6;
+        timeHandleA = 0;
+        timeHandleB = 6;
 
-    difficultyHandleA = 1;
-    difficultyHandleB = 10;
+        difficultyHandleA = 1;
+        difficultyHandleB = 10;
 
-    timeFilterOpen = false;
-    difficultyFilterOpen = false;
+        timeFilterOpen = false;
+        difficultyFilterOpen = false;
 
-    await goto(page.url.pathname, {
-        keepFocus: true,
-        noScroll: true
-    });
-}
-    // 추가 시작
-    async function loadRecipeFoods() {
-    if (
-        recipeFoodsLoaded ||
-        recipeFoodsLoading
-    ) {
-        return;
+        await goto(page.url.pathname, {
+            keepFocus: true,
+            noScroll: true
+        });
     }
 
-    recipeFoodsLoading = true;
-
-    try {
-        const response = await fetch(
-            appPath('/api/food')
-        );
-
-        if (!response.ok) {
-            throw new Error(
-                '레시피 목록을 불러오지 못했습니다.'
-            );
+    async function loadRecipeFoods() {
+        if (recipeFoodsLoaded || recipeFoodsLoading) {
+            return;
         }
 
-        const data = await response.json();
+        recipeFoodsLoading = true;
 
-        recipeFoods = Array.isArray(data)
-            ? data
-            : [];
+        try {
+            const response = await fetch(appPath('/api/food'));
 
-        recipeFoodsLoaded = true;
-    } catch (error) {
-        console.error(
-            '레시피 연관검색어 로딩 실패:',
-            error
-        );
-    } finally {
-        recipeFoodsLoading = false;
+            if (!response.ok) {
+                throw new Error('레시피 목록을 불러오지 못했습니다.');
+            }
+
+            const data = await response.json();
+            recipeFoods = Array.isArray(data) ? data : [];
+            recipeFoodsLoaded = true;
+        } catch (error) {
+            console.error('레시피 연관검색어 로딩 실패:', error);
+        } finally {
+            recipeFoodsLoading = false;
+        }
     }
-}
 
-function closeRecipeSuggestions() {
-    window.setTimeout(() => {
+    function closeRecipeSuggestions() {
+        window.setTimeout(() => {
+            recipeSearchFocused = false;
+        }, 150);
+    }
+
+    async function selectRecipeSuggestion(recipe: { id: number; name: string }) {
         recipeSearchFocused = false;
-    }, 150);
-}
-
-async function selectRecipeSuggestion(
-    recipe: {
-        id: number;
-        name: string;
+        await goto(appPath(`/recipes/${recipe.id}`));
     }
-) {
-    recipeSearchFocused = false;
 
-    await goto(
-        appPath(`/recipes/${recipe.id}`)
-    );
-}
-// 추가 끝
-
-    // 페이지 이동 링크 생성
     function pageHref(number: number) {
         const next = new URLSearchParams(params);
         next.set('page', String(number));
         return `${page.url.pathname}?${next}`;
     }
 
-    // 페이지네이션 번호 배열 계산
     const pageNumbers = $derived(
         result
         ? Array.from(
@@ -292,9 +242,9 @@ async function selectRecipeSuggestion(
     );
 
     const breadcrumbItems = [
-		{ label: '요리위키', href: appPath('/') },
-		{ label: '레시피' }
-	];
+        { label: '요리위키', href: appPath('/') },
+        { label: '레시피' }
+    ];
 </script>
 
 <svelte:head>
@@ -315,107 +265,83 @@ async function selectRecipeSuggestion(
 
             <a href={appPath('/recipes/new')} class="register-button">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 5v14" />
-                <path d="M5 12h14" />
+                    <path d="M12 5v14" />
+                    <path d="M5 12h14" />
                 </svg>
                 레시피 등록하기
             </a>
         </section>
 
-        <!-- 검색 바 & 추천 검색어 -->  <!-- 교체 시작 -->
+        <!-- 검색 바 & 추천 검색어 -->
         <section class="search-section">
             <div class="recipe-search-wrapper">
-    <form
-        class="recipe-search"
-        onsubmit={handleSearchSubmit}
-        aria-busy={Boolean(navigating.to)}
-    >
-        <svg
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-        >
-            <circle
-                cx="10.5"
-                cy="10.5"
-                r="6"
-            />
-            <path d="M15 15l5 5" />
-        </svg>
+                <form
+                    class="recipe-search"
+                    onsubmit={handleSearchSubmit}
+                    aria-busy={Boolean(navigating.to)}
+                >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="10.5" cy="10.5" r="6" />
+                        <path d="M15 15l5 5" />
+                    </svg>
 
-        <input
-            name="q"
-            type="search"
-            maxlength="100"
-            value={params.get('q') ?? ''}
-            autocomplete="off"
-            placeholder="예: 김치볶음밥, 두부, 파스타"
-            onfocus={(event) => {
-                recipeQuery =
-                    event.currentTarget.value;
+                    <input
+                        name="q"
+                        type="search"
+                        maxlength="100"
+                        value={params.get('q') ?? ''}
+                        autocomplete="off"
+                        placeholder="예: 김치볶음밥, 두부, 파스타"
+                        onfocus={(event) => {
+                            recipeQuery = event.currentTarget.value;
+                            recipeSearchFocused = true;
+                            void loadRecipeFoods();
+                        }}
+                        oninput={(event) => {
+                            recipeQuery = event.currentTarget.value;
+                            recipeSearchFocused = true;
+                        }}
+                        onblur={closeRecipeSuggestions}
+                    />
 
-                recipeSearchFocused = true;
+                    <button type="submit">검색</button>
+                </form>
 
-                void loadRecipeFoods();
-            }}
-            oninput={(event) => {
-                recipeQuery =
-                    event.currentTarget.value;
-
-                recipeSearchFocused = true;
-            }}
-            onblur={closeRecipeSuggestions}
-        />
-
-        <button type="submit">
-            검색
-        </button>
-    </form>
-
-    {#if recipeSearchFocused && recipeQuery.trim()}
-        {#if recipeFoodsLoading}
-            <div class="suggestion-list">
-                <div class="suggestion-message">
-                    불러오는 중...
-                </div>
+                {#if recipeSearchFocused && recipeQuery.trim()}
+                    {#if recipeFoodsLoading}
+                        <div class="suggestion-list">
+                            <div class="suggestion-message">불러오는 중...</div>
+                        </div>
+                    {:else if recipeSuggestions.length > 0}
+                        <div
+                            class="suggestion-list"
+                            role="listbox"
+                            aria-label="레시피 연관검색어"
+                        >
+                            {#each recipeSuggestions as recipe}
+                                <button
+                                    type="button"
+                                    class="suggestion-item"
+                                    onmousedown={(event) => event.preventDefault()}
+                                    onclick={() => selectRecipeSuggestion(recipe)}
+                                >
+                                    {recipe.name}
+                                </button>
+                            {/each}
+                        </div>
+                    {/if}
+                {/if}
             </div>
 
-        {:else if recipeSuggestions.length > 0}
-            <div
-                class="suggestion-list"
-                role="listbox"
-                aria-label="레시피 연관검색어"
-            >
-                {#each recipeSuggestions as recipe}
-                    <button
-                        type="button"
-                        // 여기에 role="option"이 있었는데 일단 삭제함 
-                        class="suggestion-item"
-                        onmousedown={(event) =>
-                            event.preventDefault()
-                        }
-                        onclick={() =>
-                            selectRecipeSuggestion(
-                                recipe
-                            )
-                        }
-                    >
-                        {recipe.name}
-                    </button>
-                {/each}
-            </div>
-        {/if}
-    {/if}
-</div>
-<!-- 교체 끝 -->
             <div class="popular-searches">
                 <span>추천 검색어</span>
                 {#each popularKeywords as keyword}
-                <button
-                    type="button"
-                    onclick={() => updateSearchParams({ q: keyword })}
-                >
-                    {keyword}
-                </button>
+                    <button
+                        type="button"
+                        onclick={() => updateSearchParams({ q: keyword })}
+                    >
+                        {keyword}
+                    </button>
                 {/each}
             </div>
         </section>
@@ -428,20 +354,20 @@ async function selectRecipeSuggestion(
 
             <div class="category-tabs">
                 <button
-                class:active={!params.get('category')}
-                type="button"
-                onclick={() => updateSearchParams({ category: null })}
+                    class:active={!params.get('category')}
+                    type="button"
+                    onclick={() => updateSearchParams({ category: null })}
                 >
-                전체
+                    전체
                 </button>
                 {#each Object.entries(categories) as [key, label]}
-                <button
-                    class:active={params.get('category') === key}
-                    type="button"
-                    onclick={() => updateSearchParams({ category: key })}
-                >
-                    {label}
-                </button>
+                    <button
+                        class:active={params.get('category') === key}
+                        type="button"
+                        onclick={() => updateSearchParams({ category: key })}
+                    >
+                        {label}
+                    </button>
                 {/each}
             </div>
         </section>
@@ -450,209 +376,190 @@ async function selectRecipeSuggestion(
         <section class="filter-section">
             <div class="filter-left">
                 <div class="filter-group">
-                <label for="field">검색 범위</label>
-                <select
-                    id="field"
-                    value={params.get('field') || 'all'}
-                    onchange={(e) => updateSearchParams({ field: e.currentTarget.value })}
-                >
-                    <option value="all">전체</option>
-                    <option value="name">이름·별칭</option>
-                    <option value="ingredients">재료</option>
-                    <option value="recipe">조리 방법</option>
-                    <option value="aliases">별칭</option>
-                </select>
+                    <label for="field">검색 범위</label>
+                    <select
+                        id="field"
+                        value={params.get('field') || 'all'}
+                        onchange={(e) => updateSearchParams({ field: e.currentTarget.value })}
+                    >
+                        <option value="all">전체</option>
+                        <option value="name">이름·별칭</option>
+                        <option value="ingredients">재료</option>
+                        <option value="recipe">조리 방법</option>
+                        <option value="aliases">별칭</option>
+                    </select>
                 </div>
 
                 <div class="filter-group">
-                <label for="mode">검색 방식</label>
-                <select
-                    id="mode"
-                    value={params.get('mode') || 'and'}
-                    onchange={(e) => updateSearchParams({ mode: e.currentTarget.value })}
-                >
-                    <option value="and">모두 포함 (AND)</option>
-                    <option value="or">하나 이상 (OR)</option>
-                </select>
+                    <label for="mode">검색 방식</label>
+                    <select
+                        id="mode"
+                        value={params.get('mode') || 'and'}
+                        onchange={(e) => updateSearchParams({ mode: e.currentTarget.value })}
+                    >
+                        <option value="and">모두 포함 (AND)</option>
+                        <option value="or">하나 이상 (OR)</option>
+                    </select>
                 </div>
-<!--교체 시작-->
-               <!-- 조리시간 필터 -->
-<div class="filter-group">
-    <span class="filter-label">조리시간</span>
 
-    <div class="filter-dropdown">
-        <button
-            class="filter-trigger"
-            type="button"
-            onclick={() => {
-                timeFilterOpen = !timeFilterOpen;
-            }}
-        >
-            {timeRangeStart === 0 && timeRangeEnd === 6
-                ? '제한 없음'
-                : `${timeLabels[timeRangeStart]} ~ ${timeLabels[timeRangeEnd]}`}
-        </button>
-
-        {#if timeFilterOpen}
-            <div class="filter-popup">
-                <div class="range-value">
-                    {timeLabels[timeRangeStart]} ~ {timeLabels[timeRangeEnd]}
-                </div>
-                <!--교체 시작--> 
-                <div class="range-slider">
-    <div class="range-track">
-        <div
-            class="range-selection"
-            style={`left: ${(timeRangeStart / 6) * 100}%; right: ${100 - (timeRangeEnd / 6) * 100}%;`}
-        ></div>
-    </div> <!--교체 끝-->
-
-    <input
-    class="range-control range-control-a"
-    type="range"
-    min="0"
-    max="6"
-    step="1"
-    value={timeHandleA}
-    aria-label="조리시간 범위 손잡이 A"
-    oninput={(event) => {
-        timeHandleA = Number(
-            event.currentTarget.value
-        );
-    }}
-    onchange={applyTimeFilter}
-/>
-
-<input
-    class="range-control range-control-b"
-    type="range"
-    min="0"
-    max="6"
-    step="1"
-    value={timeHandleB}
-    aria-label="조리시간 범위 손잡이 B"
-    oninput={(event) => {
-        timeHandleB = Number(
-            event.currentTarget.value
-        );
-    }}
-    onchange={applyTimeFilter}
-/>
-        </div>
-
-                <div class="range-ticks">
-                    {#each timeLabels as label}
-                        <span>{label}</span>
-                    {/each}
-                </div>
-            </div>  
-        {/if}
-    </div>
-</div>
-<!--교체 끝-->
-<!--교체 시작-->
+                <!-- 조리시간 필터 -->
                 <div class="filter-group">
-    <span class="filter-label">난이도</span>
+                    <span class="filter-label">조리시간</span>
 
-    <div class="filter-dropdown">
-        <button
-            class="filter-trigger"
-            type="button"
-            onclick={() => {
-                difficultyFilterOpen =
-                    !difficultyFilterOpen;
-            }}
-        >
-            {difficultyRangeStart === 1 &&
-            difficultyRangeEnd === 10
-                ? '전체'
-                : `${difficultyRangeStart}단계 ~ ${difficultyRangeEnd}단계`}
-        </button>
-
-        {#if difficultyFilterOpen}
-            <div class="filter-popup">
-                <div class="range-value">
-                    {difficultyRangeStart}단계 ~ {difficultyRangeEnd}단계
-                </div>
-
-                <div class="range-slider">
-                    <div class="range-track">
-                        <div
-                            class="range-selection"
-                            style={`left: ${((difficultyRangeStart - 1) / 9) * 100}%; right: ${100 - ((difficultyRangeEnd - 1) / 9) * 100}%;`}
-                        ></div>
-                    </div>
-
-                    <input
-                        class="range-control range-control-a"
-                        type="range"
-                        min="1"
-                        max="10"
-                        step="1"
-                        value={difficultyHandleA}
-                        aria-label="난이도 범위 손잡이 A"
-                        oninput={(event) => {
-                            difficultyHandleA =
-                                Number(
-                                    event.currentTarget.value
-                                );
-                        }}
-                        onchange={applyDifficultyFilter}
-                    />
-
-                    <input
-                        class="range-control range-control-b"
-                        type="range"
-                        min="1"
-                        max="10"
-                        step="1"
-                        value={difficultyHandleB}
-                        aria-label="난이도 범위 손잡이 B"
-                        oninput={(event) => {
-                            difficultyHandleB =
-                                Number(
-                                    event.currentTarget.value
-                                );
-                        }}
-                        onchange={applyDifficultyFilter}
-                    />
-                </div>
-
-                <div class="difficulty-ticks">
-                    {#each difficultyLabels as label, index}
-                        <span
-                            style={`left: ${(index / 9) * 100}%`}
+                    <div class="filter-dropdown">
+                        <button
+                            class="filter-trigger"
+                            type="button"
+                            onclick={() => { timeFilterOpen = !timeFilterOpen; }}
                         >
-                            {label}
-                        </span>
-                    {/each}
+                            {timeRangeStart === 0 && timeRangeEnd === 6
+                                ? '제한 없음'
+                                : `${timeLabels[timeRangeStart]} ~ ${timeLabels[timeRangeEnd]}`}
+                        </button>
+
+                        {#if timeFilterOpen}
+                            <div class="filter-popup">
+                                <div class="range-value">
+                                    {timeLabels[timeRangeStart]} ~ {timeLabels[timeRangeEnd]}
+                                </div>
+                                <div class="range-slider">
+                                    <div class="range-track">
+                                        <div
+                                            class="range-selection"
+                                            style={`left: ${(timeRangeStart / 6) * 100}%; right: ${100 - (timeRangeEnd / 6) * 100}%;`}
+                                        ></div>
+                                    </div>
+
+                                    <input
+                                        class="range-control range-control-a"
+                                        type="range"
+                                        min="0"
+                                        max="6"
+                                        step="1"
+                                        value={timeHandleA}
+                                        aria-label="조리시간 범위 손잡이 A"
+                                        oninput={(event) => {
+                                            timeHandleA = Number(event.currentTarget.value);
+                                        }}
+                                        onchange={applyTimeFilter}
+                                    />
+
+                                    <input
+                                        class="range-control range-control-b"
+                                        type="range"
+                                        min="0"
+                                        max="6"
+                                        step="1"
+                                        value={timeHandleB}
+                                        aria-label="조리시간 범위 손잡이 B"
+                                        oninput={(event) => {
+                                            timeHandleB = Number(event.currentTarget.value);
+                                        }}
+                                        onchange={applyTimeFilter}
+                                    />
+                                </div>
+
+                                <div class="range-ticks">
+                                    {#each timeLabels as label}
+                                        <span>{label}</span>
+                                    {/each}
+                                </div>
+                            </div>  
+                        {/if}
+                    </div>
                 </div>
-            </div>
-        {/if}
-    </div>
-</div>
-<!--교체 끝-->
+
+                <!-- 난이도 필터 -->
+                <div class="filter-group">
+                    <span class="filter-label">난이도</span>
+
+                    <div class="filter-dropdown">
+                        <button
+                            class="filter-trigger"
+                            type="button"
+                            onclick={() => { difficultyFilterOpen = !difficultyFilterOpen; }}
+                        >
+                            {difficultyRangeStart === 1 && difficultyRangeEnd === 10
+                                ? '전체'
+                                : `${difficultyRangeStart}단계 ~ ${difficultyRangeEnd}단계`}
+                        </button>
+
+                        {#if difficultyFilterOpen}
+                            <div class="filter-popup">
+                                <div class="range-value">
+                                    {difficultyRangeStart}단계 ~ {difficultyRangeEnd}단계
+                                </div>
+
+                                <div class="range-slider">
+                                    <div class="range-track">
+                                        <div
+                                            class="range-selection"
+                                            style={`left: ${((difficultyRangeStart - 1) / 9) * 100}%; right: ${100 - ((difficultyRangeEnd - 1) / 9) * 100}%;`}
+                                        ></div>
+                                    </div>
+
+                                    <input
+                                        class="range-control range-control-a"
+                                        type="range"
+                                        min="1"
+                                        max="10"
+                                        step="1"
+                                        value={difficultyHandleA}
+                                        aria-label="난이도 범위 손잡이 A"
+                                        oninput={(event) => {
+                                            difficultyHandleA = Number(event.currentTarget.value);
+                                        }}
+                                        onchange={applyDifficultyFilter}
+                                    />
+
+                                    <input
+                                        class="range-control range-control-b"
+                                        type="range"
+                                        min="1"
+                                        max="10"
+                                        step="1"
+                                        value={difficultyHandleB}
+                                        aria-label="난이도 범위 손잡이 B"
+                                        oninput={(event) => {
+                                            difficultyHandleB = Number(event.currentTarget.value);
+                                        }}
+                                        onchange={applyDifficultyFilter}
+                                    />
+                                </div>
+
+                                <div class="difficulty-ticks">
+                                    {#each difficultyLabels as label, index}
+                                        <span style={`left: ${(index / 9) * 100}%`}>
+                                            {label}
+                                        </span>
+                                    {/each}
+                                </div>
+                            </div>
+                        {/if}
+                    </div>
+                </div>
+
                 <button class="reset-button" type="button" onclick={resetFilters}>
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M4 12a8 8 0 1 0 2.34-5.66" />
-                    <path d="M4 5v5h5" />
-                </svg>
-                초기화
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 12a8 8 0 1 0 2.34-5.66" />
+                        <path d="M4 5v5h5" />
+                    </svg>
+                    초기화
                 </button>
             </div>
 
             <div class="sort-box">
                 <label for="sort">정렬</label>
                 <select
-                id="sort"
-                value={params.get('sort') || 'relevance'}
-                onchange={(e) => updateSearchParams({ sort: e.currentTarget.value })}
+                    id="sort"
+                    value={params.get('sort') || 'relevance'}
+                    onchange={(e) => updateSearchParams({ sort: e.currentTarget.value })}
                 >
-                <option value="relevance">관련도순</option>
-                <option value="time">조리 시간순</option>
-                <option value="difficulty">난이도순</option>
-                <option value="likes">좋아요순</option>
-                <option value="newest">최신순</option>
+                    <option value="relevance">관련도순</option>
+                    <option value="time">조리 시간순</option>
+                    <option value="difficulty">난이도순</option>
+                    <option value="likes">좋아요순</option>
+                    <option value="newest">최신순</option>
                 </select>
             </div>
         </section>
@@ -665,77 +572,80 @@ async function selectRecipeSuggestion(
 
             {#if data.error}
                 <div class="empty-state">
-                <p role="alert">{data.error}</p>
-                <button type="button" onclick={resetFilters}>검색 초기화</button>
+                    <p role="alert">{data.error}</p>
+                    <button type="button" onclick={resetFilters}>검색 초기화</button>
                 </div>
             {:else if result}
                 <div class="result-heading">
-                <div>
-                    <h2>{result.query === null ? '전체 레시피' : `“${result.query}” 검색 결과`}</h2>
-                    <span>총 {result.total}개{result.pages ? ` · ${result.page}/${result.pages}페이지` : ''}</span>
-                </div>
+                    <div>
+                        <h2>{result.query === null ? '전체 레시피' : `“${result.query}” 검색 결과`}</h2>
+                        <span>총 {result.total}개{result.pages ? ` · ${result.page}/${result.pages}페이지` : ''}</span>
+                    </div>
                 </div>
 
                 {#if result.warning}
-                <p class="warning-msg" role="status">{result.warning}</p>
+                    <p class="warning-msg" role="status">{result.warning}</p>
                 {/if}
 
                 {#if result.query === ''}
-                <div class="empty-state">
-                    <p>검색어를 입력해주세요. 전체 요리를 보려면 초기화를 눌러주세요.</p>
-                </div>
+                    <div class="empty-state">
+                        <p>검색어를 입력해주세요. 전체 요리를 보려면 초기화를 눌러주세요.</p>
+                    </div>
                 {:else if !result.items.length}
-                <div class="empty-state">
-                    <p>검색 결과가 없습니다. 다른 검색어나 필터를 사용해보세요.</p>
-                </div>
+                    <div class="empty-state">
+                        <p>검색 결과가 없습니다. 다른 검색어나 필터를 사용해보세요.</p>
+                    </div>
                 {:else}
-                <div class="recipe-grid">
-                    {#each result.items as recipe (recipe.id)}
-                    <RecipeCard
-                        id={recipe.id}
-                        title={recipe.name}
-                        description={
-                        typeof recipe.metadata?.description === 'string'
-                            ? recipe.metadata.description
-                            : recipe.ingredients
-                        }
-                        category={
-                        categories[recipe.metadata?.category as keyof typeof categories] || '미분류'
-                        }
-                        cookingTime={recipe.estimated_time}
-                        href={appPath(`/recipes/${recipe.id}`)}
-                    />
-                    {/each}
-                </div>
+                    <div class="recipe-grid">
+                        {#each result.items as recipe (recipe.id)}
+                            {@const item = recipe as Record<string, any>}
+                            <RecipeCard
+                                id={recipe.id}
+                                title={recipe.name}
+                                description={
+                                    typeof recipe.metadata?.description === 'string'
+                                        ? recipe.metadata.description
+                                        : recipe.ingredients
+                                }
+                                image={getImageUrl(item.image_url ?? (typeof recipe.metadata?.image_url === 'string' ? recipe.metadata.image_url : undefined))}
+                                category={
+                                    categories[recipe.metadata?.category as keyof typeof categories] || '미분류'
+                                }
+                                cookingTime={recipe.estimated_time}
+                                views={item.likes ?? recipe.metadata?.likes ?? 0}
+                                href={appPath(`/recipes/${recipe.id}`)}
+                            />
+                        {/each}
+                    </div>
                 {/if}
 
                 <!-- 페이지네이션 -->
                 {#if result.pages > 1}
-                <section class="pagination-section">
-                    <nav class="pagination" aria-label="검색 결과 페이지">
-                    {#if result.page > 1}
-                        <a href={pageHref(result.page - 1)} rel="prev" aria-label="이전 페이지">
-                        <svg viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6" /></svg>
-                        </a>
-                    {/if}
+                    <section class="pagination-section">
+                        <nav class="pagination" aria-label="검색 결과 페이지">
+                            {#if result.page > 1}
+                                <a href={pageHref(result.page - 1)} rel="prev" aria-label="이전 페이지">
+                                    <svg viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6" /></svg>
+                                </a>
+                            {/if}
 
-                    {#each pageNumbers as number}
-                        <a
-                        href={pageHref(number)}
-                        class:active={number === result.page}
-                        aria-current={number === result.page ? 'page' : undefined}
-                        >
-                        {number}
-                        </a>
-                    {/each}
+                            {#each pageNumbers as number}
+                                <a
+                                    href={pageHref(number)}
+                                    class:active={number === result.page}
+                                    aria-current={number === result.page ? 'page' : undefined}
+                                >
+                                    {number}
+                                </a>
+                            {/each}
 
-                    {#if result.page < result.pages}
-                        <a href={pageHref(result.page + 1)} rel="next" aria-label="다음 페이지">
-                        <svg viewBox="0 0 24 24"><path d="M10 6l6 6-6 6" /></svg>
-                        </a>
-                    {/if}
-                    </nav>
-                </section>
+                            {#if result.page < result.pages}
+                                <a href={pageHref(result.page + 1)} rel="next" aria-label="다음 페이지">
+                                    <svg viewBox="0 0 24 24"><path d="M10 6l6 6-6 6" /></svg>
+                                </a>
+                            {/if}
+                        </nav>
+                    </section>
                 {/if}
             {/if}
         </section>
@@ -751,8 +661,8 @@ async function selectRecipeSuggestion(
             <a href={appPath('/recipes/new')} class="register-cta">
                 레시피 등록하기
                 <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M5 12h14" />
-                <path d="M13 6l6 6-6 6" />
+                    <path d="M5 12h14" />
+                    <path d="M13 6l6 6-6 6" />
                 </svg>
             </a>
         </section>
@@ -781,7 +691,6 @@ async function selectRecipeSuggestion(
         padding: 42px 0px 100px;
     }
 
-    /* Document Header */
     .document-header {
         display: flex;
         align-items: flex-end;
@@ -844,10 +753,9 @@ async function selectRecipeSuggestion(
         background: var(--surface);
     }
 
-    /*추가 */
     .recipe-search-wrapper {
-    position: relative;
-    width: 100%;
+        position: relative;
+        width: 100%;
     }
 
     .recipe-search {
@@ -897,59 +805,50 @@ async function selectRecipeSuggestion(
         background: var(--accent);
         color: #ffffff;
     }
-/*추가 시작*/
-.suggestion-list {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    right: 0;
-    z-index: 100;
 
-    max-height: 320px;
-    overflow-y: auto;
+    .suggestion-list {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        z-index: 100;
+        max-height: 320px;
+        overflow-y: auto;
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        background: var(--surface);
+        box-shadow: 0 12px 30px var(--shadow-menu);
+    }
 
-    border: 1px solid var(--border);
-    border-radius: 13px;
-    background: var(--surface);
+    .suggestion-item {
+        width: 100%;
+        min-height: 44px;
+        display: block;
+        padding: 10px 16px;
+        border: 0;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        font-size: 14px;
+        text-align: left;
+        cursor: pointer;
+    }
 
-    box-shadow: 0 12px 30px var(--shadow-menu);
-}
+    .suggestion-item:last-child {
+        border-bottom: 0;
+    }
 
-.suggestion-item {
-    width: 100%;
-    min-height: 44px;
-    display: block;
+    .suggestion-item:hover,
+    .suggestion-item:focus {
+        background: var(--surface-yellow);
+    }
 
-    padding: 10px 16px;
+    .suggestion-message {
+        padding: 12px 16px;
+        color: var(--text-subtle);
+        font-size: 13px;
+    }
 
-    border: 0;
-    border-bottom: 1px solid var(--border);
-
-    background: var(--surface);
-    color: var(--text);
-
-    font-size: 14px;
-    text-align: left;
-
-    cursor: pointer;
-}
-
-.suggestion-item:last-child {
-    border-bottom: 0;
-}
-
-.suggestion-item:hover,
-.suggestion-item:focus {
-    background: var(--surface-yellow);
-}
-
-.suggestion-message {
-    padding: 12px 16px;
-
-    color: var(--text-subtle);
-    font-size: 13px;
-}
-/*추가 끝*/
     .popular-searches {
         display: flex;
         align-items: center;
@@ -1234,297 +1133,249 @@ async function selectRecipeSuggestion(
 
     @media (max-width: 1000px) {
         .recipe-grid {
-        grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, 1fr);
         }
     }
 
     @media (max-width: 800px) {
         .recipe-grid {
-        grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2, 1fr);
         }
 
         .filter-section {
-        align-items: flex-start;
-        flex-direction: column;
+            align-items: flex-start;
+            flex-direction: column;
         }
     }
 
     @media (max-width: 600px) {
         main {
-        width: calc(100% - 24px);
+            width: calc(100% - 24px);
         }
 
         .search-section {
-        padding: 18px;
+            padding: 18px;
         }
 
-            .recipe-search {
+        .recipe-search {
             height: 52px;
-            }
+        }
 
-            .recipe-search button {
+        .recipe-search button {
             height: 42px;
             padding: 0 15px;
-            }
+        }
 
-            .category-tabs button {
+        .category-tabs button {
             padding: 8px 12px;
-            }
+        }
 
-            .recipe-grid {
+        .recipe-grid {
             grid-template-columns: 1fr;
-            }
+        }
 
-            .register-section {
+        .register-section {
             align-items: flex-start;
             flex-direction: column;
             padding: 25px 22px;
-            }
         }
-            /* 추가 시작 */
+    }
 
-            .filter-dropdown {
+    .filter-dropdown {
         position: relative;
     }
+
     .filter-label {
         color: var(--text-muted);
         font-size: 12px;
     }
 
-.filter-trigger {
-    padding: 8px 12px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--surface);
-    color: var(--text);
-    font-size: 12px;
-    cursor: pointer;
-}
+    .filter-trigger {
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text);
+        font-size: 12px;
+        cursor: pointer;
+    }
 
-.filter-trigger:hover {
-    border-color: var(--primary);
-}
+    .filter-trigger:hover {
+        border-color: var(--primary);
+    }
 
-.filter-popup {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    z-index: 50;
+    .filter-popup {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        z-index: 50;
+        width: 480px;
+        max-width: calc(100vw - 32px);
+        padding: 20px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--surface);
+        box-shadow: 0 10px 30px var(--shadow-menu);
+    }
 
-    width: 480px; /*추가*/
-    max-width: calc(100vw - 32px); /*추가*/
-    padding: 20px;
+    .range-value {
+        margin-bottom: 16px;
+        color: var(--text);
+        font-size: 12px;
+        font-weight: 600;
+    }
 
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--surface);
+    .range-slider {
+        position: relative;
+        width: 100%;
+        height: 40px;
+    }
 
-    box-shadow: 0 10px 30px var(--shadow-menu);
-}
+    .range-track {
+        position: absolute;
+        top: 18px;
+        left: 9px;
+        right: 9px;
+        height: 4px;
+        border-radius: 999px;
+        background: var(--border);
+        pointer-events: none;
+    }
 
-.range-value {
-    margin-bottom: 16px;
-    color: var(--text);
-    font-size: 12px;
-    font-weight: 600;
-}
+    input.range-control {
+        position: absolute;
+        top: 6px; 
+        left: 0;
+        width: 100%;
+        height: 28px;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        appearance: none;
+        -webkit-appearance: none;
+        pointer-events: none;
+    }
 
-.range-slider {
-    position: relative;
-    width: 100%;
-    height: 40px;
-}
+    input.range-control::-webkit-slider-runnable-track {
+        height: 4px;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
 
-/* 실제 화면에 보이는 선은 이것 딱 하나 */
-.range-track {
-    position: absolute;
-    top: 18px;
-    left: 9px;
-    right: 9px;
-    height: 4px;
-    border-radius: 999px;
-    background: var(--border);
-    pointer-events: none;
-}
+    input.range-control::-webkit-slider-thumb {
+        width: 18px;
+        height: 18px;
+        margin-top: -7px;
+        border: 2px solid var(--accent);
+        border-radius: 50%;
+        background: var(--surface);
+        appearance: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+        pointer-events: auto;
+    }
 
-/* 두 range를 같은 위치에 완전히 겹침 */
-input.range-control {
-    position: absolute;
-    top: 6px; 
-    left: 0;
+    .range-control-a::-webkit-slider-thumb {
+        border: 2px solid var(--accent);
+        background: var(--accent);
+    }
 
-    width: 100%;
-    height: 28px;
-    margin: 0;
-    padding: 0;
+    .range-control-b::-webkit-slider-thumb {
+        border: 2px solid #d59b00;
+        background: var(--primary);
+    }
 
-    border: 0;
-    background: transparent;
+    .range-control-a::-moz-range-thumb {
+        border: 2px solid var(--accent);
+        background: var(--accent);
+    }
 
-    appearance: none;
-    -webkit-appearance: none;
+    .range-control-b::-moz-range-thumb {
+        border: 2px solid #d59b00;
+        background: var(--primary);
+    }
 
-    pointer-events: none;
-}
+    input.range-control::-moz-range-track {
+        height: 4px;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
 
-/* Chrome / Edge 기본 바 완전히 숨김 */
-input.range-control::-webkit-slider-runnable-track {
-    height: 4px;
-    border: 0;
-    background: transparent;
-    box-shadow: none;
-}
+    input.range-control::-moz-range-progress {
+        background: transparent;
+    }
 
-/* Chrome / Edge 손잡이만 표시 */
-input.range-control::-webkit-slider-thumb {
-    width: 18px;
-    height: 18px;
-    margin-top: -7px;
+    input.range-control::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--accent);
+        border-radius: 50%;
+        background: var(--surface);
+        cursor: pointer;
+        pointer-events: auto;
+    }
 
-    border: 2px solid var(--accent);
-    border-radius: 50%;
-    background: var(--surface);
+    .range-control-a {
+        z-index: 2;
+    }
 
-    appearance: none;
-    -webkit-appearance: none;
+    .range-control-b {
+        z-index: 3;
+    }
 
-    cursor: pointer;
-    pointer-events: auto;
-}
+    .range-ticks {
+        position: relative;
+        height: 18px;
+        margin-top: 6px;
+        margin-left: 9px;
+        margin-right: 9px;
+    }
 
-/* 조리시간 손잡이 A */
-.range-control-a::-webkit-slider-thumb {
-    border: 2px solid var(--accent);
-    background: var(--accent);
-}
+    .range-ticks span {
+        position: absolute;
+        top: 0;
+        color: var(--text-muted);
+        font-size: 10px;
+        line-height: 1.25;
+        white-space: nowrap;
+        transform: translateX(-50%);
+    }
 
-/* 조리시간 손잡이 B */
-.range-control-b::-webkit-slider-thumb {
-    border: 2px solid #d59b00;
-    background: var(--primary);
-}
+    .range-ticks span:nth-child(1) { left: 0%; transform: translateX(-50%); }
+    .range-ticks span:nth-child(2) { left: 16.6667%; }
+    .range-ticks span:nth-child(3) { left: 33.3333%; }
+    .range-ticks span:nth-child(4) { left: 50%; }
+    .range-ticks span:nth-child(5) { left: 66.6667%; }
+    .range-ticks span:nth-child(6) { left: 83.3333%; }
+    .range-ticks span:nth-child(7) { left: 100%; transform: translateX(-50%); }
 
-.range-control-a::-moz-range-thumb {
-    border: 2px solid var(--accent);
-    background: var(--accent);
-}
+    .range-selection {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        border-radius: inherit;
+        background: var(--accent);
+        pointer-events: none;
+    }
 
-.range-control-b::-moz-range-thumb {
-    border: 2px solid #d59b00;
-    background: var(--primary);
-}
+    .difficulty-ticks {
+        position: relative;
+        height: 18px;
+        margin-top: 6px;
+        margin-left: 9px;
+        margin-right: 9px;
+    }
 
-/* Firefox 기본 바 숨김 */
-input.range-control::-moz-range-track {
-    height: 4px;
-    border: 0;
-    background: transparent;
-    box-shadow: none;
-}
-
-input.range-control::-moz-range-progress {
-    background: transparent;
-}
-
-/* Firefox 손잡이만 표시 */
-input.range-control::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-
-    border: 2px solid var(--accent);
-    border-radius: 50%;
-    background: var(--surface);
-
-    cursor: pointer;
-    pointer-events: auto;
-}
-
-.range-control-a {
-    z-index: 2;
-}
-
-.range-control-b {
-    z-index: 3;
-}
-
-.range-ticks {
-    position: relative;
-    height: 18px;
-    margin-top: 6px;
-    margin-left: 9px;
-    margin-right: 9px;
-}
-
-.range-ticks span {
-    position: absolute;
-    top: 0;
-    color: var(--text-muted);
-    font-size: 10px;
-    line-height: 1.25;
-    white-space: nowrap;
-    transform: translateX(-50%);
-}
-
-.range-ticks span:nth-child(1) {
-    left: 0%;
-    transform: translateX(-50%);
-}
-
-.range-ticks span:nth-child(2) {
-    left: 16.6667%;
-}
-
-.range-ticks span:nth-child(3) {
-    left: 33.3333%;
-}
-
-.range-ticks span:nth-child(4) {
-    left: 50%;
-}
-
-.range-ticks span:nth-child(5) {
-    left: 66.6667%;
-}
-
-.range-ticks span:nth-child(6) {
-    left: 83.3333%;
-}
-
-.range-ticks span:nth-child(7) {
-    left: 100%;
-    transform: translateX(-50%);
-}
-.range-selection {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-
-    border-radius: inherit;
-    background: var(--accent);
-
-    pointer-events: none;
-}
-
-
-.difficulty-ticks {
-    position: relative;
-    height: 18px;
-    margin-top: 6px;
-    margin-left: 9px;
-    margin-right: 9px;
-}
-
-.difficulty-ticks span {
-    position: absolute;
-    top: 0;
-
-    color: var(--text-muted);
-    font-size: 10px;
-    line-height: 1.25;
-    white-space: nowrap;
-
-    transform: translateX(-50%);
-}
-/*추가 끝*/
-
+    .difficulty-ticks span {
+        position: absolute;
+        top: 0;
+        color: var(--text-muted);
+        font-size: 10px;
+        line-height: 1.25;
+        white-space: nowrap;
+        transform: translateX(-50%);
+    }
 </style>

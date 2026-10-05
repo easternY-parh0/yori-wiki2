@@ -54,7 +54,7 @@
         {/if}
         <div class="recipe-meta">
             <span>조리시간 {cookingTime}</span>
-            <span>조회 {views}</span>
+            <span>좋아요 {views}</span>
         </div>
     </div>
 </a>
