@@ -12,33 +12,32 @@
 
 <main class="article-page">
     <article class="article">
-        <!-- 상단 -->
+        <!-- 상단 Nav -->
         <div class="top-bar">
             <a href={appPath('/beta')} class="back-link">
                 ← 요리위키 홈
             </a>
-
             <span>여름 요리 이야기</span>
         </div>
 
-        <!-- 메인 제목 -->
+        <!-- 메인 제목 (Hero) -->
         <header class="hero">
             <div class="hero-text">
                 <span class="badge">SUMMER · SMOOTHIE</span>
 
                 <h1>
                     시원한 스무디 먹고<br />
-                    <strong>무더위 날려버리자!</strong>
+                    <span>무더위 날려버리자!</span>
                 </h1>
 
                 <p>
-                    냉동실 속 과일 몇 조각과 믹서기만 있다면
+                    냉동실 속 과일 몇 조각과 믹서기만 있다면<br />
                     집에서도 시원하고 맛있는 여름 한 잔을 만들 수 있다.
                 </p>
             </div>
 
-            <div class="hero-fruit" aria-hidden="true">
-                🍓 🥭 🟣
+            <div class="hero-icon" aria-hidden="true">
+                🍹
             </div>
         </header>
 
@@ -52,12 +51,12 @@
 
             <p>
                 스무디는 과일과 얼음, 우유나 요거트 등을 함께 갈아 만드는
-                음료다. 단순해 보이지만 과일과 액체의 비율에 따라
+                음료다. 단순해 보이지만 <strong>과일과 액체의 비율</strong>에 따라
                 맛과 질감이 크게 달라진다.
             </p>
         </section>
 
-        <!-- 기본 공식 -->
+        <!-- 01. 기본 공식 -->
         <section>
             <div class="section-title">
                 <span>01</span>
@@ -70,7 +69,7 @@
             </p>
 
             <div class="formula">
-                <div class="formula-card">
+                <div>
                     <span>🍓</span>
                     <strong>과일</strong>
                     <small>딸기 · 바나나 · 망고</small>
@@ -78,7 +77,7 @@
 
                 <b>+</b>
 
-                <div class="formula-card">
+                <div>
                     <span>🥛</span>
                     <strong>액체</strong>
                     <small>우유 · 두유 · 요거트</small>
@@ -86,7 +85,7 @@
 
                 <b>+</b>
 
-                <div class="formula-card">
+                <div>
                     <span>❄️</span>
                     <strong>차가움</strong>
                     <small>냉동 과일 · 얼음</small>
@@ -99,7 +98,7 @@
             </p>
         </section>
 
-        <!-- 추천 스무디 -->
+        <!-- 02. 추천 스무디 -->
         <section>
             <div class="section-title">
                 <span>02</span>
@@ -107,73 +106,61 @@
             </div>
 
             <div class="recipe-grid">
-                <div class="recipe-card strawberry">
+                <div class="recipe-card">
                     <div class="recipe-emoji">🍓🍌</div>
-
                     <h3>딸기바나나 스무디</h3>
-
                     <p>
                         스무디 입문자에게 가장 추천하기 좋은 조합이다.
                         딸기는 상큼함을, 바나나는 자연스러운 단맛과
                         부드러운 질감을 더한다.
                     </p>
-
-                    <div class="recipe-mix">
+                    <div class="recipe-tip">
                         냉동 딸기 + 바나나 + 우유
                     </div>
                 </div>
 
-                <div class="recipe-card mango">
+                <div class="recipe-card">
                     <div class="recipe-emoji">🥭</div>
-
                     <h3>망고 스무디</h3>
-
                     <p>
                         냉동 망고에 우유나 요거트를 넣으면
                         진하고 부드러운 스무디가 된다.
                         레몬이나 라임즙을 조금 넣으면 더 산뜻하다.
                     </p>
-
-                    <div class="recipe-mix">
+                    <div class="recipe-tip">
                         냉동 망고 + 요거트
                     </div>
                 </div>
 
-                <div class="recipe-card blueberry">
+                <div class="recipe-card">
                     <div class="recipe-emoji">🟣</div>
-
                     <h3>블루베리 요거트 스무디</h3>
-
                     <p>
                         냉동 블루베리와 요거트를 함께 갈면
                         새콤하고 부드러운 맛을 낼 수 있다.
                         바나나를 더하면 조금 더 걸쭉해진다.
                     </p>
-
-                    <div class="recipe-mix">
+                    <div class="recipe-tip">
                         블루베리 + 요거트 + 바나나
                     </div>
                 </div>
 
-                <div class="recipe-card watermelon">
+                <div class="recipe-card">
                     <div class="recipe-emoji">🍉</div>
-
                     <h3>수박 스무디</h3>
-
                     <p>
                         먹다 남은 수박을 얼려두었다가 갈아보자.
                         수분이 많아 별도의 물을 많이 넣지 않아도 된다.
                         레몬즙도 잘 어울린다.
                     </p>
-
-                    <div class="recipe-mix">
+                    <div class="recipe-tip">
                         냉동 수박 + 레몬
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 냉동 과일 -->
+        <!-- 03. 냉동 과일 -->
         <section>
             <div class="section-title">
                 <span>03</span>
@@ -186,8 +173,7 @@
             </p>
 
             <div class="tip-box">
-                <div class="tip-icon">💡</div>
-
+                <span>💡</span>
                 <div>
                     <strong>요리위키 TIP</strong>
                     <p>
@@ -204,7 +190,7 @@
             </p>
         </section>
 
-        <!-- 농도 -->
+        <!-- 04. 농도 -->
         <section>
             <div class="section-title">
                 <span>04</span>
@@ -236,7 +222,7 @@
             </p>
         </section>
 
-        <!-- 조합 -->
+        <!-- 05. 조합 -->
         <section>
             <div class="section-title">
                 <span>05</span>
@@ -276,7 +262,7 @@
             </div>
         </section>
 
-        <!-- 남은 과일 -->
+        <!-- 06. 남은 과일 -->
         <section>
             <div class="section-title">
                 <span>06</span>
@@ -291,7 +277,6 @@
 
             <div class="warning-box">
                 <strong>잠깐!</strong>
-
                 <p>
                     상하거나 곰팡이가 생긴 과일은 얼리거나 갈아도
                     안전해지는 것이 아니다. 상태가 좋지 않은 식재료는
@@ -311,11 +296,7 @@
 
             <p>
                 스무디의 가장 큰 장점은 어렵지 않다는 것이다.
-                재료를 넣고 갈기만 하면 된다.
-            </p>
-
-            <p>
-                하지만 차갑게 갈아낸 스무디 한 잔은
+                재료를 넣고 갈기만 하면 된다. 차갑게 갈아낸 스무디 한 잔은
                 무더운 여름날 생각보다 큰 만족감을 준다.
             </p>
 
@@ -334,287 +315,298 @@
 </main>
 
 <style>
-    :global(html) {
-        scroll-behavior: smooth;
-    }
-
     .article-page {
         min-height: 100vh;
-        padding: 28px 20px 90px;
-        background:
-            radial-gradient(
-                circle at 8% 0%,
-                rgba(255, 120, 150, 0.08),
-                transparent 28%
-            ),
-            var(--background, #fff);
-        color: var(--text-color, #202124);
+        padding: 32px 20px 90px;
+        background: var(--background);
+        color: var(--text);
     }
 
     .article {
-        width: min(900px, 100%);
+        width: min(840px, 100%);
         margin: 0 auto;
     }
 
+    /* Top Bar */
     .top-bar {
         display: flex;
-        align-items: center;
         justify-content: space-between;
+        align-items: center;
         margin-bottom: 24px;
-        font-size: 0.85rem;
+        font-size: 12px;
     }
 
     .top-bar span {
         font-weight: 700;
-        opacity: 0.45;
+        color: var(--text-subtle);
     }
 
     .back-link {
-        color: inherit;
+        color: var(--accent);
         font-weight: 700;
         text-decoration: none;
-        opacity: 0.7;
+        transition: opacity 0.18s ease;
     }
 
     .back-link:hover {
-        opacity: 1;
+        opacity: 0.8;
     }
 
+    /* Hero Area */
     .hero {
         position: relative;
         display: flex;
-        min-height: 360px;
         align-items: center;
         justify-content: space-between;
         gap: 30px;
-        overflow: hidden;
-        padding: 58px;
-        border-radius: 30px;
-        background: linear-gradient(135deg, #fff1f3, #fff5da);
-        color: #32272a;
+        padding: 48px 42px;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        background: var(--surface-yellow);
     }
 
     .hero-text {
-        position: relative;
-        z-index: 2;
-        max-width: 620px;
+        max-width: 580px;
     }
 
     .badge {
         display: inline-block;
-        margin-bottom: 18px;
-        padding: 7px 11px;
+        margin-bottom: 16px;
+        padding: 6px 12px;
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.65);
-        font-size: 0.7rem;
-        font-weight: 900;
-        letter-spacing: 0.1em;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--accent);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
     }
 
     .hero h1 {
         margin: 0;
-        font-size: clamp(2.4rem, 6vw, 4.4rem);
-        line-height: 1.05;
-        letter-spacing: -0.055em;
+        font-size: clamp(2.2rem, 5vw, 3.2rem);
+        line-height: 1.15;
+        letter-spacing: -0.06em;
+        color: var(--text);
     }
 
-    .hero h1 strong {
-        color: #ed536e;
+    .hero h1 span {
+        color: var(--accent);
     }
 
     .hero p {
-        max-width: 550px;
-        margin: 24px 0 0;
-        font-size: 1.05rem;
-        line-height: 1.8;
-        color: #69595d;
+        margin-top: 18px;
+        font-size: 14px;
+        line-height: 1.7;
+        color: var(--text-subtle);
+        word-break: keep-all;
     }
 
-    .hero-fruit {
-        position: relative;
-        z-index: 2;
-        width: 200px;
-        flex: 0 0 200px;
-        font-size: 3.5rem;
-        line-height: 1.5;
+    .hero-icon {
+        flex: 0 0 120px;
+        font-size: 4.5rem;
         text-align: center;
-        transform: rotate(-8deg);
     }
 
+    /* Sections */
     .intro,
     section {
-        width: min(740px, 100%);
+        width: 100%;
         margin-right: auto;
         margin-left: auto;
     }
 
     .intro {
-        padding: 64px 0 10px;
+        padding-top: 48px;
     }
 
     .intro p,
     section > p {
-        margin: 15px 0;
-        font-size: 1.04rem;
-        line-height: 1.95;
+        margin: 14px 0;
+        font-size: 14px;
+        line-height: 1.85;
+        color: var(--text);
         word-break: keep-all;
     }
 
     section {
-        margin-top: 90px;
+        margin-top: 60px;
     }
 
     .section-title {
         display: flex;
-        gap: 15px;
+        gap: 10px;
         align-items: center;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
     }
 
-    .section-title > span {
-        font-size: 0.75rem;
-        font-weight: 900;
-        color: #ed536e;
+    .section-title span {
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--accent);
     }
 
     .section-title h2 {
         margin: 0;
-        font-size: clamp(1.55rem, 4vw, 2.2rem);
-        letter-spacing: -0.035em;
+        font-size: 22px;
+        letter-spacing: -0.05em;
+        color: var(--text);
     }
 
+    /* Formula Cards */
     .formula {
         display: grid;
         grid-template-columns: 1fr auto 1fr auto 1fr;
-        gap: 12px;
+        gap: 8px;
         align-items: center;
-        margin: 30px 0;
+        margin: 24px 0;
     }
 
-    .formula-card {
+    .formula div {
         display: flex;
-        min-height: 145px;
+        min-height: 110px;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 18px;
-        border: 1px solid var(--border-color, #e8e8e8);
-        border-radius: 20px;
-        background: var(--card-bg, #fafafa);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        padding: 12px 8px;
         text-align: center;
     }
 
-    .formula-card span {
-        margin-bottom: 9px;
-        font-size: 2rem;
+    .formula div span {
+        margin-bottom: 8px;
+        font-size: 1.8rem;
     }
 
-    .formula-card strong {
-        font-size: 1rem;
+    .formula div strong {
+        font-size: 12px;
     }
 
-    .formula-card small {
-        margin-top: 5px;
-        opacity: 0.55;
+    .formula div small {
+        margin-top: 4px;
+        font-size: 11px;
+        color: var(--text-subtle);
     }
 
-    .formula > b {
-        color: #aaa;
+    .formula b {
+        color: var(--text-muted, #94a3b8);
+        font-size: 14px;
     }
 
+    /* Recipe Grid */
     .recipe-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, 1fr);
         gap: 16px;
+        margin-top: 20px;
     }
 
     .recipe-card {
-        padding: 27px;
-        border-radius: 22px;
-        color: #30272a;
+        padding: 24px;
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
     }
 
-    .strawberry {
-        background: #fff0f3;
-    }
-
-    .mango {
-        background: #fff5dc;
-    }
-
-    .blueberry {
-        background: #f2efff;
-    }
-
-    .watermelon {
-        background: #eef9f2;
+    .recipe-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px var(--shadow-card, rgba(0, 0, 0, 0.04));
     }
 
     .recipe-emoji {
-        margin-bottom: 17px;
-        font-size: 2.2rem;
+        margin-bottom: 12px;
+        font-size: 2rem;
     }
 
     .recipe-card h3 {
-        margin: 0 0 14px;
-        font-size: 1.3rem;
-        letter-spacing: -0.025em;
+        margin: 0 0 10px;
+        font-size: 16px;
+        letter-spacing: -0.03em;
     }
 
     .recipe-card p {
         margin: 0;
-        font-size: 0.92rem;
-        line-height: 1.75;
+        font-size: 12px;
+        line-height: 1.65;
+        color: var(--text-subtle);
     }
 
-    .recipe-mix {
-        margin-top: 20px;
-        padding-top: 15px;
-        border-top: 1px solid rgba(0, 0, 0, 0.08);
-        font-size: 0.82rem;
-        font-weight: 800;
+    .recipe-tip {
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.5;
+        color: var(--accent);
+    }
+
+    /* Tip Box & Warning Box */
+    .tip-box,
+    .warning-box {
+        display: flex;
+        gap: 16px;
+        margin: 20px 0;
+        padding: 20px;
+        border-radius: 18px;
+        border: 1px solid var(--border);
     }
 
     .tip-box {
-        display: flex;
-        gap: 17px;
-        align-items: flex-start;
-        margin: 26px 0;
-        padding: 23px;
-        border-radius: 20px;
-        background: #eef8ff;
-        color: #263b4c;
+        border-color: var(--border-green, var(--border));
+        background: var(--surface-green);
     }
 
-    .tip-icon {
-        font-size: 1.6rem;
+    .tip-box > span {
+        font-size: 1.8rem;
     }
 
     .tip-box strong {
-        display: block;
-        margin-bottom: 5px;
-        font-size: 0.78rem;
-        color: #527c9a;
+        font-size: 13px;
+        color: var(--text);
     }
 
     .tip-box p {
-        margin: 0;
-        font-size: 0.92rem;
-        line-height: 1.7;
+        margin: 4px 0 0;
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--text-subtle);
     }
 
+    .warning-box {
+        flex-direction: column;
+        gap: 6px;
+        background: var(--surface);
+    }
+
+    .warning-box strong {
+        font-size: 13px;
+        color: var(--accent);
+    }
+
+    .warning-box p {
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--text-subtle);
+    }
+
+    /* Texture Grid */
     .texture-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-        margin: 25px 0;
+        gap: 12px;
+        margin: 24px 0;
     }
 
     .texture-grid > div {
-        padding: 25px;
-        border: 1px solid var(--border-color, #e8e8e8);
-        border-radius: 20px;
-        background: var(--card-bg, #fafafa);
+        padding: 20px 16px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: var(--surface);
     }
 
     .texture-grid span {
@@ -622,191 +614,137 @@
     }
 
     .texture-grid h3 {
-        margin: 12px 0 7px;
+        margin: 8px 0 6px;
+        font-size: 15px;
+        letter-spacing: -0.03em;
     }
 
     .texture-grid p {
         margin: 0;
-        font-size: 0.9rem;
-        line-height: 1.7;
-        opacity: 0.7;
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--text-subtle);
     }
 
+    /* Pairings List */
     .pairings {
-        margin: 28px 0;
-        overflow: hidden;
-        border: 1px solid var(--border-color, #e8e8e8);
-        border-radius: 20px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin: 24px 0;
     }
 
     .pairings > div {
-        display: grid;
-        grid-template-columns: 100px 170px 1fr;
-        gap: 15px;
-        align-items: center;
-        padding: 18px 21px;
-        border-bottom: 1px solid var(--border-color, #e8e8e8);
-    }
-
-    .pairings > div:last-child {
-        border-bottom: 0;
+        padding: 18px 16px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: var(--surface);
     }
 
     .pairings span {
-        font-size: 1.35rem;
+        display: block;
+        margin-bottom: 8px;
+        font-size: 1.4rem;
     }
 
     .pairings strong {
-        font-size: 0.92rem;
+        display: block;
+        font-size: 13px;
     }
 
     .pairings small {
-        opacity: 0.6;
-    }
-
-    .warning-box {
-        margin: 25px 0;
-        padding: 22px 24px;
-        border: 1px solid rgba(210, 80, 80, 0.15);
-        border-radius: 18px;
-        background: #fff1f1;
-        color: #583535;
-    }
-
-    .warning-box strong {
         display: block;
-        margin-bottom: 5px;
+        margin-top: 4px;
+        font-size: 11px;
+        color: var(--text-subtle);
     }
 
-    .warning-box p {
-        margin: 0;
-        font-size: 0.9rem;
-        line-height: 1.75;
-    }
-
+    /* Ending Section */
     .ending {
-        width: min(800px, 100%);
-        margin: 100px auto 0;
-        padding: 52px;
-        border-radius: 28px;
-        background: #1d2a36;
-        color: white;
+        width: 100%;
+        margin: 80px auto 0;
+        padding: 48px 32px;
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        background: var(--surface-yellow);
         text-align: center;
     }
 
     .ending > span {
-        font-size: 0.68rem;
-        font-weight: 900;
-        letter-spacing: 0.14em;
-        color: #93b4c7;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        color: var(--accent);
     }
 
     .ending h2 {
-        margin: 15px 0 26px;
-        font-size: clamp(1.8rem, 5vw, 2.7rem);
+        margin: 14px 0 20px;
+        font-size: clamp(1.6rem, 4vw, 2.2rem);
         line-height: 1.3;
-        letter-spacing: -0.035em;
+        letter-spacing: -0.05em;
+        color: var(--text);
     }
 
     .ending p {
-        max-width: 620px;
-        margin: 12px auto;
-        line-height: 1.85;
-        color: #cfdae1;
+        font-size: 13px;
+        color: var(--text-subtle);
+        line-height: 1.7;
     }
 
-    .ending > strong {
+    .ending strong {
         display: block;
-        margin-top: 30px;
-        padding-top: 28px;
-        border-top: 1px solid rgba(255, 255, 255, 0.12);
-        font-size: 1.25rem;
-        line-height: 1.65;
-        color: #ffb7c3;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        font-size: 14px;
+        line-height: 1.7;
+        color: var(--text);
     }
 
+    /* Bottom Nav */
     .bottom-nav {
-        display: flex;
-        justify-content: center;
         margin-top: 40px;
+        text-align: center;
     }
 
     .bottom-nav a {
-        padding: 11px 18px;
-        border: 1px solid var(--border-color, #ddd);
-        border-radius: 999px;
-        color: inherit;
-        font-size: 0.88rem;
+        color: var(--accent);
+        font-size: 12px;
         font-weight: 700;
         text-decoration: none;
     }
 
+    /* Responsive Design */
     @media (max-width: 700px) {
-        .article-page {
-            padding: 18px 15px 65px;
-        }
-
         .hero {
-            min-height: 0;
-            padding: 40px 28px;
+            padding: 36px 24px;
         }
 
-        .hero-fruit {
+        .hero-icon {
             display: none;
-        }
-
-        .hero h1 {
-            font-size: clamp(2.3rem, 11vw, 3.5rem);
         }
 
         .formula {
             grid-template-columns: 1fr;
+            gap: 10px;
         }
 
-        .formula > b {
+        .formula b {
             text-align: center;
         }
 
         .recipe-grid,
-        .texture-grid {
+        .texture-grid,
+        .pairings {
             grid-template-columns: 1fr;
         }
 
-        .pairings > div {
-            grid-template-columns: 85px 1fr;
-        }
-
-        .pairings small {
-            grid-column: 2;
-        }
-
         section {
-            margin-top: 72px;
+            margin-top: 50px;
         }
 
         .ending {
-            padding: 38px 23px;
-        }
-    }
-
-    @media (max-width: 430px) {
-        .hero {
-            padding: 34px 22px;
-            border-radius: 23px;
-        }
-
-        .top-bar > span {
-            display: none;
-        }
-
-        .recipe-card {
-            padding: 23px;
-        }
-
-        .intro p,
-        section > p {
-            font-size: 1rem;
-            line-height: 1.85;
+            padding: 36px 20px;
         }
     }
 </style>
