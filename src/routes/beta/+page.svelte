@@ -9,6 +9,8 @@
     import banner3Img from '$lib/assets/image/banner3.jpg';
     import heroImg from '$lib/assets/image/hero.jpg';
     import noRecipeImg from '$lib/assets/image/no-image.png';
+    import searchImg from '$lib/assets/image/search.jpg';
+    import recipeNewImg from '$lib/assets/image/recipe-new.jpg';
 
     let currentBanner = $state(0);
     
@@ -154,7 +156,7 @@
             </div>
 
             <div class="recommend-image">
-                <img src={noRecipeImg} alt="추천 레시피 이미지 준비중" />
+                <img src={searchImg} alt="추천 레시피 이미지" />
             </div>
         </section>
 
@@ -167,9 +169,16 @@
 
             <div class="category-grid">
                 {#each categories as category}
-                    <a href={appPath(`/recipes?category=${category.value}`)} class="category">
-                        <div class="category-image"><span>이미지</span></div>
+                    <a
+                        href={appPath(`/recipes?category=${category.value}`)}
+                        class="category"
+                    >
                         <strong>{category.name}</strong>
+
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M5 12h13" />
+                            <path d="m13 6 6 6-6 6" />
+                        </svg>
                     </a>
                 {/each}
             </div>
@@ -266,7 +275,7 @@
             </div>
 
             <div class="register-image">
-                <img src={noRecipeImg} alt="레시피 등록 이미지 준비중" />
+                <img src={recipeNewImg} alt="레시피 등록 이미지" />
             </div>
         </section>
 
@@ -622,49 +631,59 @@
 
     .section-title > a {
         color: var(--accent);
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 700;
     }
 
     .category-grid {
         display: grid;
         grid-template-columns: repeat(6, 1fr);
-        gap: 11px;
+        gap: 10px;
     }
 
     .category {
-        height: 135px;
+        height: 76px;
         display: flex;
-        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        gap: 13px;
+        justify-content: space-between;
+        padding: 0 18px;
         border: 1px solid var(--border);
-        border-radius: 16px;
+        border-radius: 12px;
         background: var(--surface);
-        transition: .18s ease;
-    }
-
-    .category:hover {
-        transform: translateY(-3px);
-        border-color: var(--primary);
-        background: var(--surface-yellow);
-        box-shadow: 0 8px 20px var(--shadow-card);
-    }
-
-    .category-image {
-        width: 58px;
-        height: 58px;
-        display: grid;
-        place-items: center;
-        border-radius: 14px;
-        background: var(--surface-yellow);
-        color: var(--accent);
-        font-size: 8px;
+        color: var(--text);
+        transition:
+            background .18s ease,
+            border-color .18s ease,
+            transform .18s ease;
     }
 
     .category strong {
-        font-size: 11px;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: -.04em;
+    }
+
+    .category svg {
+        width: 15px;
+        height: 15px;
+        color: var(--text-muted);
+        opacity: .65;
+        transition:
+            transform .18s ease,
+            color .18s ease,
+            opacity .18s ease;
+    }
+
+    .category:hover {
+        transform: translateY(-2px);
+        border-color: var(--border-accent);
+        background: var(--surface-yellow);
+    }
+
+    .category:hover svg {
+        color: var(--accent);
+        opacity: 1;
+        transform: translateX(2px);
     }
 
     .recipe-grid {
@@ -686,7 +705,7 @@
 
     .recommend-label {
         color: var(--accent);
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 800;
     }
 
@@ -700,7 +719,7 @@
     .recommend-copy p {
         margin: 0 0 20px;
         color: var(--text-subtle);
-        font-size: 11px;
+        font-size: 12px;
         line-height: 1.7;
     }
 
@@ -710,7 +729,7 @@
         border-radius: 99px;
         background: var(--accent);
         color: #fff;
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 700;
     }
 
@@ -746,13 +765,13 @@
 
     .register-label {
         color: var(--accent);
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 800;
     }
 
     .register-content h2 {
         margin: 9px 0 11px;
-        font-size: 29px;
+        font-size: 32px;
         line-height: 1.3;
         letter-spacing: -.065em;
     }
@@ -760,7 +779,7 @@
     .register-content p {
         margin: 0 0 20px;
         color: var(--text-subtle);
-        font-size: 10px;
+        font-size: 12px;
         line-height: 1.7;
     }
 
@@ -773,7 +792,7 @@
         border-radius: 10px;
         background: var(--primary);
         color: #0f172a;
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 750;
         transition: .18s ease;
     }
@@ -812,7 +831,7 @@
 
     .community-section span {
         color: var(--accent);
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 800;
     }
 
@@ -825,7 +844,7 @@
 
     .community-section a {
         color: var(--accent);
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 700;
     }
 
