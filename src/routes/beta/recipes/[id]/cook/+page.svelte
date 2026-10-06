@@ -90,14 +90,6 @@
         <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
       </button>
 
-      <div class="stage-hero">
-        <div class="hero-image-card">
-          <div class="hero-image-fill">
-            <span>STEP {currentStepIndex + 1} 대표 이미지</span>
-          </div>
-        </div>
-      </div>
-
       <div class="stage-body">
         <div class="stage-meta-row">
           <span class="step-badge">STEP {currentStepIndex + 1}</span>
@@ -265,36 +257,9 @@
     height: 20px;
   }
 
-  .stage-hero {
-    height: 48%;
-    padding: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .hero-image-card {
-    width: 100%;
-    height: 100%;
-    background: var(--surface-subtle);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  .hero-image-fill {
-    width: 100%;
-    height: 100%;
-    display: grid;
-    place-items: center;
-    color: var(--text-muted);
-    font-size: 14px;
-    font-weight: 600;
-  }
-
   .stage-body {
     flex: 1;
-    padding: 12px 16px 24px;
+    padding: 32px 16px 24px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -304,17 +269,17 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
   }
 
   .step-badge {
     color: var(--accent);
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 800;
   }
 
   .step-progress {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--text-muted);
     font-weight: 600;
   }
@@ -325,8 +290,8 @@
 
   .description {
     margin: 0;
-    font-size: 15px;
-    line-height: 1.6;
+    font-size: 16px;
+    line-height: 1.7;
     color: var(--text);
     font-weight: 500;
     white-space: pre-wrap;

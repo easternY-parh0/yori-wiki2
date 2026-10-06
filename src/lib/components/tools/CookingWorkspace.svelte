@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
-
   import TimerTool from "$lib/components/tools/TimerTool.svelte";
   import StopwatchTool from "$lib/components/tools/StopwatchTool.svelte";
   import ConverterTool from "$lib/components/tools/ConverterTool.svelte";
@@ -45,20 +43,6 @@
   };
 
   let nodes = $state<WorkspaceNode[]>([
-    {
-      id: "timer-1",
-      type: "timer",
-      x: 48,
-      y: 48,
-      zIndex: 2,
-    },
-    {
-      id: "conv-1",
-      type: "converter",
-      x: 410,
-      y: 64,
-      zIndex: 1,
-    },
   ]);
 
   // Workspace Helpers
@@ -448,129 +432,6 @@
 
     addWorkspaceNode("note", newId);
   }
-
-  // Voice Control
-
-  let isListening = $state(false);
-
-  let voiceStatusText = $state("음성 명령 대기 중...");
-
-  let recognition: any = null;
-
-  /*
-   * TimerTool이 내부적으로 timer 상태를
-   * 관리하게 되었기 때문에,
-   * 부모에서는 현재 음성 명령이
-   * 어떤 타이머에 전달되어야 하는지만
-   * 결정한다.
-   *
-   * 실제 시작/정지는 TimerTool 내부 UI를
-   * 통해 처리한다.
-   *
-   * 현재 단계에서는 기존 음성 기능과
-   * 완전히 동일한 동작을 유지하려면
-   * 이후 TimerManager/command bus를
-   * 추가하는 것을 추천한다.
-   */
-
-  function toggleVoiceControl() {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    if (
-      !("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
-    ) {
-      alert("이 브라우저는 음성 인식을 지원하지 않습니다.");
-
-      return;
-    }
-
-    if (isListening) {
-      if (recognition) {
-        recognition.stop();
-      }
-
-      isListening = false;
-      voiceStatusText = "음성 인식 종료됨";
-
-      return;
-    }
-
-    const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
-
-    recognition = new SpeechRecognition();
-
-    recognition.lang = "ko-KR";
-
-    recognition.continuous = true;
-
-    recognition.interimResults = false;
-
-    recognition.onstart = () => {
-      isListening = true;
-
-      voiceStatusText = '듣고 있습니다... ("시작", "정지", "리셋")';
-    };
-
-    recognition.onresult = (event: any) => {
-      const lastResult = event.results[event.results.length - 1];
-
-      if (!lastResult.isFinal) {
-        return;
-      }
-
-      const command = lastResult[0].transcript.trim();
-
-      voiceStatusText = `인식됨: "${command}"`;
-
-      /*
-       * TimerTool 내부 상태를
-       * 사용하는 구조로 변경했기 때문에
-       * 여기서는 명령 인식까지만 유지한다.
-       *
-       * 다음 단계에서
-       * TimerController / workspace command
-       * 구조를 넣으면
-       *
-       * "시작" -> 첫 번째 TimerTool
-       * "정지" -> 첫 번째 TimerTool
-       * "리셋" -> 첫 번째 TimerTool
-       *
-       * 을 다시 연결할 수 있다.
-       */
-    };
-
-    recognition.onerror = () => {
-      voiceStatusText = "음성 인식 오류 발생";
-
-      isListening = false;
-    };
-
-    recognition.onend = () => {
-      isListening = false;
-    };
-
-    recognition.start();
-  }
-
-  // Cleanup
-
-  onDestroy(() => {
-    if (recognition) {
-      recognition.stop();
-    }
-
-    window.removeEventListener("mousemove", handleNodeDrag);
-
-    window.removeEventListener("mouseup", stopNodeDrag);
-
-    window.removeEventListener("mousemove", handlePanning);
-
-    window.removeEventListener("mouseup", stopPanning);
-  });
 </script>
 
 <!-- Workspace -->
@@ -633,15 +494,6 @@
   </div>
 
   <div class="workspace-body">
-    {#if isListening}
-      <div class="voice-status-bar">
-        <span class="pulse-dot"></span>
-        <span>
-          {voiceStatusText}
-        </span>
-      </div>
-    {/if}
-
     <!-- 2D Sandbox -->
     <div
       bind:this={viewportEl}
@@ -908,28 +760,6 @@
 
       <div class="custom-tooltip">요리 메모장</div>
     </div>
-
-    <!-- Voice -->
-    <div class="tool-item">
-      <button
-        type="button"
-        class="tool-icon-btn"
-        class:active-mic={isListening}
-        onclick={toggleVoiceControl}
-        aria-label="음성 컨트롤"
-      >
-        <svg viewBox="0 0 24 24">
-          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-          <line x1="12" y1="19" x2="12" y2="23" />
-          <line x1="8" y1="23" x2="16" y2="23" />
-        </svg>
-      </button>
-
-      <div class="custom-tooltip">
-        {isListening ? "음성 컨트롤 끄기" : "음성 컨트롤 켜기"}
-      </div>
-    </div>
   </div>
 </nav>
 
@@ -1068,32 +898,6 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-  }
-
-  .voice-status-bar {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    right: 12px;
-    z-index: 500;
-    background: #1e293b;
-    color: #ffffff;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
-  }
-
-  .pulse-dot {
-    width: 8px;
-    height: 8px;
-    flex: 0 0 auto;
-    background: #ef4444;
-    border-radius: 50%;
-    animation: blink 1s infinite;
   }
 
   @keyframes blink {
@@ -1358,12 +1162,6 @@
 
   .tool-icon-btn:active {
     transform: scale(0.94);
-  }
-
-  .tool-icon-btn.active-mic {
-    color: #ef4444;
-    background: #fee2e2;
-    animation: pulse-bg 1.5s infinite;
   }
 
   @keyframes pulse-bg {
