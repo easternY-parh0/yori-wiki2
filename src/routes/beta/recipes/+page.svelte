@@ -5,7 +5,7 @@
     import type { loadSearch } from '$lib/load-search';
     import RecipeCard from '$lib/components/layouts/RecipeCard.svelte';
     import Breadcrumb from '$lib/components/layouts/Breadcrumb.svelte';
-    import { getSearchSuggestions } from '../search-suggestions'; 
+    import { getSearchSuggestions } from '$lib/search-suggestions'; 
 
     let { data }: { data: Awaited<ReturnType<typeof loadSearch>> } = $props();
 
