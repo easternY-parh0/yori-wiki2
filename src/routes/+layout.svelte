@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import TextSearchPopup from '$lib/components/TextSearchPopup.svelte';
 
 	let { children } = $props();
 
@@ -26,5 +27,7 @@
 <Header {darkMode} {toggleTheme} />
 
 {@render children()}
+
+<TextSearchPopup />
 
 <Footer />
