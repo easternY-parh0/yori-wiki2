@@ -159,10 +159,10 @@
         <!-- 1. 오늘의 추천 섹션 -->
         <section class="recommend-section">
             <div class="recommend-copy">
-                <span class="recommend-label">오늘의 추천</span>
-                <h2>오늘은 이런 요리<br />어떠세요?</h2>
-                <p>현재 인기 있는 레시피를 바탕으로<br />오늘 만들어보기 좋은 요리를 추천합니다.</p>
-                <a href={appPath('/recipes/recommended')} class="primary-button">추천 레시피 보기</a>
+                <span class="recommend-label">탐색</span>
+                <h2>당신만의<br />요리 추천 리스트</h2>
+                <p>지금까지 당신이 요리한 음식들을 기반으로<br />만들어보기 좋은 요리를 추천합니다.</p>
+                <a href={appPath('/search')} class="primary-button">추천 레시피 보기</a>
             </div>
 
             <div class="recommend-image">
