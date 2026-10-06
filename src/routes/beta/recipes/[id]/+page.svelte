@@ -615,7 +615,8 @@
   }
 
   .cook-button:hover {
-    background: var(--primary-hover);
+    background: var(--accent);
+    color: var(--background)
   }
 
   .cook-button svg {

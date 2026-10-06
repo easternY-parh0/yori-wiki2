@@ -28,6 +28,33 @@
   let busy = $state(false);
   let error = $state("");
 
+  /**
+   * auth/* API에서는 description이 내려오지 않으므로
+   * 각 recipe의 id를 이용해 /food?id={id}에서 상세 정보를 가져온다.
+   */
+  async function enrichRecipes(items: Item[]): Promise<Item[]> {
+    return Promise.all(
+      items.map(async (item) => {
+        try {
+          const food = await api<{
+            id: number;
+            description?: string;
+          }>(`/food?id=${item.id}`);
+
+          return {
+            ...item,
+            description: food.description,
+          };
+        } catch (e) {
+          // 상세 정보 하나가 실패해도 전체 목록은 보여준다.
+          console.error(`레시피 상세 정보 조회 실패 (id=${item.id}):`, e);
+
+          return item;
+        }
+      }),
+    );
+  }
+
   async function load(next = 0) {
     busy = true;
     error = "";
@@ -37,7 +64,10 @@
         `/auth/${kind}?limit=20&offset=${next}`,
       );
 
-      recipes = result.recipes;
+      // auth/*에서는 description이 없으므로 id를 이용해 상세 정보 보완
+      const enrichedRecipes = await enrichRecipes(result.recipes);
+
+      recipes = enrichedRecipes;
       total = result.total;
       offset = next;
 

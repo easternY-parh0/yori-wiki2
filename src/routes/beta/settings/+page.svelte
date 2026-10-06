@@ -1,14 +1,21 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
+	import { invalidateAll } from '$app/navigation';
+
+	import { api } from '$lib/api';
 	import { appPath } from '$lib/app-path';
 	import Breadcrumb from '$lib/components/layouts/Breadcrumb.svelte';
-    import PreparingModal from '$lib/components/layouts/PreparingModal.svelte';
+	import PreparingModal from '$lib/components/layouts/PreparingModal.svelte';
 
-	let isPreparingOpen = $state(true)
+	let isPreparingOpen = $state(true);
 
-	// Svelte 5 Runes 상태 선언
 	let theme = $state<'system' | 'light' | 'dark'>('system');
 	let fontSize = $state<'small' | 'medium' | 'large'>('medium');
+
+	let nickname = $state('');
+	let nicknameError = $state('');
+	let nicknameBusy = $state(false);
 
 	let notifications = $state(true);
 	let recipeUpdates = $state(true);
@@ -21,7 +28,6 @@
 
 	let showDeleteModal = $state(false);
 
-	// 현재 활성화된 섹션 ID 감지 상태
 	let activeSection = $state('account');
 
 	const breadcrumbItems = [
@@ -29,7 +35,39 @@
 		{ label: '설정' }
 	];
 
-	// IntersectionObserver를 사용한 스크롤 감지 하이라이팅
+	async function saveNickname(e: SubmitEvent) {
+		e.preventDefault();
+
+		if (!page.data.user) {
+			nicknameError = '로그인이 필요합니다.';
+			return;
+		}
+
+		nicknameBusy = true;
+		nicknameError = '';
+
+		try {
+			await api('/auth/nickname', {
+				method: 'PUT',
+				headers: {
+					'content-type': 'application/json'
+				},
+				body: JSON.stringify({
+					nickname
+				})
+			});
+
+			await invalidateAll();
+
+			nickname = '';
+			nicknameError = '닉네임을 변경했습니다.';
+		} catch (e) {
+			nicknameError = (e as Error).message;
+		} finally {
+			nicknameBusy = false;
+		}
+	}
+
 	onMount(() => {
 		const sections = document.querySelectorAll('section[id]');
 
@@ -42,7 +80,6 @@
 				});
 			},
 			{
-				// 상단 헤더 높이(약 80px)를 고려하여 관찰 영역 오프셋 지정
 				rootMargin: '-80px 0px -60% 0px',
 				threshold: 0.1
 			}
@@ -148,21 +185,54 @@
 						</div>
 					</div>
 
-					<!-- 닉네임 -->
-					<div class="form-row">
-						<div>
-							<label for="nickname">닉네임</label>
-							<span>다른 사용자에게 표시되는 이름입니다.</span>
+					<!-- 닉네임 변경 -->
+					<form class="nickname-form" onsubmit={saveNickname}>
+						<div class="form-row nickname-row">
+							<div>
+								<label for="nickname">
+									닉네임 변경
+								</label>
+
+								<span>
+									현재 닉네임:
+									<strong>{page.data.user?.nickname ?? '로그인 필요'}</strong>
+								</span>
+							</div>
+
+							<div class="nickname-input-group">
+								<div class="input-wrap">
+									<input
+										id="nickname"
+										bind:value={nickname}
+										placeholder="새 닉네임을 입력하세요"
+										minlength="2"
+										maxlength="20"
+										required
+										disabled={!page.data.user || nicknameBusy}
+									/>
+								</div>
+
+								<button
+									type="submit"
+									class="outline-button"
+									disabled={nicknameBusy || !page.data.user}
+								>
+									{nicknameBusy ? '저장 중...' : '닉네임 저장'}
+								</button>
+							</div>
 						</div>
 
-						<div class="input-wrap">
-							<input
-								id="nickname"
-								value="사용자님"
-								placeholder="닉네임을 입력하세요"
-							/>
-						</div>
-					</div>
+						{#if nicknameError}
+							<p
+								class:success-message={nicknameError === '닉네임을 변경했습니다.'}
+								class:error-message={nicknameError !== '닉네임을 변경했습니다.'}
+								class="nickname-status"
+								role="status"
+							>
+								{nicknameError}
+							</p>
+						{/if}
+					</form>
 
 					<!-- 이메일 -->
 					<div class="form-row">
@@ -175,7 +245,7 @@
 							<input
 								id="email"
 								type="email"
-								value="placeholder@example.com"
+								value={page.data.user?.email ?? ''}
 								disabled
 							/>
 						</div>
@@ -193,12 +263,6 @@
 							비밀번호 변경
 						</a>
 					</div>
-				</div>
-
-				<div class="card-footer">
-					<button class="primary-button" type="button">
-						변경사항 저장
-					</button>
 				</div>
 			</section>
 
@@ -783,21 +847,44 @@
 		color: var(--accent);
 	}
 
-	.card-footer {
+	.nickname-form {
+		margin: 0;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.nickname-row {
+		border-bottom: 0;
+	}
+
+	.nickname-input-group {
 		display: flex;
-		justify-content: flex-end;
-		padding-top: 18px;
+		align-items: center;
+		gap: 8px;
+		flex-shrink: 0;
 	}
 
-	.primary-button {
-		border: 1px solid var(--primary, #0f172a);
-		background: var(--primary, #0f172a);
-		color: #ffffff;
+	.nickname-input-group .input-wrap input {
+		width: 220px;
 	}
 
-	.primary-button:hover {
-		border-color: var(--accent, #2563eb);
-		background: var(--accent, #2563eb);
+	.nickname-input-group button:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.nickname-status {
+		margin: -8px 0 0;
+		padding: 0 0 14px;
+		font-size: 12px;
+		line-height: 1.5;
+	}
+
+	.success-message {
+		color: #16a34a;
+	}
+
+	.error-message {
+		color: #dc2626;
 	}
 
 	/* Option Switches (Toggles) */
