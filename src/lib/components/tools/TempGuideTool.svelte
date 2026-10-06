@@ -1,29 +1,38 @@
 <script lang="ts">
-  type TempGuideItem = {
-    id: string;
-    meatType: 'beef' | 'pork' | 'chicken' | 'fish';
-  };
-
   let {
-    guide: tg,
-    onRemove
+    id,
+    onRemove,
   }: {
-    guide: TempGuideItem;
+    id: string;
     onRemove: (id: string) => void;
   } = $props();
+
+  type MeatType = "beef" | "pork" | "chicken" | "fish";
+
+  let meatType = $state<MeatType>("beef");
 </script>
 
 <div class="tool-card temp-card">
   <div class="card-head">
     <div class="title-wrap">
-      <svg viewBox="0 0 24 24"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0z" /></svg>
+      <svg viewBox="0 0 24 24">
+        <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0z" />
+      </svg>
+
       <span class="static-title">고기 익힘 온도 가이드</span>
     </div>
 
-    <button type="button" class="del-btn" onclick={() => onRemove(tg.id)}>✕</button>
+    <button
+      type="button"
+      class="del-btn"
+      onclick={() => onRemove(id)}
+      aria-label="고기 익힘 온도 가이드 삭제"
+    >
+      ✕
+    </button>
   </div>
 
-  <select bind:value={tg.meatType} class="field-select">
+  <select bind:value={meatType} class="field-select">
     <option value="beef">소고기 (Beef)</option>
     <option value="pork">돼지고기 (Pork)</option>
     <option value="chicken">닭/오리고기 (Poultry)</option>
@@ -31,18 +40,46 @@
   </select>
 
   <div class="temp-info-grid">
-    {#if tg.meatType === 'beef'}
-      <div><span>레어 (Rare)</span><strong>52°C</strong></div>
-      <div><span>미디엄 (Medium)</span><strong>60°C</strong></div>
-      <div><span>웰던 (Well Done)</span><strong>71°C+</strong></div>
-    {:else if tg.meatType === 'pork'}
-      <div><span>안심/등심 (Medium)</span><strong>63°C</strong></div>
-      <div><span>완전 익힘 (Well)</span><strong>71°C</strong></div>
-    {:else if tg.meatType === 'chicken'}
-      <div><span>닭가슴살/안심</span><strong>74°C</strong></div>
-      <div><span>닭다리/통구이</span><strong>75°C+</strong></div>
+    {#if meatType === "beef"}
+      <div>
+        <span>레어 (Rare)</span>
+        <strong>52°C</strong>
+      </div>
+
+      <div>
+        <span>미디엄 (Medium)</span>
+        <strong>60°C</strong>
+      </div>
+
+      <div>
+        <span>웰던 (Well Done)</span>
+        <strong>71°C+</strong>
+      </div>
+    {:else if meatType === "pork"}
+      <div>
+        <span>안심/등심 (Medium)</span>
+        <strong>63°C</strong>
+      </div>
+
+      <div>
+        <span>완전 익힘 (Well)</span>
+        <strong>71°C</strong>
+      </div>
+    {:else if meatType === "chicken"}
+      <div>
+        <span>닭가슴살/안심</span>
+        <strong>74°C</strong>
+      </div>
+
+      <div>
+        <span>닭다리/통구이</span>
+        <strong>75°C+</strong>
+      </div>
     {:else}
-      <div><span>생선 구이/스테이크</span><strong>63°C</strong></div>
+      <div>
+        <span>생선 구이/스테이크</span>
+        <strong>63°C</strong>
+      </div>
     {/if}
   </div>
 </div>

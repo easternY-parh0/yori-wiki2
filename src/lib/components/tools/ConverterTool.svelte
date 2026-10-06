@@ -1,5 +1,10 @@
 <script lang="ts">
-  type UnitCategory = 'volume' | 'weight' | 'temperature' | 'length' | 'energy';
+  type UnitCategory =
+    | "volume"
+    | "weight"
+    | "temperature"
+    | "length"
+    | "energy";
 
   type UnitDef = {
     label: string;
@@ -18,56 +23,302 @@
   };
 
   let {
-    converter: conv,
-    unitCatalog,
+    id,
     onRemove,
-    onCategoryChange,
-    calculateResult
   }: {
-    converter: ConverterItem;
-    unitCatalog: Record<UnitCategory, UnitDef[]>;
+    id: string;
     onRemove: (id: string) => void;
-    onCategoryChange: (id: string, category: UnitCategory) => void;
-    calculateResult: (conv: ConverterItem) => string;
   } = $props();
+
+  // --------------------------------------------------
+  // Unit Catalog
+  // --------------------------------------------------
+
+  const unitCatalog: Record<UnitCategory, UnitDef[]> = {
+    volume: [
+      {
+        label: "밀리리터 (ml)",
+        value: "ml",
+        toBase: (v) => v,
+        fromBase: (v) => v,
+      },
+      {
+        label: "리터 (l)",
+        value: "l",
+        toBase: (v) => v * 1000,
+        fromBase: (v) => v / 1000,
+      },
+      {
+        label: "계량컵 (200ml)",
+        value: "cup",
+        toBase: (v) => v * 200,
+        fromBase: (v) => v / 200,
+      },
+      {
+        label: "미국 컵 (240ml)",
+        value: "us_cup",
+        toBase: (v) => v * 240,
+        fromBase: (v) => v / 240,
+      },
+      {
+        label: "큰술 (tbsp-15ml)",
+        value: "tbsp",
+        toBase: (v) => v * 15,
+        fromBase: (v) => v / 15,
+      },
+      {
+        label: "작은술 (tsp-5ml)",
+        value: "tsp",
+        toBase: (v) => v * 5,
+        fromBase: (v) => v / 5,
+      },
+      {
+        label: "액체 온스 (fl oz)",
+        value: "floz",
+        toBase: (v) => v * 29.5735,
+        fromBase: (v) => v / 29.5735,
+      },
+    ],
+
+    weight: [
+      {
+        label: "그램 (g)",
+        value: "g",
+        toBase: (v) => v,
+        fromBase: (v) => v,
+      },
+      {
+        label: "킬로그램 (kg)",
+        value: "kg",
+        toBase: (v) => v * 1000,
+        fromBase: (v) => v / 1000,
+      },
+      {
+        label: "온스 (oz)",
+        value: "oz",
+        toBase: (v) => v * 28.3495,
+        fromBase: (v) => v / 28.3495,
+      },
+      {
+        label: "파운드 (lb)",
+        value: "lb",
+        toBase: (v) => v * 453.592,
+        fromBase: (v) => v / 453.592,
+      },
+    ],
+
+    temperature: [
+      {
+        label: "섭씨 (°C)",
+        value: "c",
+        toBase: (v) => v,
+        fromBase: (v) => v,
+      },
+      {
+        label: "화씨 (°F)",
+        value: "f",
+        toBase: (v) => (v - 32) * (5 / 9),
+        fromBase: (v) => v * (9 / 5) + 32,
+      },
+    ],
+
+    length: [
+      {
+        label: "센티미터 (cm)",
+        value: "cm",
+        toBase: (v) => v,
+        fromBase: (v) => v,
+      },
+      {
+        label: "인치 (inch)",
+        value: "inch",
+        toBase: (v) => v * 2.54,
+        fromBase: (v) => v / 2.54,
+      },
+    ],
+
+    energy: [
+      {
+        label: "킬로칼로리 (kcal)",
+        value: "kcal",
+        toBase: (v) => v,
+        fromBase: (v) => v,
+      },
+      {
+        label: "킬로줄 (kJ)",
+        value: "kj",
+        toBase: (v) => v / 4.184,
+        fromBase: (v) => v * 4.184,
+      },
+    ],
+  };
+
+  // --------------------------------------------------
+  // Converter State
+  // --------------------------------------------------
+
+  let converter = $state<ConverterItem>({
+    id,
+    title: "단위 변환기",
+    category: "volume",
+    fromUnit: "cup",
+    toUnit: "ml",
+    inputValue: 1,
+  });
+
+  // --------------------------------------------------
+  // Category
+  // --------------------------------------------------
+
+  function changeCategory(category: UnitCategory) {
+    const units = unitCatalog[category];
+
+    converter.category = category;
+    converter.fromUnit = units[0].value;
+    converter.toUnit = units[1]?.value ?? units[0].value;
+  }
+
+  // --------------------------------------------------
+  // Calculation
+  // --------------------------------------------------
+
+  function calculateResult(): string {
+    const units = unitCatalog[converter.category];
+
+    const fromDef = units.find(
+      (unit) => unit.value === converter.fromUnit,
+    );
+
+    const toDef = units.find(
+      (unit) => unit.value === converter.toUnit,
+    );
+
+    if (!fromDef || !toDef) {
+      return "0";
+    }
+
+    const input = Number(converter.inputValue) || 0;
+
+    const baseValue = fromDef.toBase(input);
+    const result = toDef.fromBase(baseValue);
+
+    if (!Number.isFinite(result)) {
+      return "0";
+    }
+
+    return Number.isInteger(result)
+      ? result.toString()
+      : result.toFixed(2);
+  }
 </script>
 
 <div class="tool-card converter-card">
   <div class="card-head">
     <div class="title-wrap">
-      <svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6" /></svg>
-      <input type="text" bind:value={conv.title} class="title-input" />
+      <svg viewBox="0 0 24 24">
+        <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6" />
+      </svg>
+
+      <input
+        type="text"
+        bind:value={converter.title}
+        class="title-input"
+      />
     </div>
-    <button type="button" class="del-btn" onclick={() => onRemove(conv.id)}>✕</button>
+
+    <button
+      type="button"
+      class="del-btn"
+      onclick={() => onRemove(id)}
+      aria-label="단위 변환기 삭제"
+    >
+      ✕
+    </button>
   </div>
 
   <div class="category-tabs">
-    <button class:active={conv.category === 'volume'} onclick={() => onCategoryChange(conv.id, 'volume')}>부피</button>
-    <button class:active={conv.category === 'weight'} onclick={() => onCategoryChange(conv.id, 'weight')}>무게</button>
-    <button class:active={conv.category === 'temperature'} onclick={() => onCategoryChange(conv.id, 'temperature')}>온도</button>
-    <button class:active={conv.category === 'length'} onclick={() => onCategoryChange(conv.id, 'length')}>길이</button>
-    <button class:active={conv.category === 'energy'} onclick={() => onCategoryChange(conv.id, 'energy')}>열량</button>
+    <button
+      type="button"
+      class:active={converter.category === "volume"}
+      onclick={() => changeCategory("volume")}
+    >
+      부피
+    </button>
+
+    <button
+      type="button"
+      class:active={converter.category === "weight"}
+      onclick={() => changeCategory("weight")}
+    >
+      무게
+    </button>
+
+    <button
+      type="button"
+      class:active={converter.category === "temperature"}
+      onclick={() => changeCategory("temperature")}
+    >
+      온도
+    </button>
+
+    <button
+      type="button"
+      class:active={converter.category === "length"}
+      onclick={() => changeCategory("length")}
+    >
+      길이
+    </button>
+
+    <button
+      type="button"
+      class:active={converter.category === "energy"}
+      onclick={() => changeCategory("energy")}
+    >
+      열량
+    </button>
   </div>
 
   <div class="conv-body">
     <div class="conv-field">
-      <input type="number" bind:value={conv.inputValue} min="0" step="any" class="field-input" />
-      <select bind:value={conv.fromUnit} class="field-select">
-        {#each unitCatalog[conv.category] as unit}
-          <option value={unit.value}>{unit.label}</option>
+      <input
+        type="number"
+        bind:value={converter.inputValue}
+        min="0"
+        step="any"
+        class="field-input"
+      />
+
+      <select
+        bind:value={converter.fromUnit}
+        class="field-select"
+      >
+        {#each unitCatalog[converter.category] as unit}
+          <option value={unit.value}>
+            {unit.label}
+          </option>
         {/each}
       </select>
     </div>
 
     <div class="conv-divider">
-      <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" /></svg>
+      <svg viewBox="0 0 24 24">
+        <path d="M7 10l5 5 5-5" />
+      </svg>
     </div>
 
     <div class="conv-field">
-      <div class="field-result">{calculateResult(conv)}</div>
-      <select bind:value={conv.toUnit} class="field-select">
-        {#each unitCatalog[conv.category] as unit}
-          <option value={unit.value}>{unit.label}</option>
+      <div class="field-result">
+        {calculateResult()}
+      </div>
+
+      <select
+        bind:value={converter.toUnit}
+        class="field-select"
+      >
+        {#each unitCatalog[converter.category] as unit}
+          <option value={unit.value}>
+            {unit.label}
+          </option>
         {/each}
       </select>
     </div>

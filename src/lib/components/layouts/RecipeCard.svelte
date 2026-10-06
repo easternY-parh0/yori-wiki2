@@ -22,26 +22,11 @@
         views = 0,
         href = appPath('/recipes/example')
     }: Props = $props();
-
-    function handleBookmark(event: MouseEvent) {
-        event.preventDefault();
-        // 즐겨찾기 로직 구현 위치
-    }
 </script>
 
 <a href={href} class="recipe">
     <div class="recipe-image">
         <img src={image || noRecipeImg} alt={title} />
-        <button 
-            class="bookmark" 
-            type="button" 
-            aria-label="즐겨찾기" 
-            onclick={handleBookmark}
-        >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M6 4h12v17l-6-4-6 4z" />
-            </svg>
-        </button>
     </div>
 
     <div class="recipe-info">
@@ -60,14 +45,6 @@
 </a>
 
 <style>
-    svg {
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 1.7;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-    }
-
     .recipe {
         display: block;
         overflow: hidden;
@@ -96,32 +73,6 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-    }
-
-    .bookmark {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        width: 34px;
-        height: 34px;
-        display: grid;
-        place-items: center;
-        border: 1px solid var(--border);
-        border-radius: 50%;
-        background: var(--surface);
-        color: var(--text);
-        cursor: pointer;
-        transition: background-color .15s ease, color .15s ease;
-    }
-
-    .bookmark:hover {
-        background: var(--primary);
-        color: #0f172a;
-    }
-
-    .bookmark svg {
-        width: 17px;
-        height: 17px;
     }
 
     .recipe-info {

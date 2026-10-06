@@ -1,33 +1,66 @@
 <script lang="ts">
-  type RiceItem = {
+  let {
+    id,
+    onRemove,
+  }: {
     id: string;
-    riceType: 'white' | 'brown' | 'mixed' | 'sushi';
-    cupCount: number;
+    onRemove: (id: string) => void;
+  } = $props();
+
+  type RiceType = "white" | "brown" | "mixed" | "sushi";
+
+  let riceType = $state<RiceType>("white");
+  let cupCount = $state(2);
+
+  const riceRatios: Record<RiceType, number> = {
+    white: 1.1,
+    brown: 1.4,
+    mixed: 1.3,
+    sushi: 1.0,
   };
 
-  let {
-    rice: rc,
-    onRemove,
-    getWaterRecommendation
-  }: {
-    rice: RiceItem;
-    onRemove: (id: string) => void;
-    getWaterRecommendation: (type: string, cups: number) => { ml: number; cupRatio: number };
-  } = $props();
+  const mlPerCup = 180;
+
+  function getWaterRecommendation(type: RiceType, cups: number) {
+    const ratio = riceRatios[type];
+
+    const totalWaterMl = Math.round(cups * mlPerCup * ratio);
+
+    return {
+      ml: totalWaterMl,
+      cupRatio: ratio,
+    };
+  }
+
+  let waterRecommendation = $derived(
+    getWaterRecommendation(riceType, cupCount),
+  );
 </script>
 
 <div class="tool-card rice-card">
   <div class="card-head">
     <div class="title-wrap">
-      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" /></svg>
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+        />
+      </svg>
+
       <span class="static-title">밥물 맞추기 계산기</span>
     </div>
 
-    <button type="button" class="del-btn" onclick={() => onRemove(rc.id)}>✕</button>
+    <button
+      type="button"
+      class="del-btn"
+      onclick={() => onRemove(id)}
+      aria-label="밥물 계산기 삭제"
+    >
+      ✕
+    </button>
   </div>
 
   <div class="rice-controls">
-    <select bind:value={rc.riceType} class="field-select">
+    <select bind:value={riceType} class="field-select">
       <option value="white">백미 (1 : 1.1)</option>
       <option value="brown">현미 (1 : 1.4)</option>
       <option value="mixed">잡곡밥 (1 : 1.3)</option>
@@ -35,14 +68,23 @@
     </select>
 
     <div class="cup-input-box">
-      <input type="number" bind:value={rc.cupCount} min="0.5" step="0.5" />
+      <input
+        type="number"
+        bind:value={cupCount}
+        min="0.5"
+        step="0.5"
+      />
+
       <span>컵</span>
     </div>
   </div>
 
   <div class="rice-result-box">
     <span>권장 물의 양:</span>
-    <strong>{getWaterRecommendation(rc.riceType, rc.cupCount).ml} ml</strong>
+
+    <strong>
+      {waterRecommendation.ml} ml
+    </strong>
   </div>
 </div>
 

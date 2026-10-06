@@ -15,16 +15,64 @@
   };
 
   let {
-    scaler,
+    id,
     onRemove,
-    onAddIngredient,
-    onRemoveIngredient
   }: {
-    scaler: ScalerItem;
+    id: string;
     onRemove: (id: string) => void;
-    onAddIngredient: (id: string) => void;
-    onRemoveIngredient: (scalerId: string, ingredientId: string) => void;
   } = $props();
+
+  let scaler = $state<ScalerItem>({
+    id,
+    title: "재료 분량 계산기",
+    baseServings: 2,
+    targetServings: 4,
+    ingredients: [
+      {
+        id: `${id}-ing-1`,
+        name: "진간장",
+        amount: 3,
+        unit: "큰술",
+      },
+      {
+        id: `${id}-ing-2`,
+        name: "설탕",
+        amount: 1.5,
+        unit: "큰술",
+      },
+      {
+        id: `${id}-ing-3`,
+        name: "다진마늘",
+        amount: 1,
+        unit: "작은술",
+      },
+    ],
+  });
+
+  function addIngredient() {
+    scaler.ingredients = [
+      ...scaler.ingredients,
+      {
+        id: `${scaler.id}-ing-${Date.now()}`,
+        name: "",
+        amount: 1,
+        unit: "g",
+      },
+    ];
+  }
+
+  function removeIngredient(ingredientId: string) {
+    scaler.ingredients = scaler.ingredients.filter(
+      (ingredient) => ingredient.id !== ingredientId,
+    );
+  }
+
+  function getScaledAmount(amount: number) {
+    const base = scaler.baseServings || 1;
+    const target = scaler.targetServings || 1;
+
+    return ((amount * target) / base).toFixed(1);
+  }
 </script>
 
 <div class="tool-card scaler-card">
@@ -36,15 +84,33 @@
         <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
         <path d="M16 3.13a4 4 0 0 1 0 7.75" />
       </svg>
-      <input type="text" bind:value={scaler.title} class="title-input" />
+
+      <input
+        type="text"
+        bind:value={scaler.title}
+        class="title-input"
+      />
     </div>
-    <button type="button" class="del-btn" onclick={() => onRemove(scaler.id)}>✕</button>
+
+    <button
+      type="button"
+      class="del-btn"
+      onclick={() => onRemove(scaler.id)}
+    >
+      ✕
+    </button>
   </div>
 
   <div class="servings-row">
     <div class="servings-box">
       <span>기준</span>
-      <input type="number" bind:value={scaler.baseServings} min="1" />
+
+      <input
+        type="number"
+        bind:value={scaler.baseServings}
+        min="1"
+      />
+
       <span>인분</span>
     </div>
 
@@ -52,7 +118,13 @@
 
     <div class="servings-box highlight">
       <span>목표</span>
-      <input type="number" bind:value={scaler.targetServings} min="1" />
+
+      <input
+        type="number"
+        bind:value={scaler.targetServings}
+        min="1"
+      />
+
       <span>인분</span>
     </div>
   </div>
@@ -60,18 +132,36 @@
   <div class="ingredients-list">
     {#each scaler.ingredients as ing (ing.id)}
       <div class="ing-row">
-        <input type="text" bind:value={ing.name} placeholder="재료명" class="ing-name" />
+        <input
+          type="text"
+          bind:value={ing.name}
+          placeholder="재료명"
+          class="ing-name"
+        />
+
+        <input
+          type="number"
+          bind:value={ing.amount}
+          min="0"
+          step="0.1"
+          class="ing-amount"
+        />
 
         <span class="scaled-val">
-          {((ing.amount * (scaler.targetServings || 1)) / (scaler.baseServings || 1)).toFixed(1)}
+          {getScaledAmount(ing.amount)}
         </span>
 
-        <input type="text" bind:value={ing.unit} placeholder="단위" class="ing-unit" />
+        <input
+          type="text"
+          bind:value={ing.unit}
+          placeholder="단위"
+          class="ing-unit"
+        />
 
         <button
           type="button"
           class="del-ing-btn"
-          onclick={() => onRemoveIngredient(scaler.id, ing.id)}
+          onclick={() => removeIngredient(ing.id)}
         >
           ✕
         </button>
@@ -79,7 +169,11 @@
     {/each}
   </div>
 
-  <button type="button" class="add-sub-item-btn" onclick={() => onAddIngredient(scaler.id)}>
+  <button
+    type="button"
+    class="add-sub-item-btn"
+    onclick={addIngredient}
+  >
     + 재료 추가
   </button>
 </div>
@@ -195,12 +289,25 @@
 
   .ing-name {
     flex: 1;
+    min-width: 0;
     height: 28px;
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--text);
     border-radius: 4px;
     padding: 0 6px;
+    font-size: 11px;
+  }
+
+  .ing-amount {
+    width: 48px;
+    height: 28px;
+    text-align: center;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: 4px;
+    padding: 0 4px;
     font-size: 11px;
   }
 

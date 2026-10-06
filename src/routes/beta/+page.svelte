@@ -9,7 +9,6 @@
     import banner3Img from '$lib/assets/image/banner3.jpg';
     import heroImg from '$lib/assets/image/hero.jpg';
     import noRecipeImg from '$lib/assets/image/no-image.png';
-    import baseProfileImg from '$lib/assets/image/base-profile.png';
 
     let currentBanner = $state(0);
     
@@ -36,13 +35,6 @@
             recentError: string;
         };
     } = $props();
-    
-    const posts = [
-        '커뮤니티 게시글 제목이 들어갑니다.',
-        '커뮤니티 게시글 제목이 들어갑니다.',
-        '커뮤니티 게시글 제목이 들어갑니다.',
-        '커뮤니티 게시글 제목이 들어갑니다.'
-    ];
 
     let bannerTimer: ReturnType<typeof setInterval>;
 
@@ -89,9 +81,7 @@
                     <img src={banners[currentBanner].image} alt={banners[currentBanner].title} />
                 </div>
 
-                <!-- 우측 글래스모피즘 테마 맞춤형 텍스트 패널 -->
                 <div class="banner-content-wrapper">
-                    <!-- 1. 맨 위: 페이지네이션(인디케이터) -->
                     <div class="banner-top-bar">
                         <div class="banner-indicators">
                             {#each banners as _, index}
@@ -100,13 +90,11 @@
                         </div>
                     </div>
 
-                    <!-- 2. 중앙: 글과 보충 설명 (좌측 정렬) -->
                     <div class="banner-content">
                         <h2>{banners[currentBanner].title}</h2>
                         <p>{banners[currentBanner].description}</p>
                     </div>
 
-                    <!-- 3. 하단: 바로가기 버튼과 < > 버튼 나란히 배치 -->
                     <div class="banner-bottom-bar">
                         <a href={appPath('/recipes')} class="banner-button">
                             자세히 보기
@@ -282,48 +270,17 @@
             </div>
         </section>
 
-        <section class="bottom-grid">
-            <div class="panel">
-                <div class="section-title">
-                    <h2>식재료 위키</h2>
-                    <a href={appPath('/ingredients')}>전체보기</a>
-                </div>
-
-                <div class="wiki-image"><span>이미지 영역</span></div>
-
-                <div class="wiki-text">
-                    <h3>식재료 이름</h3>
-                    <p>식재료에 대한 설명과 손질 방법, 보관 방법 등이 표시됩니다.</p>
-                </div>
-            </div>
-
-            <div class="panel">
-                <div class="section-title">
-                    <h2>커뮤니티</h2>
-                    <a href={appPath('/community')}>전체보기</a>
-                </div>
-
-                <div class="post-list">
-                    {#each posts as post}
-                        <a href={appPath('/community/example')} class="post">
-                            <img class="post-avatar" src={baseProfileImg} alt="프로필 이미지" />
-                            <div>
-                                <strong>{post}</strong>
-                                <span>작성자 · 2시간 전</span>
-                            </div>
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M9 5l7 7-7 7" />
-                            </svg>
-                        </a>
-                    {/each}
-                </div>
+        <section class="community-section">
+            <div>
+                <span>커뮤니티</span>
+                <h2>요리에 대한 이야기를<br />함께 나눠보세요.</h2>
+                <a href={appPath('/community')}>커뮤니티 바로가기 →</a>
             </div>
         </section>
     </main>
 </div>
 
 <style>
-    /* CSS 스타일 영역은 기존과 동일합니다 */
     .page {
         min-height: 100vh;
         background: var(--background);
@@ -846,81 +803,30 @@
         object-fit: cover;
     }
 
-    .bottom-grid {
-        display: grid;
-        grid-template-columns: .9fr 1.1fr;
-        gap: 15px;
-    }
-
-    .panel {
-        padding: 25px;
+    .community-section {
+        padding: 32px 38px;
         border: 1px solid var(--border);
         border-radius: 19px;
         background: var(--surface);
     }
 
-    .wiki-image {
-        height: 180px;
-        display: grid;
-        place-items: center;
-        border-radius: 14px;
-        background: var(--surface-yellow);
+    .community-section span {
         color: var(--accent);
-        font-size: 9px;
-    }
-
-    .wiki-text h3 {
-        margin: 14px 0 5px;
-        font-size: 15px;
-    }
-
-    .wiki-text p {
-        margin: 0;
-        color: var(--text-subtle);
-        font-size: 9px;
-        line-height: 1.7;
-    }
-
-    .post-list {
-        border-top: 1px solid var(--border);
-    }
-
-    .post {
-        display: grid;
-        grid-template-columns: 32px 1fr 15px;
-        align-items: center;
-        gap: 10px;
-        padding: 13px 0;
-        border-bottom: 1px solid var(--border);
-    }
-
-    .post-avatar {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    .post strong {
-        display: block;
-        overflow: hidden;
         font-size: 10px;
-        font-weight: 650;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        font-weight: 800;
     }
 
-    .post span {
-        display: block;
-        margin-top: 4px;
-        color: var(--text-subtle);
-        font-size: 8px;
+    .community-section h2 {
+        margin: 8px 0 16px;
+        font-size: 26px;
+        line-height: 1.35;
+        letter-spacing: -.05em;
     }
 
-    .post svg {
-        width: 14px;
-        height: 14px;
+    .community-section a {
         color: var(--accent);
+        font-size: 10px;
+        font-weight: 700;
     }
 
     @media (max-width: 1000px) {
@@ -958,17 +864,14 @@
             grid-template-columns: 1fr;
         }
 
-        .register-section {
+        .register-section,
+        .community-section {
             grid-template-columns: 1fr;
             gap: 25px;
         }
 
         .register-image {
             height: 180px;
-        }
-
-        .bottom-grid {
-            grid-template-columns: 1fr;
         }
     }
 
@@ -1034,7 +937,8 @@
             height: 190px;
         }
 
-        .register-section {
+        .register-section,
+        .community-section {
             padding: 28px 22px;
         }
 

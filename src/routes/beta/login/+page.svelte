@@ -317,11 +317,6 @@
 		align-items: center;
 	}
 
-	.field-label a {
-		color: var(--accent);
-		font-size: 14px;
-	}
-
 	.field-label button.text-link-button {
 		padding: 0;
 		border: none;

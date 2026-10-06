@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
+
   type TimerItem = {
     id: string;
     title: string;
@@ -12,68 +14,310 @@
   };
 
   let {
-    timer,
+    id,
+    initialTitle = "타이머",
+    initialSeconds = 180,
     onRemove,
-    onAddTime,
-    onApplyCustomTime,
-    onToggle,
-    onReset,
-    formatTime
+    onStateChange,
   }: {
-    timer: TimerItem;
+    id: string;
+    initialTitle?: string;
+    initialSeconds?: number;
     onRemove: (id: string) => void;
-    onAddTime: (id: string, addedSec: number) => void;
-    onApplyCustomTime: (id: string) => void;
-    onToggle: (id: string) => void;
-    onReset: (id: string) => void;
-    formatTime: (totalSec: number) => string;
+    onStateChange?: (state: {
+      id: string;
+      isRunning: boolean;
+      remainingSeconds: number;
+    }) => void;
   } = $props();
+
+  // --------------------------------------------------
+  // Timer State
+  // --------------------------------------------------
+
+  let timer = $state<TimerItem>({
+    id,
+    title: initialTitle,
+    totalSeconds: initialSeconds,
+    remainingSeconds: initialSeconds,
+    isRunning: false,
+    intervalId: null,
+    isEditing: false,
+    inputMinutes: Math.floor(initialSeconds / 60),
+    inputSeconds: initialSeconds % 60,
+  });
+
+  // --------------------------------------------------
+  // Helpers
+  // --------------------------------------------------
+
+  function formatTime(totalSec: number) {
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+
+    if (h > 0) {
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  }
+
+  function notifyStateChange() {
+    onStateChange?.({
+      id: timer.id,
+      isRunning: timer.isRunning,
+      remainingSeconds: timer.remainingSeconds,
+    });
+  }
+
+  // --------------------------------------------------
+  // Timer Actions
+  // --------------------------------------------------
+
+  function addTime(addedSec: number) {
+    const nextSec = Math.max(
+      0,
+      timer.remainingSeconds + addedSec,
+    );
+
+    timer.totalSeconds = nextSec;
+    timer.remainingSeconds = nextSec;
+    timer.inputMinutes = Math.floor(nextSec / 60);
+    timer.inputSeconds = nextSec % 60;
+
+    notifyStateChange();
+  }
+
+  function applyCustomTime() {
+    const calculatedSec = Math.max(
+      0,
+      (Number(timer.inputMinutes) || 0) * 60 +
+        (Number(timer.inputSeconds) || 0),
+    );
+
+    stopTimer();
+
+    timer.totalSeconds = calculatedSec;
+    timer.remainingSeconds = calculatedSec;
+    timer.isEditing = false;
+
+    notifyStateChange();
+  }
+
+  function startTimer() {
+    if (timer.isRunning) return;
+
+    if (timer.remainingSeconds <= 0) {
+      return;
+    }
+
+    timer.isRunning = true;
+
+    timer.intervalId = setInterval(() => {
+      if (timer.remainingSeconds > 0) {
+        timer.remainingSeconds -= 1;
+
+        timer.inputMinutes = Math.floor(
+          timer.remainingSeconds / 60,
+        );
+
+        timer.inputSeconds =
+          timer.remainingSeconds % 60;
+
+        notifyStateChange();
+
+        return;
+      }
+
+      stopTimer();
+    }, 1000);
+
+    notifyStateChange();
+  }
+
+  function stopTimer() {
+    if (timer.intervalId) {
+      clearInterval(timer.intervalId);
+    }
+
+    timer.intervalId = null;
+    timer.isRunning = false;
+
+    notifyStateChange();
+  }
+
+  function toggleTimer() {
+    if (timer.isRunning) {
+      stopTimer();
+    } else {
+      startTimer();
+    }
+  }
+
+  function resetTimer() {
+    stopTimer();
+
+    timer.remainingSeconds = timer.totalSeconds;
+    timer.inputMinutes = Math.floor(
+      timer.totalSeconds / 60,
+    );
+    timer.inputSeconds =
+      timer.totalSeconds % 60;
+    timer.isEditing = false;
+
+    notifyStateChange();
+  }
+
+  function startEditing() {
+    timer.isEditing = true;
+
+    timer.inputMinutes = Math.floor(
+      timer.remainingSeconds / 60,
+    );
+
+    timer.inputSeconds =
+      timer.remainingSeconds % 60;
+  }
+
+  function removeTimer() {
+    stopTimer();
+    onRemove(timer.id);
+  }
+
+  // --------------------------------------------------
+  // Cleanup
+  // --------------------------------------------------
+
+  onDestroy(() => {
+    if (timer.intervalId) {
+      clearInterval(timer.intervalId);
+    }
+  });
 </script>
 
 <div class="tool-card timer-card">
   <div class="card-head">
     <div class="title-wrap">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
-      <input type="text" bind:value={timer.title} class="title-input" />
+      <svg viewBox="0 0 24 24">
+        <circle
+          cx="12"
+          cy="12"
+          r="10"
+        />
+
+        <path d="M12 6v6l4 2" />
+      </svg>
+
+      <input
+        type="text"
+        bind:value={timer.title}
+        class="title-input"
+      />
     </div>
-    <button type="button" class="del-btn" onclick={() => onRemove(timer.id)}>✕</button>
+
+    <button
+      type="button"
+      class="del-btn"
+      onclick={removeTimer}
+      aria-label="타이머 삭제"
+    >
+      ✕
+    </button>
   </div>
 
   <div class="timer-display-wrap">
     {#if timer.isEditing}
       <div class="timer-input-box">
-        <input type="number" bind:value={timer.inputMinutes} min="0" max="999" placeholder="분" />
+        <input
+          type="number"
+          bind:value={timer.inputMinutes}
+          min="0"
+          max="999"
+          placeholder="분"
+        />
+
         <span class="unit">분</span>
-        <input type="number" bind:value={timer.inputSeconds} min="0" max="59" placeholder="초" />
+
+        <input
+          type="number"
+          bind:value={timer.inputSeconds}
+          min="0"
+          max="59"
+          placeholder="초"
+        />
+
         <span class="unit">초</span>
-        <button type="button" class="set-confirm-btn" onclick={() => onApplyCustomTime(timer.id)}>설정</button>
+
+        <button
+          type="button"
+          class="set-confirm-btn"
+          onclick={applyCustomTime}
+        >
+          설정
+        </button>
       </div>
     {:else}
       <button
         type="button"
         class="timer-value"
-        onclick={() => {
-          timer.isEditing = true;
-        }}
+        onclick={startEditing}
       >
         {formatTime(timer.remainingSeconds)}
-        <span class="edit-hint">수정</span>
+
+        <span class="edit-hint">
+          수정
+        </span>
       </button>
     {/if}
   </div>
 
   <div class="timer-adjust-grid">
-    <button type="button" onclick={() => onAddTime(timer.id, 600)}>+10분</button>
-    <button type="button" onclick={() => onAddTime(timer.id, 60)}>+1분</button>
-    <button type="button" onclick={() => onAddTime(timer.id, 10)}>+10초</button>
-    <button type="button" onclick={() => onAddTime(timer.id, -60)}>-1분</button>
+    <button
+      type="button"
+      onclick={() => addTime(600)}
+    >
+      +10분
+    </button>
+
+    <button
+      type="button"
+      onclick={() => addTime(60)}
+    >
+      +1분
+    </button>
+
+    <button
+      type="button"
+      onclick={() => addTime(10)}
+    >
+      +10초
+    </button>
+
+    <button
+      type="button"
+      onclick={() => addTime(-60)}
+    >
+      -1분
+    </button>
   </div>
 
   <div class="card-controls">
-    <button type="button" class="ctrl-btn primary" onclick={() => onToggle(timer.id)}>
-      {timer.isRunning ? '일시정지' : '시작'}
+    <button
+      type="button"
+      class="ctrl-btn primary"
+      onclick={toggleTimer}
+    >
+      {timer.isRunning ? "일시정지" : "시작"}
     </button>
-    <button type="button" class="ctrl-btn" onclick={() => onReset(timer.id)}>리셋</button>
+
+    <button
+      type="button"
+      class="ctrl-btn"
+      onclick={resetTimer}
+    >
+      리셋
+    </button>
   </div>
 </div>
 
@@ -183,6 +427,11 @@
     text-align: center;
     font-size: 14px;
     font-weight: 700;
+  }
+
+  .unit {
+    font-size: 11px;
+    color: var(--text-subtle);
   }
 
   .timer-adjust-grid {

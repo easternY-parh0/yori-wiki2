@@ -2,6 +2,9 @@
 	import { onMount } from 'svelte';
 	import { appPath } from '$lib/app-path';
 	import Breadcrumb from '$lib/components/layouts/Breadcrumb.svelte';
+    import PreparingModal from '$lib/components/layouts/PreparingModal.svelte';
+
+	let isPreparingOpen = $state(true)
 
 	// Svelte 5 Runes 상태 선언
 	let theme = $state<'system' | 'light' | 'dark'>('system');
@@ -63,6 +66,8 @@
 		href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 	/>
 </svelte:head>
+
+<PreparingModal bind:open={isPreparingOpen} />
 
 <main class="page">
 	<Breadcrumb items={breadcrumbItems} />

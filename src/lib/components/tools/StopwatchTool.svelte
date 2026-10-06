@@ -1,57 +1,220 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
+
   type StopwatchItem = {
     id: string;
     title: string;
     elapsedSeconds: number;
     isRunning: boolean;
-    intervalId: ReturnType<typeof setInterval> | null;
     laps: number[];
   };
 
   let {
-    stopwatch: sw,
+    id,
+    initialTitle = "스톱워치",
     onRemove,
-    onToggle,
-    onReset,
-    onRecordLap,
-    formatTime
   }: {
-    stopwatch: StopwatchItem;
+    id: string;
+    initialTitle?: string;
     onRemove: (id: string) => void;
-    onToggle: (id: string) => void;
-    onReset: (id: string) => void;
-    onRecordLap: (id: string) => void;
-    formatTime: (totalSec: number) => string;
   } = $props();
+
+  // --------------------------------------------------
+  // Stopwatch State
+  // --------------------------------------------------
+
+  let sw = $state<StopwatchItem>({
+    id,
+    title: initialTitle,
+    elapsedSeconds: 0,
+    isRunning: false,
+    laps: [],
+  });
+
+  let intervalId:
+    ReturnType<typeof setInterval> | null = null;
+
+  // --------------------------------------------------
+  // Helpers
+  // --------------------------------------------------
+
+  function formatTime(totalSec: number) {
+    const h = Math.floor(totalSec / 3600);
+
+    const m = Math.floor(
+      (totalSec % 3600) / 60,
+    );
+
+    const s = totalSec % 60;
+
+    if (h > 0) {
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  }
+
+  // --------------------------------------------------
+  // Start / Stop
+  // --------------------------------------------------
+
+  function start() {
+    if (sw.isRunning) {
+      return;
+    }
+
+    sw.isRunning = true;
+
+    intervalId = setInterval(() => {
+      sw.elapsedSeconds += 1;
+    }, 1000);
+  }
+
+  function stop() {
+    if (!sw.isRunning) {
+      return;
+    }
+
+    sw.isRunning = false;
+
+    if (intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+  }
+
+  function toggle() {
+    if (sw.isRunning) {
+      stop();
+    } else {
+      start();
+    }
+  }
+
+  // --------------------------------------------------
+  // Reset
+  // --------------------------------------------------
+
+  function reset() {
+    stop();
+
+    sw.elapsedSeconds = 0;
+    sw.laps = [];
+  }
+
+  // --------------------------------------------------
+  // Lap
+  // --------------------------------------------------
+
+  function recordLap() {
+    if (!sw.isRunning) {
+      return;
+    }
+
+    sw.laps = [
+      sw.elapsedSeconds,
+      ...sw.laps,
+    ];
+  }
+
+  // --------------------------------------------------
+  // Remove
+  // --------------------------------------------------
+
+  function remove() {
+    stop();
+    onRemove(sw.id);
+  }
+
+  // --------------------------------------------------
+  // Cleanup
+  // --------------------------------------------------
+
+  onDestroy(() => {
+    if (intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+  });
 </script>
 
 <div class="tool-card stopwatch-card">
   <div class="card-head">
     <div class="title-wrap">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" /><path d="M12 9v4l2 2M12 2v3M9 2h6" /></svg>
-      <input type="text" bind:value={sw.title} class="title-input" />
+      <svg viewBox="0 0 24 24">
+        <circle
+          cx="12"
+          cy="13"
+          r="8"
+        />
+
+        <path
+          d="M12 9v4l2 2M12 2v3M9 2h6"
+        />
+      </svg>
+
+      <input
+        type="text"
+        bind:value={sw.title}
+        class="title-input"
+      />
     </div>
-    <button type="button" class="del-btn" onclick={() => onRemove(sw.id)}>✕</button>
+
+    <button
+      type="button"
+      class="del-btn"
+      onclick={remove}
+      aria-label="스톱워치 삭제"
+    >
+      ✕
+    </button>
   </div>
 
   <div class="timer-display-wrap">
-    <span class="timer-value readonly">{formatTime(sw.elapsedSeconds)}</span>
+    <span class="timer-value readonly">
+      {formatTime(sw.elapsedSeconds)}
+    </span>
   </div>
 
   <div class="card-controls">
-    <button type="button" class="ctrl-btn primary" onclick={() => onToggle(sw.id)}>
-      {sw.isRunning ? '정지' : '시작'}
+    <button
+      type="button"
+      class="ctrl-btn primary"
+      onclick={toggle}
+    >
+      {sw.isRunning ? "정지" : "시작"}
     </button>
-    <button type="button" class="ctrl-btn" onclick={() => onRecordLap(sw.id)} disabled={!sw.isRunning}>
+
+    <button
+      type="button"
+      class="ctrl-btn"
+      onclick={recordLap}
+      disabled={!sw.isRunning}
+    >
       기록
     </button>
-    <button type="button" class="ctrl-btn" onclick={() => onReset(sw.id)}>리셋</button>
+
+    <button
+      type="button"
+      class="ctrl-btn"
+      onclick={reset}
+    >
+      리셋
+    </button>
   </div>
 
   {#if sw.laps.length > 0}
     <ul class="lap-list">
       {#each sw.laps as lap, idx}
-        <li><span>기록 {sw.laps.length - idx}</span> <strong>{formatTime(lap)}</strong></li>
+        <li>
+          <span>
+            기록 {sw.laps.length - idx}
+          </span>
+
+          <strong>
+            {formatTime(lap)}
+          </strong>
+        </li>
       {/each}
     </ul>
   {/if}
