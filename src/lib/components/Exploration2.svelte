@@ -88,13 +88,6 @@
       </h1>
       <p class="lead">해본 요리를 연결하고, 익숙한 범위에서 한 걸음 더 나아가 보세요.</p>
     </div>
-    <a class="register-button" href={appPath(view === 'profile' ? '/search' : '/profile')}>
-      {view === 'profile' ? '새로운 요리 탐색' : '마이페이지'}
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M5 12h14" />
-        <path d="M13 6l6 6-6 6" />
-      </svg>
-    </a>
   </header>
 
   <section class="stats-bar">
