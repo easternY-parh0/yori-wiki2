@@ -187,11 +187,7 @@
   let cookedLoading = $state(true);
   let cookedError = $state("");
 
-  /**
-   * 현재 레시피가 해본 요리로 기록되어 있는지 확인
-   */
   async function loadCooked() {
-    // 로그인하지 않은 경우
     if (!page.data.user) {
       cooked = false;
       cookedLoading = false;
@@ -210,15 +206,14 @@
 
       const result = await response.json();
 
-      // API 응답을 두 가지 형태 모두 지원
-      //
-      // 1. [1, 2, 3]
-      // 2. { cooked: [1, 2, 3] }
+      // API 응답: { ids: [15, 81] }
       const cookedIds: number[] = Array.isArray(result)
         ? result
-        : Array.isArray(result?.cooked)
-          ? result.cooked
-          : [];
+        : Array.isArray(result?.ids)
+          ? result.ids
+          : Array.isArray(result?.cooked)
+            ? result.cooked
+            : [];
 
       cooked = cookedIds.includes(Number(data.food.id));
     } catch (e) {
@@ -226,14 +221,25 @@
         e instanceof Error
           ? e.message
           : "해본 요리 기록을 불러오지 못했습니다.";
+
+      cooked = false;
     } finally {
       cookedLoading = false;
     }
   }
 
-  /**
-   * 현재 레시피를 해본 요리로 기록하거나 기록 취소
-   */
+  // data.food.id 또는 로그인 상태가 변경되면 다시 확인
+  $effect(() => {
+    const recipeId = data.food.id;
+    const user = page.data.user;
+
+    // 의존성 추적
+    void recipeId;
+    void user;
+
+    loadCooked();
+  });
+
   async function toggleCooked() {
     if (!page.data.user || cookedLoading) {
       return;
@@ -260,7 +266,6 @@
         throw new Error(await response.text());
       }
 
-      // 서버 저장 성공 후 UI 상태 변경
       cooked = nextCooked;
     } catch (e) {
       cookedError =
@@ -271,9 +276,6 @@
       cookedLoading = false;
     }
   }
-
-  // 페이지 진입 시 cooked 상태 확인
-  loadCooked();
 </script>
 
 <svelte:head>
