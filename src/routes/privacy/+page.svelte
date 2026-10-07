@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { appPath } from '$lib/app-path';
+	import Breadcrumb from '$lib/components/layouts/Breadcrumb.svelte';
+
 	const effectiveDate = '2026-09-01';
 
 	function getDaysSince(dateString: string) {
@@ -15,10 +17,15 @@
 	}
 
 	const daysSince = $derived(getDaysSince(effectiveDate));
+
+	const breadcrumbItems = [
+		{ label: '요리위키', href: appPath('/') },
+		{ label: '개인정보 처리방침' }
+	];
 </script>
 
 <svelte:head>
-	<title>요리위키 | 개인정보 처리방침</title>
+	<title>개인정보 처리방침 | 요리위키</title>
 	<meta name="description" content="요리위키 개인정보 처리방침" />
 </svelte:head>
 
@@ -27,11 +34,7 @@
 		<div class="document">
 
 			<!-- Breadcrumb -->
-			<div class="breadcrumb">
-				<a href={appPath('/')}>요리위키</a>
-				<span>›</span>
-				<span>개인정보 처리방침</span>
-			</div>
+			<Breadcrumb items={breadcrumbItems} />
 
 			<!-- Header -->
 			<header class="document-header">
@@ -391,35 +394,6 @@
 	.document {
 		width: min(1160px, calc(100% - 48px));
 		margin: 0 auto;
-	}
-
-	/* Breadcrumb */
-
-	.breadcrumb {
-		display: flex;
-		align-items: center;
-		gap: 7px;
-		margin-bottom: 25px;
-		color: var(--text-muted);
-		font-size: 12px;
-	}
-
-	.breadcrumb a {
-		color: var(--text-subtle);
-		text-decoration: none;
-		transition: color 0.2s ease;
-	}
-
-	.breadcrumb a:hover {
-		color: var(--accent);
-	}
-
-	.breadcrumb span {
-		color: var(--text-muted);
-	}
-
-	.breadcrumb span:last-child {
-		color: var(--text-subtle);
 	}
 
 	/* Header */
@@ -795,11 +769,6 @@
 
 		.document {
 			width: 100%;
-		}
-
-		.breadcrumb {
-			margin-bottom: 20px;
-			font-size: 11px;
 		}
 
 		.document-header {

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { appPath } from '$lib/app-path';
+	import Breadcrumb from '$lib/components/layouts/Breadcrumb.svelte';
+
 	type Category = '전체' | '서비스' | '레시피' | '커뮤니티' | '계정';
 
 	type FAQ = {
@@ -20,11 +22,11 @@
 		{ category: '계정', question: '회원탈퇴는 어떻게 하나요?', answer: '마이페이지 또는 설정 화면에서 계정 삭제 메뉴를 이용할 수 있습니다. 실제 탈퇴 과정에서는 계정 삭제에 대한 추가 확인 절차가 진행됩니다.' }
 	];
 
+	const categories: Category[] = ['전체', '서비스', '레시피', '커뮤니티', '계정'];
+
 	let selectedCategory = $state<Category>('전체');
 	let searchQuery = $state('');
 	let openIndex = $state<number | null>(null);
-
-	const categories: Category[] = ['전체', '서비스', '레시피', '커뮤니티', '계정'];
 
 	let filteredFaqs = $derived(
 		faqs.filter((faq) => {
@@ -47,71 +49,76 @@
 	function toggleFAQ(index: number) {
 		openIndex = openIndex === index ? null : index;
 	}
+
+	function search() {
+		openIndex = null;
+	}
+
+	const breadcrumbItems = [
+		{ label: '요리위키', href: appPath('/') },
+		{ label: '자주 묻는 질문' }
+	];
 </script>
 
 <svelte:head>
-	<title>FAQ | 요리위키</title>
+	<title>자주 묻는 질문 | 요리위키</title>
 	<meta name="description" content="요리위키 자주 묻는 질문" />
 </svelte:head>
 
 <main class="page">
-	<section class="hero">
-		<div class="hero-copy">
-			<span class="section-label">HELP CENTER</span>
-			<h1>무엇이 궁금하신가요?</h1>
-			<p>요리위키 이용에 관한 자주 묻는 질문을 확인해보세요.</p>
-		</div>
+	<Breadcrumb items={breadcrumbItems} />
 
-		<div class="hero-icon">
-			<svg viewBox="0 0 24 24">
-				<circle cx="12" cy="12" r="9" />
-				<path d="M9.5 9a2.5 2.5 0 1 1 4.2 1.8c-.9.7-1.7 1.2-1.7 2.7" />
-				<path d="M12 17h.01" />
-			</svg>
+	<section class="settings-header">
+		<div>
+			<h1>자주 묻는 질문</h1>
+			<p>요리위키 이용과 관련하여 궁금하신 점을 빠르게 확인해보세요.</p>
 		</div>
 	</section>
 
-	<div class="search-box">
-		<svg viewBox="0 0 24 24">
-			<circle cx="11" cy="11" r="6.5" />
-			<path d="m16 16 5 5" />
-		</svg>
+	<div class="toolbar">
+		<div class="category-list">
+			{#each categories as category}
+				<button
+					type="button"
+					class:active={selectedCategory === category}
+					onclick={() => selectCategory(category)}
+				>
+					{category}
+				</button>
+			{/each}
+		</div>
 
-		<input
-			type="search"
-			bind:value={searchQuery}
-			placeholder="궁금한 내용을 검색해보세요"
-			aria-label="FAQ 검색"
-		/>
+		<form class="search-box" onsubmit={(event) => { event.preventDefault(); search(); }}>
+			<svg viewBox="0 0 24 24">
+				<circle cx="11" cy="11" r="6.5" />
+				<path d="m16 16 5 5" />
+			</svg>
 
-		{#if searchQuery}
-			<button class="clear-button" type="button" aria-label="검색어 지우기" onclick={() => (searchQuery = '')}>
-				<svg viewBox="0 0 24 24">
-					<path d="M6 6l12 12M18 6L6 18" />
-				</svg>
-			</button>
-		{/if}
-	</div>
+			<input
+				type="search"
+				bind:value={searchQuery}
+				placeholder="궁금한 내용을 검색해보세요"
+				aria-label="FAQ 검색"
+			/>
 
-	<div class="category-list">
-		{#each categories as category}
-			<button
-				class:active={selectedCategory === category}
-				type="button"
-				onclick={() => selectCategory(category)}
-			>
-				{category}
-			</button>
-		{/each}
+			{#if searchQuery}
+				<button
+					class="clear-button"
+					type="button"
+					aria-label="검색어 지우기"
+					onclick={() => { searchQuery = ''; search(); }}
+				>
+					<svg viewBox="0 0 24 24">
+						<path d="M6 6l12 12M18 6L6 18" />
+					</svg>
+				</button>
+			{/if}
+		</form>
 	</div>
 
 	<section class="faq-section">
 		<div class="section-heading">
-			<div>
-				<span class="count-label">{filteredFaqs.length}개의 질문</span>
-				<h2>자주 묻는 질문</h2>
-			</div>
-
+			<h2>전체 질문 <span>({filteredFaqs.length})</span></h2>
 			{#if selectedCategory !== '전체'}
 				<button class="reset-button" type="button" onclick={() => selectCategory('전체')}>
 					전체 보기
@@ -122,7 +129,7 @@
 		{#if filteredFaqs.length > 0}
 			<div class="faq-list">
 				{#each filteredFaqs as faq, index}
-					<div class:open={openIndex === index} class="faq-item">
+					<div class="faq-item" class:open={openIndex === index}>
 						<button
 							class="question"
 							type="button"
@@ -130,7 +137,18 @@
 							onclick={() => toggleFAQ(index)}
 						>
 							<div class="question-left">
-								<span class="category">{faq.category}</span>
+								<span class="badge">
+									{#if faq.category === '서비스'}
+										<svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+									{:else if faq.category === '레시피'}
+										<svg viewBox="0 0 24 24"><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9zM12 3v6M8 5v4M16 5v4"/></svg>
+									{:else if faq.category === '커뮤니티'}
+										<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+									{:else}
+										<svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a6 6 0 0 1 12 0v2"/></svg>
+									{/if}
+									{faq.category}
+								</span>
 								<strong>{faq.question}</strong>
 							</div>
 
@@ -159,7 +177,7 @@
 				</div>
 				<h3>검색 결과가 없습니다.</h3>
 				<p>다른 검색어나 카테고리로 다시 찾아보세요.</p>
-				<button type="button" onclick={() => { searchQuery = ''; selectedCategory = '전체'; }}>
+				<button class="primary-button" type="button" onclick={() => { searchQuery = ''; selectedCategory = '전체'; }}>
 					전체 질문 보기
 				</button>
 			</div>
@@ -169,114 +187,138 @@
 	<section class="contact-card">
 		<div class="contact-icon">
 			<svg viewBox="0 0 24 24">
-				<path d="M4 5h16v11H8l-4 3z" />
-				<path d="M8 9h8M8 12h5" />
+				<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
 			</svg>
 		</div>
 
-		<div>
+		<div class="contact-text">
 			<span>찾으시는 답변이 없나요?</span>
 			<strong>궁금한 내용을 커뮤니티에서 질문해보세요.</strong>
 		</div>
 
-		<a href={appPath('/community')}>커뮤니티 가기</a>
+		<a href={appPath('/community')} class="primary-button">커뮤니티 가기</a>
 	</section>
 </main>
 
 <style>
 	.page {
+		width: min(1160px, calc(100% - 48px));
 		min-height: 100vh;
-		padding: 55px 24px 100px;
+		padding: 48px 24px 100px;
 		background: var(--background);
 		color: var(--text);
+		margin: 0 auto;
 	}
 
-	.hero,
-	.search-box,
-	.category-list,
-	.faq-section,
-	.contact-card {
-		width: min(900px, 100%);
-		margin-left: auto;
-		margin-right: auto;
-	}
+	/* Header */
 
-	.hero {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		margin-bottom: 30px;
-		padding-bottom: 30px;
+	.settings-header {
+		padding-bottom: 28px;
 		border-bottom: 1px solid var(--border);
 	}
 
-	.section-label,
-	.count-label {
-		color: var(--accent);
-		font-size: 14px;
-		font-weight: 800;
-		letter-spacing: .1em;
-	}
-
-	.hero h1 {
-		margin: 8px 0 9px;
-		font-size: 29px;
-		letter-spacing: -.06em;
-	}
-
-	.hero p {
+	.settings-header h1 {
 		margin: 0;
-		color: var(--text-muted);
-		font-size: 14px;
+		font-size: 38px;
+		font-weight: 750;
+		letter-spacing: -0.07em;
+		line-height: 1.3;
 	}
 
-	.hero-icon {
-		width: 58px;
-		height: 58px;
-		display: grid;
-		place-items: center;
-		border-radius: 16px;
+	.settings-header p {
+		margin: 9px 0 0;
+		color: var(--text-muted);
+		font-size: 13px;
+		line-height: 1.7;
+	}
+
+	/* Toolbar & Search */
+
+	.toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 20px;
+		margin-top: 38px;
+		margin-bottom: 28px;
+	}
+
+	.category-list {
+		display: flex;
+		gap: 6px;
+		overflow-x: auto;
+		scrollbar-width: none;
+	}
+
+	.category-list::-webkit-scrollbar {
+		display: none;
+	}
+
+	.category-list button {
+		flex-shrink: 0;
+		padding: 7px 14px;
+		border: 1px solid var(--border);
+		border-radius: 999px;
+		background: transparent;
+		color: var(--text-muted);
+		font: inherit;
+		font-size: 12px;
+		font-weight: 650;
+		cursor: pointer;
+		transition:
+			background 0.15s ease,
+			border-color 0.15s ease,
+			color 0.15s ease;
+	}
+
+	.category-list button:hover {
+		border-color: var(--accent);
+		color: var(--text);
+	}
+
+	.category-list button.active {
+		border-color: var(--accent);
 		background: var(--surface-yellow);
 		color: var(--accent);
-	}
-
-	.hero-icon svg {
-		width: 27px;
-		height: 27px;
+		font-weight: 700;
 	}
 
 	.search-box {
+		width: 230px;
+		height: 36px;
 		display: flex;
 		align-items: center;
-		gap: 11px;
-		padding: 0 15px;
+		gap: 8px;
+		flex-shrink: 0;
+		padding: 0 10px;
 		border: 1px solid var(--border);
-		border-radius: 12px;
-		background: var(--surface);
-		box-shadow: 0 4px 15px rgba(15, 23, 42, .04);
+		border-radius: 7px;
+		background: transparent;
+		transition: border-color 0.15s ease;
 	}
 
 	.search-box:focus-within {
-		border-color: var(--primary);
-		box-shadow: 0 0 0 3px rgba(250, 204, 21, .13);
+		border-color: var(--accent);
 	}
 
 	.search-box > svg {
-		width: 18px;
-		height: 18px;
+		width: 14px;
+		height: 14px;
 		flex-shrink: 0;
 		color: var(--text-muted);
+		stroke-width: 2;
+		fill: none;
+		stroke: currentColor;
 	}
 
 	.search-box input {
 		width: 100%;
-		height: 48px;
 		border: 0;
 		outline: 0;
 		background: transparent;
 		color: var(--text);
 		font: inherit;
-		font-size: 14px;
+		font-size: 12px;
 	}
 
 	.search-box input::placeholder {
@@ -284,8 +326,8 @@
 	}
 
 	.clear-button {
-		width: 27px;
-		height: 27px;
+		width: 18px;
+		height: 18px;
 		display: grid;
 		place-items: center;
 		flex-shrink: 0;
@@ -297,79 +339,74 @@
 	}
 
 	.clear-button svg {
-		width: 13px;
-		height: 13px;
+		width: 10px;
+		height: 10px;
+		stroke-width: 2;
+		fill: none;
+		stroke: currentColor;
 	}
 
-	.category-list {
-		display: flex;
-		gap: 6px;
-		margin-top: 16px;
-		margin-bottom: 42px;
-		overflow-x: auto;
-		scrollbar-width: none;
-	}
-
-	.category-list::-webkit-scrollbar {
-		display: none;
-	}
-
-	.category-list button {
-		flex-shrink: 0;
-		padding: 8px 14px;
-		border: 1px solid var(--border);
-		border-radius: 999px;
-		background: var(--surface);
-		color: var(--text-subtle);
-		font-size: 14px;
-		font-weight: 650;
-		cursor: pointer;
-	}
-
-	.category-list button:hover {
-		border-color: var(--primary);
-		color: var(--text);
-	}
-
-	.category-list button.active {
-		border-color: var(--primary);
-		background: var(--primary);
-		color: #0f172a;
-	}
+	/* FAQ Section */
 
 	.faq-section {
-		margin-bottom: 24px;
+		margin-bottom: 38px;
 	}
 
 	.section-heading {
 		display: flex;
-		align-items: flex-end;
+		align-items: center;
 		justify-content: space-between;
-		margin-bottom: 13px;
+		padding-bottom: 12px;
+		border-bottom: 1px solid var(--border);
+		margin-bottom: 16px;
 	}
 
 	.section-heading h2 {
-		margin: 6px 0 0;
-		font-size: 16px;
-		letter-spacing: -.04em;
+		margin: 0;
+		font-size: 14px;
+		font-weight: 700;
+		letter-spacing: -0.03em;
+		color: var(--text);
+	}
+
+	.section-heading h2 span {
+		color: var(--text-muted);
+		font-weight: 500;
 	}
 
 	.reset-button {
-		padding: 7px 10px;
+		padding: 0;
 		border: 0;
 		background: transparent;
 		color: var(--accent);
-		font-size: 14px;
-		font-weight: 700;
+		font-size: 12px;
+		font-weight: 650;
 		cursor: pointer;
 	}
 
 	.faq-list {
-		border-top: 1px solid var(--border);
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
 	}
 
 	.faq-item {
-		border-bottom: 1px solid var(--border);
+		border: 1px solid var(--border);
+		border-radius: 9px;
+		background: transparent;
+		transition:
+			background 0.15s ease,
+			border-color 0.15s ease;
+	}
+
+	.faq-item:hover {
+		border-color: var(--accent);
+		background: var(--surface-subtle);
+	}
+
+	.faq-item.open {
+		border-color: var(--accent);
+		background: var(--surface-yellow);
 	}
 
 	.question {
@@ -378,7 +415,7 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: 20px;
-		padding: 18px 5px;
+		padding: 16px 20px;
 		border: 0;
 		background: transparent;
 		color: var(--text);
@@ -389,216 +426,261 @@
 	.question-left {
 		display: flex;
 		align-items: center;
-		gap: 11px;
+		gap: 12px;
 		min-width: 0;
 	}
 
-	.category {
-		flex-shrink: 0;
-		padding: 4px 7px;
+	/* Monochrome Unified Badge */
+
+	.badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		padding: 3px 8px;
+		border: 1px solid var(--border);
 		border-radius: 5px;
-		background: var(--surface-green);
-		color: var(--accent);
-		font-size: 14px;
-		font-weight: 750;
+		background: var(--surface-subtle);
+		color: var(--text-muted);
+		font-size: 11px;
+		font-weight: 600;
+		line-height: 1;
+		flex-shrink: 0;
+	}
+
+	.badge svg {
+		width: 11px;
+		height: 11px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
 	}
 
 	.question strong {
-		font-size: 14px;
+		font-size: 13px;
 		font-weight: 650;
+		color: var(--text);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.plus {
-		width: 25px;
-		height: 25px;
+		width: 24px;
+		height: 24px;
 		display: grid;
 		place-items: center;
 		flex-shrink: 0;
-		border-radius: 7px;
+		border-radius: 6px;
 		background: var(--surface-subtle);
 		color: var(--text-muted);
-		transition: transform .2s ease, background .2s ease;
+		transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
 	}
 
 	.plus svg {
-		width: 14px;
-		height: 14px;
+		width: 12px;
+		height: 12px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
 	}
 
 	.faq-item.open .plus {
 		transform: rotate(45deg);
-		background: var(--surface-yellow);
-		color: var(--accent);
+		background: var(--accent);
+		color: #fff;
 	}
 
 	.answer {
-		padding: 0 42px 19px 5px;
+		padding: 0 20px 18px 20px;
+		border-top: 1px dashed var(--border);
+		margin-top: 4px;
 	}
 
 	.answer p {
-		margin: 0;
-		color: var(--text-subtle);
-		font-size: 14px;
-		line-height: 1.8;
+		margin: 14px 0 0;
+		color: var(--text-muted);
+		font-size: 13px;
+		line-height: 1.7;
 	}
+
+	/* Empty State */
 
 	.empty {
 		display: flex;
 		align-items: center;
 		flex-direction: column;
 		padding: 60px 20px;
-		border: 1px solid var(--border);
-		border-radius: 13px;
-		background: var(--surface);
 		text-align: center;
 	}
 
 	.empty-icon {
-		width: 42px;
-		height: 42px;
+		width: 40px;
+		height: 40px;
 		display: grid;
 		place-items: center;
-		margin-bottom: 13px;
-		border-radius: 11px;
+		margin-bottom: 12px;
+		border-radius: 10px;
 		background: var(--surface-subtle);
 		color: var(--text-muted);
 	}
 
 	.empty-icon svg {
-		width: 19px;
-		height: 19px;
+		width: 18px;
+		height: 18px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
 	}
 
 	.empty h3 {
 		margin: 0 0 6px;
 		font-size: 14px;
+		font-weight: 700;
 	}
 
 	.empty p {
-		margin: 0 0 15px;
+		margin: 0 0 16px;
 		color: var(--text-muted);
-		font-size: 14px;
+		font-size: 12px;
 	}
 
-	.empty button {
-		padding: 8px 12px;
-		border: 0;
-		border-radius: 8px;
-		background: var(--primary);
-		color: #0f172a;
-		font-size: 14px;
-		font-weight: 700;
-		cursor: pointer;
-	}
+	/* Contact Banner */
 
 	.contact-card {
 		display: flex;
 		align-items: center;
-		gap: 13px;
-		padding: 17px 19px;
+		gap: 16px;
+		padding: 18px 20px;
 		border: 1px solid var(--border);
-		border-radius: 13px;
+		border-radius: 9px;
 		background: var(--surface-yellow);
 	}
 
 	.contact-icon {
-		width: 37px;
-		height: 37px;
+		width: 32px;
+		height: 32px;
 		display: grid;
 		place-items: center;
 		flex-shrink: 0;
-		border-radius: 10px;
-		background: var(--primary);
-		color: #0f172a;
+		border-radius: 7px;
+		background: var(--accent);
+		color: #fff;
 	}
 
 	.contact-icon svg {
-		width: 18px;
-		height: 18px;
+		width: 15px;
+		height: 15px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
 	}
 
-	.contact-card div:nth-child(2) {
+	.contact-text {
 		flex: 1;
+		min-width: 0;
 	}
 
-	.contact-card span,
-	.contact-card strong {
+	.contact-text span,
+	.contact-text strong {
 		display: block;
 	}
 
-	.contact-card span {
-		margin-bottom: 3px;
+	.contact-text span {
+		margin-bottom: 2px;
 		color: var(--text-muted);
-		font-size: 14px;
+		font-size: 11px;
 	}
 
-	.contact-card strong {
-		font-size: 14px;
+	.contact-text strong {
+		font-size: 13px;
+		font-weight: 650;
+		color: var(--text);
 	}
 
-	.contact-card a {
-		padding: 9px 12px;
-		border-radius: 8px;
+	/* Primary Button Style */
+
+	.primary-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		border-radius: 7px;
+		padding: 8px 14px;
+		border: 1px solid var(--primary);
+		background: var(--primary);
+		color: #0f172a;
+		font: inherit;
+		font-size: 11px;
+		font-weight: 650;
+		text-decoration: none;
+		cursor: pointer;
+		white-space: nowrap;
+		transition:
+			background 0.15s ease,
+			border-color 0.15s ease,
+			color 0.15s ease;
+	}
+
+	.primary-button:hover {
+		border-color: var(--accent);
 		background: var(--accent);
 		color: #fff;
-		font-size: 14px;
-		font-weight: 700;
-		white-space: nowrap;
 	}
 
-	.contact-card a:hover {
-		opacity: .9;
-	}
+	/* Mobile Layout */
 
-	@media (max-width: 560px) {
+	@media (max-width: 760px) {
 		.page {
 			padding: 35px 16px 70px;
 		}
 
-		.hero {
-			margin-bottom: 22px;
+		.settings-header {
+			padding-bottom: 24px;
 		}
 
-		.hero h1 {
-			font-size: 24px;
+		.settings-header h1 {
+			font-size: 30px;
 		}
 
-		.hero-icon {
-			width: 48px;
-			height: 48px;
-			border-radius: 13px;
+		.toolbar {
+			flex-direction: column;
+			align-items: stretch;
+			gap: 12px;
+			margin-top: 25px;
+			margin-bottom: 24px;
 		}
 
-		.hero-icon svg {
-			width: 23px;
-			height: 23px;
+		.search-box {
+			width: 100%;
+			box-sizing: border-box;
 		}
 
-		.category-list {
-			margin-bottom: 30px;
+		.question {
+			padding: 14px 16px;
 		}
 
 		.question-left {
 			align-items: flex-start;
 			flex-direction: column;
-			gap: 5px;
+			gap: 6px;
+		}
+
+		.question strong {
+			white-space: normal;
 		}
 
 		.answer {
-			padding-right: 30px;
+			padding: 0 16px 16px 16px;
 		}
 
 		.contact-card {
+			flex-direction: column;
 			align-items: flex-start;
-			flex-wrap: wrap;
+			gap: 14px;
 		}
 
-		.contact-card div:nth-child(2) {
-			min-width: calc(100% - 52px);
-		}
-
-		.contact-card a {
-			margin-left: 50px;
+		.contact-card .primary-button {
+			width: 100%;
 		}
 	}
 </style>

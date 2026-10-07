@@ -1,22 +1,32 @@
 <script lang="ts">
 	import { createFood, uploadRecipeImage } from '$lib/api';
-	import { goto } from '$app/navigation';
 	import { appPath } from '$lib/app-path';
-	let error = $state('');
-	let submitting = $state(false);
-	let tags = $state('');
-	let tips = $state('');
-	let imageUrl = $state('');
- let imageFile = $state<File | null>(null);
- let createdId: number | null = null;
+	import { goto } from '$app/navigation';
+
 	let title = $state('');
 	let description = $state('');
 	let category = $state('');
 	let difficulty = $state('5');
 	let cookingTime = $state('');
 	let servings = $state('2');
+
+	// 이미지 관련 상태
+	let uploadMode = $state<'file' | 'url'>('file'); // 'file' | 'url'
+	let imageUrl = $state('');
+	let imageFile = $state<File | null>(null);
+	let imagePreviewUrl = $state<string | null>(null);
+	let isDragging = $state(false);
+
+	let createdId: number | null = null;
+
 	let ingredients = $state([{ name: '', amount: '' }]);
 	let steps = $state([{ description: '' }]);
+
+	let tagInput = $state('');
+	let tags = $state<string[]>([]);
+
+	let submitting = $state(false);
+	let errorMessage = $state('');
 
 	function addIngredient() {
 		ingredients = [...ingredients, { name: '', amount: '' }];
@@ -36,56 +46,228 @@
 		steps = steps.filter((_, i) => i !== index);
 	}
 
-	async function submitRecipe(event: SubmitEvent) {
-        event.preventDefault();
-        if (submitting) return;
-        error = '';
-        if (!title.trim() || !category || !Number.isInteger(Number(cookingTime)) || Number(cookingTime) < 1 || Number(cookingTime) > 10080 || !Number.isInteger(Number(servings)) || Number(servings) < 1 || Number(servings) > 100 || ingredients.some(i => !i.name.trim() || !i.amount.trim()) || steps.some(s => !s.description.trim())) {
-            error = '이름, 카테고리, 조리 시간(1~10080분), 인분(1~100), 재료와 분량, 조리 순서를 확인해주세요.';
-            return;
-        }
-        if (imageFile && (!['image/png', 'image/jpeg', 'image/webp'].includes(imageFile.type) || imageFile.size > 5 * 1024 * 1024)) { error = 'PNG, JPEG, WebP 이미지(5MB 이하)를 선택해주세요.'; return; }
-        submitting = true;
-        try {
-            const id = createdId ?? await createFood({
-                name: title.trim(), estimated_time: `${cookingTime}분`,
-                ingredients: ingredients.map(i => `${i.name.trim()} ${i.amount.trim()}`).join('\n'),
-                recipe: steps.map((s, i) => `${i + 1}. ${s.description.trim()}`).join('\n'),
-                metadata: { description, category, difficulty: Number(difficulty), servings: Number(servings),
-                    ingredient_names: ingredients.map(i => i.name.trim()),
-                    tags: tags.split(',').map(t => t.trim()).filter(Boolean), tips, image_url: imageUrl }
-            });
-            createdId = id;
-            if (imageFile) await uploadRecipeImage(id, imageFile);
-            await goto(appPath(`/recipes/${id}`));
-        } catch (cause) { error = (createdId ? '레시피는 등록되었습니다. 이미지 업로드를 다시 시도해주세요. ' : '') + (cause instanceof Error ? cause.message : '등록에 실패했습니다.'); }
-        finally { submitting = false; }
-    }
+	function addTag() {
+		const value = tagInput.trim();
+		if (!value) return;
+		if (tags.includes(value)) {
+			tagInput = '';
+			return;
+		}
+		tags = [...tags, value];
+		tagInput = '';
+	}
 
+	function removeTag(index: number) {
+		tags = tags.filter((_, i) => i !== index);
+	}
+
+	function handleTagKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			event.preventDefault();
+			addTag();
+		}
+	}
+
+	// 이미지 파일 선택 및 처리
+	function handleFileSelect(file: File | null) {
+		if (!file) return;
+
+		// 확장자 및 용량 체크 (5MB)
+		if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+			errorMessage = 'PNG, JPEG, WebP 형식의 이미지 파일만 업로드 가능합니다.';
+			return;
+		}
+
+		if (file.size > 5 * 1024 * 1024) {
+			errorMessage = '이미지 용량은 5MB 이하만 가능합니다.';
+			return;
+		}
+
+		errorMessage = '';
+		imageFile = file;
+
+		// 미리보기 생성
+		const reader = new FileReader();
+		reader.onload = (e) => {
+			imagePreviewUrl = e.target?.result as string;
+		};
+		reader.readAsDataURL(file);
+	}
+
+	function handleFileInputChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		const file = target.files?.[0] ?? null;
+		handleFileSelect(file);
+	}
+
+	function handleDrop(event: DragEvent) {
+		event.preventDefault();
+		isDragging = false;
+
+		if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+			handleFileSelect(event.dataTransfer.files[0]);
+		}
+	}
+
+	function handleDragOver(event: DragEvent) {
+		event.preventDefault();
+		isDragging = true;
+	}
+
+	function handleDragLeave() {
+		isDragging = false;
+	}
+
+	function clearSelectedFile() {
+		imageFile = null;
+		imagePreviewUrl = null;
+	}
+
+	function getValidationError() {
+		if (!title.trim()) {
+			return '레시피 이름을 입력해주세요.';
+		}
+
+		if (!category) {
+			return '카테고리를 선택해주세요.';
+		}
+
+		const cookingTimeNumber = Number(cookingTime);
+		if (!cookingTime || !Number.isInteger(cookingTimeNumber) || cookingTimeNumber < 1) {
+			return '조리 시간을 1분 이상 입력해주세요.';
+		}
+
+		const servingsNumber = Number(servings);
+		if (!servings || !Number.isInteger(servingsNumber) || servingsNumber < 1) {
+			return '인분을 1 이상 입력해주세요.';
+		}
+
+		const validIngredients = ingredients.filter((item) => item.name.trim() !== '');
+		if (validIngredients.length === 0) {
+			return '재료를 하나 이상 입력해주세요.';
+		}
+
+		const invalidIngredient = validIngredients.find((item) => item.amount.trim() === '');
+		if (invalidIngredient) {
+			return `${invalidIngredient.name.trim()}의 분량을 입력해주세요.`;
+		}
+
+		const validSteps = steps.filter((step) => step.description.trim() !== '');
+		if (validSteps.length === 0) {
+			return '조리 순서를 하나 이상 입력해주세요.';
+		}
+
+		if (uploadMode === 'url' && imageUrl.trim()) {
+			try {
+				const url = new URL(imageUrl.trim());
+				if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+					return '대표 이미지 URL은 HTTP 또는 HTTPS 주소만 사용할 수 있습니다.';
+				}
+			} catch {
+				return '대표 이미지 URL 형식이 올바르지 않습니다.';
+			}
+		}
+
+		return null;
+	}
+
+	async function submitRecipe(event: SubmitEvent) {
+		event.preventDefault();
+
+		if (submitting) return;
+
+		errorMessage = '';
+
+		const validationError = getValidationError();
+		if (validationError) {
+			errorMessage = validationError;
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+			return;
+		}
+
+		const cookingTimeNumber = Number(cookingTime);
+		const servingsNumber = Number(servings);
+
+		const validIngredients = ingredients.filter((item) => item.name.trim() !== '');
+		const validSteps = steps.filter((step) => step.description.trim() !== '');
+
+		const ingredientText = validIngredients
+			.map((item) => `${item.name.trim()} ${item.amount.trim()}`.trim())
+			.join('\n');
+
+		const recipeText = validSteps
+			.map((step, index) => `${index + 1}. ${step.description.trim()}`)
+			.join('\n');
+
+		const finalImageUrl = uploadMode === 'url' ? imageUrl.trim() : null;
+
+		const food = {
+			name: title.trim(),
+			ingredients: ingredientText,
+			recipe: recipeText,
+			estimated_time: `${cookingTimeNumber}분`,
+			metadata: {
+				description: description.trim(),
+				category,
+				difficulty: Number(difficulty),
+				cooking_time_minutes: cookingTimeNumber,
+				servings: servingsNumber,
+				tags,
+				ingredient_names: validIngredients.map((item) => item.name.trim()),
+				aliases: [],
+				image_url: finalImageUrl
+			}
+		};
+
+		try {
+			submitting = true;
+
+			const id = createdId ?? (await createFood(food));
+			createdId = id;
+
+			if (uploadMode === 'file' && imageFile) {
+				await uploadRecipeImage(id, imageFile);
+			}
+
+			if (!id || !Number.isInteger(id)) {
+				throw new Error('레시피 등록은 완료되었지만 생성된 레시피 ID를 받지 못했습니다.');
+			}
+
+			await goto(appPath(`/recipes/${id}`));
+		} catch (error) {
+			console.error(error);
+			errorMessage =
+				error instanceof Error
+					? error.message || '레시피 등록에 실패했습니다.'
+					: '레시피 등록에 실패했습니다.';
+		} finally {
+			submitting = false;
+		}
+	}
 </script>
 
 <svelte:head>
 	<title>레시피 등록 | 요리위키</title>
+	<meta name="description" content="나만의 레시피를 요리위키에 등록해보세요." />
 </svelte:head>
 
 <div class="page">
 	<main>
-		<div class="breadcrumb">
+		<nav class="breadcrumb">
 			<a href={appPath('/')}>홈</a>
-			<svg viewBox="0 0 24 24">
-				<path d="M9 5l7 7-7 7" />
-			</svg>
+			<svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
 			<a href={appPath('/recipes')}>레시피</a>
-			<svg viewBox="0 0 24 24">
-				<path d="M9 5l7 7-7 7" />
-			</svg>
+			<svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
 			<span>레시피 등록</span>
-		</div>
+		</nav>
 
 		<section class="page-heading">
 			<div>
 				<span class="heading-label">레시피 공유</span>
-				<h1>나만의 레시피를<br /><span>등록해보세요.</span></h1>
+				<h1>
+					나만의 레시피를<br />
+					<span>등록해보세요.</span>
+				</h1>
 				<p>직접 만든 요리와 맛있는 레시피를 다른 사람들과 공유해보세요.</p>
 			</div>
 
@@ -97,9 +279,18 @@
 			</div>
 		</section>
 
-		<p>로그인한 사용자만 레시피를 등록할 수 있습니다.</p>
-        {#if error}<p role="alert">{error}</p>{/if}
-        <form class="recipe-form" onsubmit={submitRecipe}>
+		{#if errorMessage}
+			<div class="error-message" role="alert">
+				<svg viewBox="0 0 24 24">
+					<circle cx="12" cy="12" r="9" />
+					<path d="M12 8v5" />
+					<path d="M12 16h.01" />
+				</svg>
+				<span>{errorMessage}</span>
+			</div>
+		{/if}
+
+		<form class="recipe-form" onsubmit={submitRecipe}>
 			<section class="form-section">
 				<div class="section-heading">
 					<div class="section-number">01</div>
@@ -109,44 +300,161 @@
 					</div>
 				</div>
 
-                <label class="field"><span>대표 이미지 파일 (선택, PNG/JPEG/WebP, 5MB 이하)</span><input type="file" accept="image/png,image/jpeg,image/webp" onchange={(e) => imageFile = e.currentTarget.files?.[0] ?? null} /></label>
-                <label class="field"><span>대표 이미지 URL (선택)</span><input bind:value={imageUrl} type="url" placeholder="https://example.com/recipe.jpg" /></label>
+				<!-- 개선된 대표 이미지 등록 영역 -->
+				<div class="image-section-container">
+					<div class="image-mode-selector">
+						<span class="image-mode-title">대표 이미지</span>
+						<div class="image-mode-tabs">
+							<button
+								type="button"
+								class="tab-btn"
+								class:active={uploadMode === 'file'}
+								onclick={() => (uploadMode = 'file')}
+							>
+								파일 업로드
+							</button>
+							<button
+								type="button"
+								class="tab-btn"
+								class:active={uploadMode === 'url'}
+								onclick={() => (uploadMode = 'url')}
+							>
+								URL 입력
+							</button>
+						</div>
+					</div>
+
+					{#if uploadMode === 'file'}
+						{#if imagePreviewUrl}
+							<div class="image-preview-card">
+								<div class="preview-wrapper">
+									<img src={imagePreviewUrl} alt="대표 이미지 미리보기" />
+								</div>
+								<div class="preview-info">
+									<div class="file-details">
+										<span class="file-name">{imageFile?.name}</span>
+										<span class="file-size"
+											>{((imageFile?.size ?? 0) / (1024 * 1024)).toFixed(2)} MB</span
+										>
+									</div>
+									<div class="preview-actions">
+										<label class="change-file-btn">
+											변경
+											<input
+												type="file"
+												accept="image/png,image/jpeg,image/webp"
+												onchange={handleFileInputChange}
+												hidden
+											/>
+										</label>
+										<button type="button" class="remove-file-btn" onclick={clearSelectedFile}>
+											삭제
+										</button>
+									</div>
+								</div>
+							</div>
+						{:else}
+							<label
+								class="dropzone"
+								class:is-dragging={isDragging}
+								ondrop={handleDrop}
+								ondragover={handleDragOver}
+								ondragleave={handleDragLeave}
+							>
+								<input
+									type="file"
+									accept="image/png,image/jpeg,image/webp"
+									onchange={handleFileInputChange}
+									hidden
+								/>
+								<div class="dropzone-icon">
+									<svg viewBox="0 0 24 24">
+										<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+										<polyline points="17 8 12 3 7 8" />
+										<line x1="12" y1="3" x2="12" y2="15" />
+									</svg>
+								</div>
+								<div class="dropzone-text">
+									<strong>클릭하여 대표 이미지 첨부</strong>
+									<span>또는 드래그 앤 드롭으로 파일을 여기에 끌어놓으세요</span>
+									<small>PNG, JPEG, WebP (최대 5MB)</small>
+								</div>
+							</label>
+						{/if}
+					{:else}
+						<div class="url-input-container">
+							<div class="field">
+								<input
+									bind:value={imageUrl}
+									type="url"
+									placeholder="https://example.com/recipe-image.jpg"
+								/>
+							</div>
+							{#if imageUrl.trim()}
+								<div class="url-preview-wrapper">
+									<img
+										src={imageUrl}
+										alt="URL 이미지 미리보기"
+										onerror={(e) => {
+											(e.currentTarget as HTMLImageElement).style.display = 'none';
+										}}
+										onload={(e) => {
+											(e.currentTarget as HTMLImageElement).style.display = 'block';
+										}}
+									/>
+								</div>
+							{/if}
+						</div>
+					{/if}
+				</div>
 
 				<div class="form-grid">
 					<label class="field field-wide">
 						<span>레시피 이름 <b>*</b></span>
-						<input required maxlength="200" bind:value={title} placeholder="예: 매콤한 김치볶음밥" />
+						<input bind:value={title} placeholder="예: 매콤한 김치볶음밥" maxlength="100" />
 					</label>
 
 					<label class="field field-wide">
 						<span>한 줄 소개</span>
-						<input bind:value={description} placeholder="이 레시피를 간단하게 소개해주세요." />
+						<input
+							bind:value={description}
+							placeholder="이 레시피를 간단하게 소개해주세요."
+							maxlength="300"
+						/>
 					</label>
 
 					<label class="field">
 						<span>카테고리 <b>*</b></span>
-						<select required bind:value={category}>
+						<select bind:value={category}>
 							<option value="" disabled>카테고리 선택</option>
 							<option value="KOREAN">한식</option>
 							<option value="CHINESE">중식</option>
 							<option value="JAPANESE">일식</option>
 							<option value="WESTERN">양식</option>
-							<option value="SNACK">간식</option>
 							<option value="BAKING">베이킹</option>
-
+							<option value="SNACK">간식</option>
 						</select>
 					</label>
 
 					<label class="field">
 						<span>난이도 <b>*</b></span>
 						<select bind:value={difficulty}>
-							<option value="1">1 / 10</option><option value="2">2 / 10</option><option value="3">3 / 10</option><option value="4">4 / 10</option><option value="5">5 / 10</option><option value="6">6 / 10</option><option value="7">7 / 10</option><option value="8">8 / 10</option><option value="9">9 / 10</option><option value="10">10 / 10</option></select>
+							{#each Array(10) as _, index}
+								<option value={String(index + 1)}>{index + 1}단계</option>
+							{/each}
+						</select>
 					</label>
 
 					<label class="field">
 						<span>조리 시간 <b>*</b></span>
 						<div class="input-with-unit">
-							<input bind:value={cookingTime} type="number" min="1" placeholder="30" />
+							<input
+								bind:value={cookingTime}
+								type="number"
+								min="1"
+								step="1"
+								placeholder="30"
+							/>
 							<span>분</span>
 						</div>
 					</label>
@@ -154,7 +462,7 @@
 					<label class="field">
 						<span>인분 <b>*</b></span>
 						<div class="input-with-unit">
-							<input bind:value={servings} type="number" min="1" />
+							<input bind:value={servings} type="number" min="1" step="1" />
 							<span>인분</span>
 						</div>
 					</label>
@@ -181,16 +489,13 @@
 						<div class="ingredient-row">
 							<input bind:value={ingredient.name} placeholder="예: 김치" />
 							<input bind:value={ingredient.amount} placeholder="예: 1컵" />
-
 							<button
 								class="remove-button"
 								type="button"
 								aria-label="재료 삭제"
 								onclick={() => removeIngredient(index)}
 							>
-								<svg viewBox="0 0 24 24">
-									<path d="M5 12h14" />
-								</svg>
+								<svg viewBox="0 0 24 24"><path d="M5 12h14" /></svg>
 							</button>
 						</div>
 					{/each}
@@ -218,21 +523,20 @@
 					{#each steps as step, index}
 						<div class="step-row">
 							<div class="step-number">{String(index + 1).padStart(2, '0')}</div>
-
 							<div class="step-content">
-								<textarea bind:value={step.description} rows="4" placeholder="조리 과정을 자세하게 작성해주세요."></textarea>
-
+								<textarea
+									bind:value={step.description}
+									rows="4"
+									placeholder="조리 과정을 자세하게 작성해주세요."
+								></textarea>
 							</div>
-
 							<button
 								class="remove-button step-remove"
 								type="button"
 								aria-label="조리 단계 삭제"
 								onclick={() => removeStep(index)}
 							>
-								<svg viewBox="0 0 24 24">
-									<path d="M5 12h14" />
-								</svg>
+								<svg viewBox="0 0 24 24"><path d="M5 12h14" /></svg>
 							</button>
 						</div>
 					{/each}
@@ -262,28 +566,49 @@
 						<small>선택사항</small>
 					</div>
 
-                    <label class="field"><span>쉼표로 구분해 입력해주세요.</span><input bind:value={tags} placeholder="간단요리, 집밥" /></label>
-				</div>
+					<div class="tag-input">
+						<input
+							bind:value={tagInput}
+							onkeydown={handleTagKeydown}
+							placeholder="태그를 입력하고 추가해주세요."
+						/>
+						<button type="button" onclick={addTag}>추가</button>
+					</div>
 
-				<label class="field description-field">
-					<span>요리 팁</span>
-					<textarea bind:value={tips} rows="5" placeholder="요리하면서 알게 된 팁이나 다른 사용자에게 알려주고 싶은 내용을 작성해주세요."></textarea>
-				</label>
+					{#if tags.length > 0}
+						<div class="tag-list">
+							{#each tags as tag, index}
+								<button
+									type="button"
+									class="tag"
+									onclick={() => removeTag(index)}
+									aria-label={`${tag} 태그 삭제`}
+								>
+									#{tag}
+									<span>×</span>
+								</button>
+							{/each}
+						</div>
+					{/if}
+				</div>
 			</section>
 
 			<div class="form-actions">
-				<a href={appPath('/recipes')} class="cancel-button">취소</a>
+				<a href={appPath('/recipes')} class="cancel-button" aria-disabled={submitting}>
+					취소
+				</a>
 
-				<div>
-
-					<button class="submit-button" type="submit" disabled={submitting}>
-						{submitting ? '등록 중…' : '레시피 등록하기'}
+				<button class="submit-button" type="submit" disabled={submitting}>
+					{#if submitting}
+						등록 중...
+					{:else}
+						레시피 등록하기
 						<svg viewBox="0 0 24 24">
 							<path d="M5 12h14" />
 							<path d="M13 6l6 6-6 6" />
 						</svg>
-					</button>
-				</div>
+					{/if}
+				</button>
 			</div>
 		</form>
 	</main>
@@ -293,7 +618,9 @@
 	.page {
 		min-height: 100vh;
 		background: var(--background);
+		color: var(--text);
 	}
+
 	svg {
 		fill: none;
 		stroke: currentColor;
@@ -301,166 +628,442 @@
 		stroke-linecap: round;
 		stroke-linejoin: round;
 	}
+
 	main {
-		width: min(980px, calc(100% - 48px));
+		max-width: 1080px;
 		margin: 0 auto;
-		padding-bottom: 80px;
+		padding: 0 24px 100px;
 	}
+
 	.breadcrumb {
 		display: flex;
 		align-items: center;
-		gap: 7px;
-		padding-top: 28px;
+		gap: 6px;
+		padding: 24px 0 18px;
 		color: var(--text-muted);
 		font-size: 14px;
 	}
+
+	.breadcrumb a {
+		color: var(--text-subtle);
+		text-decoration: none;
+	}
+
 	.breadcrumb a:hover {
 		color: var(--accent);
 	}
+
 	.breadcrumb svg {
-		width: 11px;
-		height: 11px;
+		width: 12px;
+		height: 12px;
 	}
+
 	.page-heading {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		gap: 30px;
-		padding: 45px 0 38px;
+		padding: 35px 0 40px;
+		border-bottom: 1px solid var(--border);
 	}
+
 	.heading-label {
 		color: var(--accent);
 		font-size: 14px;
 		font-weight: 800;
 	}
+
 	.page-heading h1 {
-		margin: 9px 0 12px;
+		margin: 10px 0 12px;
 		font-size: 40px;
 		line-height: 1.18;
-		letter-spacing: -.07em;
+		letter-spacing: -0.06em;
+		color: var(--text);
 	}
+
 	.page-heading h1 span {
 		color: var(--accent);
 	}
+
 	.page-heading p {
 		margin: 0;
 		color: var(--text-subtle);
-		font-size: 14px;
+		font-size: 15px;
+		line-height: 1.6;
 	}
+
 	.heading-icon {
 		width: 100px;
 		height: 100px;
 		display: grid;
 		place-items: center;
-		border-radius: 25px;
+		flex-shrink: 0;
+		border-radius: 24px;
 		background: var(--surface-yellow);
+		border: 1px solid var(--border);
 		color: var(--accent);
 	}
+
 	.heading-icon svg {
 		width: 44px;
 		height: 44px;
 	}
+
+	.error-message {
+		display: flex;
+		align-items: center;
+		gap: 9px;
+		margin-top: 24px;
+		padding: 13px 15px;
+		border: 1px solid var(--danger);
+		border-radius: 9px;
+		background: var(--surface);
+		color: var(--danger);
+		font-size: 14px;
+		line-height: 1.5;
+	}
+
+	.error-message svg {
+		width: 18px;
+		height: 18px;
+		flex-shrink: 0;
+	}
+
 	.recipe-form {
 		display: flex;
 		flex-direction: column;
-		gap: 18px;
+		gap: 40px;
+		margin-top: 40px;
 	}
+
 	.form-section {
-		padding: 32px;
-		border: 1px solid var(--border);
-		border-radius: 20px;
-		background: var(--surface);
+		padding-bottom: 40px;
+		border-bottom: 1px solid var(--border);
 	}
+
 	.section-heading {
 		display: flex;
 		align-items: flex-start;
 		gap: 14px;
-		margin-bottom: 28px;
+		margin-bottom: 24px;
 	}
+
 	.section-number {
-		width: 36px;
-		height: 36px;
 		display: grid;
 		place-items: center;
 		flex-shrink: 0;
+		width: 36px;
+		height: 36px;
 		border-radius: 10px;
 		background: var(--primary);
 		color: #0f172a;
 		font-size: 14px;
 		font-weight: 850;
 	}
+
 	.section-heading h2 {
-		margin: 1px 0 5px;
-		font-size: 18px;
-		letter-spacing: -.05em;
+		margin: 2px 0 5px;
+		font-size: 22px;
+		letter-spacing: -0.04em;
+		color: var(--text);
 	}
+
 	.section-heading p {
 		margin: 0;
 		color: var(--text-muted);
 		font-size: 14px;
 	}
+
+	/* 이미지 업로드 섹션 스타일 추가 */
+	.image-section-container {
+		margin-bottom: 30px;
+	}
+
+	.image-mode-selector {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 12px;
+	}
+
+	.image-mode-title {
+		font-size: 14px;
+		font-weight: 700;
+		color: var(--text);
+	}
+
+	.image-mode-tabs {
+		display: flex;
+		background: var(--surface-subtle);
+		padding: 3px;
+		border-radius: 8px;
+		border: 1px solid var(--border);
+	}
+
+	.tab-btn {
+		padding: 5px 12px;
+		font-size: 12px;
+		font-weight: 600;
+		border: 0;
+		border-radius: 6px;
+		background: transparent;
+		color: var(--text-muted);
+		cursor: pointer;
+		transition: all 0.15s ease;
+	}
+
+	.tab-btn.active {
+		background: var(--surface);
+		color: var(--text);
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+	}
+
+	.dropzone {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 12px;
+		padding: 36px 20px;
+		border: 2px dashed var(--border-accent);
+		border-radius: 14px;
+		background: var(--surface-green);
+		cursor: pointer;
+		transition: all 0.2s ease;
+		text-align: center;
+	}
+
+	.dropzone:hover,
+	.dropzone.is-dragging {
+		border-color: var(--accent);
+		background: var(--surface-yellow);
+	}
+
+	.dropzone-icon {
+		display: grid;
+		place-items: center;
+		width: 48px;
+		height: 48px;
+		border-radius: 12px;
+		background: var(--surface);
+		color: var(--accent);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+	}
+
+	.dropzone-icon svg {
+		width: 24px;
+		height: 24px;
+	}
+
+	.dropzone-text {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.dropzone-text strong {
+		font-size: 15px;
+		color: var(--text);
+	}
+
+	.dropzone-text span {
+		font-size: 13px;
+		color: var(--text-subtle);
+	}
+
+	.dropzone-text small {
+		font-size: 12px;
+		color: var(--text-muted);
+		margin-top: 4px;
+	}
+
+	.image-preview-card {
+		display: flex;
+		align-items: center;
+		gap: 20px;
+		padding: 16px;
+		border: 1px solid var(--border);
+		border-radius: 14px;
+		background: var(--surface);
+	}
+
+	.preview-wrapper {
+		width: 110px;
+		height: 110px;
+		border-radius: 10px;
+		overflow: hidden;
+		flex-shrink: 0;
+		background: var(--surface-subtle);
+		border: 1px solid var(--border);
+	}
+
+	.preview-wrapper img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.preview-info {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		flex: 1;
+	}
+
+	.file-details {
+		display: flex;
+		flex-direction: column;
+		gap: 3px;
+	}
+
+	.file-name {
+		font-size: 14px;
+		font-weight: 700;
+		color: var(--text);
+		word-break: break-all;
+	}
+
+	.file-size {
+		font-size: 12px;
+		color: var(--text-muted);
+	}
+
+	.preview-actions {
+		display: flex;
+		gap: 8px;
+	}
+
+	.change-file-btn {
+		display: inline-flex;
+		align-items: center;
+		padding: 6px 12px;
+		border: 1px solid var(--border);
+		border-radius: 6px;
+		background: var(--surface-subtle);
+		color: var(--text);
+		font-size: 13px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.change-file-btn:hover {
+		background: var(--surface);
+		border-color: var(--accent);
+	}
+
+	.remove-file-btn {
+		padding: 6px 12px;
+		border: 1px solid var(--danger);
+		border-radius: 6px;
+		background: transparent;
+		color: var(--danger);
+		font-size: 13px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.remove-file-btn:hover {
+		background: var(--surface);
+		opacity: 0.8;
+	}
+
+	.url-input-container {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.url-preview-wrapper {
+		width: 100%;
+		max-height: 220px;
+		border-radius: 10px;
+		overflow: hidden;
+		border: 1px solid var(--border);
+		background: var(--surface-subtle);
+	}
+
+	.url-preview-wrapper img {
+		width: 100%;
+		height: 220px;
+		object-fit: cover;
+	}
+
 	.form-grid {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 19px;
+		gap: 20px;
 	}
+
 	.field {
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
 	}
+
 	.field-wide {
 		grid-column: 1 / -1;
 	}
+
 	.field > span,
 	.tag-label > span {
 		font-size: 14px;
 		font-weight: 700;
+		color: var(--text);
 	}
+
 	.field b {
 		color: var(--accent);
 	}
+
 	.field input,
 	.field select,
-	.field textarea,
-	.ingredient-row input {
+	.ingredient-row input,
+	.tag-input input,
+	.step-content textarea {
 		width: 100%;
+		box-sizing: border-box;
 		border: 1px solid var(--border);
 		border-radius: 9px;
 		outline: 0;
 		background: var(--surface-subtle);
 		color: var(--text);
 		font-size: 14px;
+		transition:
+			border-color 0.15s ease,
+			background 0.15s ease;
 	}
+
 	.field input,
 	.field select,
 	.ingredient-row input {
 		height: 42px;
 		padding: 0 12px;
 	}
-	.field textarea {
-		padding: 12px;
-		resize: vertical;
-		line-height: 1.7;
-	}
+
 	.field input:focus,
 	.field select:focus,
-	.field textarea:focus,
-	.ingredient-row input:focus {
+	.ingredient-row input:focus,
+	.tag-input input:focus,
+	.step-content textarea:focus {
 		border-color: var(--primary);
 		background: var(--surface);
 	}
+
 	.field input::placeholder,
-	.field textarea::placeholder,
-	.ingredient-row input::placeholder {
+	.ingredient-row input::placeholder,
+	.tag-input input::placeholder,
+	.step-content textarea::placeholder {
 		color: var(--text-muted);
 	}
+
 	.input-with-unit {
 		position: relative;
 	}
+
 	.input-with-unit input {
-		padding-right: 45px;
+		padding-right: 48px;
 	}
+
 	.input-with-unit span {
 		position: absolute;
 		top: 50%;
@@ -469,50 +1072,59 @@
 		font-size: 14px;
 		transform: translateY(-50%);
 	}
+
 	.ingredient-list {
 		overflow: hidden;
 		border: 1px solid var(--border);
-		border-radius: 12px;
+		border-radius: 10px;
 	}
+
 	.ingredient-header,
 	.ingredient-row {
 		display: grid;
-		grid-template-columns: 1fr 180px 42px;
+		grid-template-columns: minmax(0, 1fr) 180px 42px;
 		gap: 10px;
 		align-items: center;
 	}
+
 	.ingredient-header {
 		padding: 10px 12px;
 		background: var(--surface-subtle);
 		color: var(--text-muted);
-		font-size: 14px;
+		font-size: 13px;
 	}
+
 	.ingredient-row {
 		padding: 7px 12px;
 		border-top: 1px solid var(--border);
 	}
+
 	.ingredient-row input {
 		background: var(--surface);
 	}
+
 	.remove-button {
-		width: 32px;
-		height: 32px;
 		display: grid;
 		place-items: center;
+		width: 32px;
+		height: 32px;
 		border: 1px solid var(--border);
 		border-radius: 8px;
 		background: var(--surface);
 		color: var(--text-muted);
 		cursor: pointer;
 	}
+
 	.remove-button:hover {
 		border-color: var(--danger);
 		color: var(--danger);
 	}
+
 	.remove-button svg {
 		width: 14px;
 		height: 14px;
 	}
+
 	.add-button {
 		display: inline-flex;
 		align-items: center;
@@ -527,89 +1139,126 @@
 		font-weight: 700;
 		cursor: pointer;
 	}
+
 	.add-button:hover {
 		background: var(--surface-yellow);
 	}
+
 	.add-button svg {
 		width: 13px;
 		height: 13px;
 	}
+
 	.steps-list {
 		display: flex;
 		flex-direction: column;
-		gap: 15px;
+		gap: 18px;
 	}
+
 	.step-row {
 		display: grid;
 		grid-template-columns: 42px minmax(0, 1fr) 32px;
 		gap: 13px;
 		align-items: start;
 	}
+
 	.step-number {
-		width: 42px;
-		height: 42px;
 		display: grid;
 		place-items: center;
+		width: 42px;
+		height: 42px;
 		border-radius: 11px;
 		background: var(--surface-yellow);
 		color: var(--accent);
 		font-size: 14px;
 		font-weight: 850;
 	}
-	.step-content {
-		display: grid;
-		grid-template-columns: 1fr;
-		gap: 10px;
-	}
+
 	.step-content textarea {
+		display: block;
 		min-height: 100px;
-		border: 1px solid var(--border);
-		border-radius: 10px;
-		outline: 0;
-		background: var(--surface-subtle);
-		color: var(--text);
 		padding: 12px;
-		font-size: 14px;
 		resize: vertical;
 		line-height: 1.7;
 	}
-	.step-content textarea:focus {
-		border-color: var(--primary);
-		background: var(--surface);
-	}
+
 	.step-remove {
 		margin-top: 5px;
 	}
-	.tag-area {
-		margin-bottom: 22px;
-	}
+
 	.tag-label {
 		display: flex;
 		align-items: center;
 		gap: 8px;
 		margin-bottom: 8px;
 	}
+
 	.tag-label small {
 		color: var(--text-muted);
+		font-size: 13px;
+	}
+
+	.tag-input {
+		display: flex;
+		gap: 7px;
+	}
+
+	.tag-input input {
+		height: 42px;
+		flex: 1;
+		padding: 0 12px;
+	}
+
+	.tag-input button {
+		padding: 0 15px;
+		border: 0;
+		border-radius: 8px;
+		background: var(--accent);
+		color: #fff;
 		font-size: 14px;
+		font-weight: 700;
+		cursor: pointer;
 	}
-	.description-field {
-		margin-top: 4px;
+
+	.tag-input button:hover {
+		opacity: 0.9;
 	}
+
+	.tag-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		margin-top: 9px;
+	}
+
+	.tag {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		padding: 6px 9px;
+		border: 0;
+		border-radius: 7px;
+		background: var(--surface-green);
+		color: var(--accent);
+		font-size: 13px;
+		font-weight: 650;
+		cursor: pointer;
+	}
+
+	.tag span {
+		font-size: 15px;
+		line-height: 1;
+	}
+
 	.form-actions {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 10px 0 0;
 	}
-	.form-actions > div {
-		display: flex;
-		align-items: center;
-		gap: 7px;
-	}
+
 	.cancel-button,
 	.submit-button {
-		height: 43px;
+		height: 46px;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
@@ -617,109 +1266,137 @@
 		font-size: 14px;
 		font-weight: 700;
 		cursor: pointer;
+		text-decoration: none;
+		box-sizing: border-box;
 	}
+
 	.cancel-button {
 		padding: 0 17px;
 		border: 1px solid var(--border);
 		background: var(--surface);
 		color: var(--text-subtle);
 	}
+
 	.cancel-button:hover {
 		border-color: var(--primary);
 		color: var(--text);
 	}
+
 	.submit-button {
 		gap: 8px;
-		padding: 0 17px;
+		padding: 0 18px;
 		border: 0;
 		background: var(--primary);
 		color: #0f172a;
 	}
-	.submit-button:hover {
-		background: var(--accent);
-		color: #fff;
+
+	.submit-button:hover:not(:disabled) {
+		background: var(--primary-hover);
 	}
+
+	.submit-button:disabled {
+		opacity: 0.6;
+		cursor: wait;
+	}
+
 	.submit-button svg {
-		width: 14px;
-		height: 14px;
+		width: 15px;
+		height: 15px;
 	}
 
 	@media (max-width: 760px) {
-	main {
-			width: calc(100% - 28px);
+		main {
+			padding: 0 16px 70px;
 		}
-	.page-heading {
+
+		.page-heading {
 			align-items: flex-start;
-			padding: 38px 0 30px;
+			padding: 30px 0;
 		}
-	.heading-icon {
+
+		.heading-icon {
 			display: none;
 		}
-	.page-heading h1 {
+
+		.page-heading h1 {
 			font-size: 34px;
 		}
-	.form-section {
-			padding: 23px 18px;
-		}
-	.form-grid {
+
+		.form-grid {
 			grid-template-columns: 1fr;
 		}
-	.field-wide {
+
+		.field-wide {
 			grid-column: auto;
 		}
-	.ingredient-header,
-	.ingredient-row {
-			grid-template-columns: 1fr 120px 34px;
+
+		.ingredient-header,
+		.ingredient-row {
+			grid-template-columns: minmax(0, 1fr) 120px 34px;
 		}
-	.step-content {
-			grid-template-columns: 1fr;
-		}
-	.form-actions {
+
+		.form-actions {
 			align-items: stretch;
 			flex-direction: column;
 			gap: 9px;
 		}
-	.form-actions > div {
-			display: grid;
-			grid-template-columns: 1fr;
-		}
-	.cancel-button {
+
+		.cancel-button,
+		.submit-button {
 			width: 100%;
+		}
+
+		.image-preview-card {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+
+		.preview-wrapper {
+			width: 100%;
+			height: 160px;
 		}
 	}
 
 	@media (max-width: 500px) {
-	.breadcrumb {
+		.breadcrumb {
 			padding-top: 20px;
 		}
-	.page-heading h1 {
+
+		.page-heading h1 {
 			font-size: 30px;
 		}
-	.page-heading p {
+
+		.page-heading p {
 			font-size: 14px;
 			line-height: 1.6;
 		}
-	.ingredient-header {
-			grid-template-columns: 1fr 100px 34px;
+
+		.ingredient-header {
+			grid-template-columns: minmax(0, 1fr) 100px 34px;
 		}
-	.ingredient-row {
-			grid-template-columns: 1fr 100px 34px;
+
+		.ingredient-row {
+			grid-template-columns: minmax(0, 1fr) 100px 34px;
 			padding: 7px;
 		}
-	.ingredient-row input {
+
+		.ingredient-row input {
 			padding: 0 8px;
-			font-size: 14px;
+			font-size: 13px;
 		}
-	.step-row {
+
+		.step-row {
 			grid-template-columns: 34px minmax(0, 1fr) 30px;
 			gap: 8px;
 		}
-	.step-number {
+
+		.step-number {
 			width: 34px;
 			height: 34px;
-			font-size: 14px;
+			font-size: 13px;
 		}
-	.step-content textarea {
+
+		.step-content textarea {
 			min-height: 110px;
 		}
 	}

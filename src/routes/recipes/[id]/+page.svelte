@@ -1,33 +1,986 @@
 <script lang="ts">
- import RecipeSocial from '$lib/components/RecipeSocial.svelte';
- import RecipeActions from '$lib/components/RecipeActions.svelte';
-	import { appPath } from '$lib/app-path';
-  import type { PageData } from './$types';
+  import RecipeSocial from "$lib/components/RecipeSocial.svelte";
+  import RecipeActions from "$lib/components/RecipeActions.svelte";
+  import { appPath } from "$lib/app-path";
+  import { page } from "$app/state";
+  import type { PageData } from "./$types";
+  import LikesAndSave from "$lib/components/layouts/LikesAndSave.svelte";
+  import RecipeComments from "$lib/components/layouts/RecipeComments.svelte";
+
   let { data }: { data: PageData } = $props();
+
+  let authorDisplay = $derived(data.food.author ?? "요리위키");
+  let createdAt = $derived(data.food.metadata?.created_at);
+
+  // 인분 수
+  let initialServings = $derived(
+    Math.max(1, Number(data.food.metadata?.servings ?? 2) || 2),
+  );
+
+  let servingOffset = $state(0);
+  let servings = $derived(initialServings + servingOffset);
+
+  function increaseServings() {
+    servingOffset += 1;
+  }
+
+  function decreaseServings() {
+    if (servings > 1) {
+      servingOffset -= 1;
+    }
+  }
+
+  // ISO 날짜 문자열 포맷팅
+  function formatDate(dateString?: string) {
+    if (!dateString) return "최근 업데이트";
+
+    const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) {
+      return dateString;
+    }
+
+    return date.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }
+
+  // 재료 파싱
+  const ingredientList = $derived(
+    data.food.ingredients
+      ? data.food.ingredients
+          .split(/(?:\r?\n|,)/)
+          .map((item) => item.trim())
+          .filter((item) => item !== "")
+      : [],
+  );
+
+  // 조리 순서 파싱
+  function parseRecipeSteps(recipe?: string) {
+    if (!recipe) return [];
+
+    const raw = recipe.trim();
+
+    // 한 줄에 "1. 내용 2. 내용 3. 내용"으로 저장된 경우 분리
+    const normalized = raw.replace(/\r?\n/g, " ");
+
+    const numberedSteps = [
+      ...normalized.matchAll(
+        /(?:^|\s)(\d+)[.)]\s*(.*?)(?=(?:\s+\d+[.)]\s*)|$)/g,
+      ),
+    ]
+      .map((match) => match[2].trim())
+      .filter(Boolean);
+
+    if (numberedSteps.length > 0) {
+      return numberedSteps;
+    }
+
+    // 번호가 없는 경우 줄바꿈 기준
+    return raw
+      .split(/\r?\n/)
+      .map((step) => step.trim())
+      .filter(Boolean)
+      .map((step) => step.replace(/^[-•]\s*/, ""));
+  }
+
+  const recipeSteps = $derived(parseRecipeSteps(data.food.recipe));
+
+  // 인분 수에 맞게 재료 수량 변경
+  function parseQuantity(value: string) {
+    return value
+      .trim()
+      .split(/\s+/)
+      .reduce((sum, part) => {
+        // 1/2 같은 분수
+        if (part.includes("/")) {
+          const [numerator, denominator] = part.split("/").map(Number);
+
+          if (denominator) {
+            return sum + numerator / denominator;
+          }
+
+          return sum;
+        }
+
+        const number = Number(part);
+
+        return Number.isFinite(number) ? sum + number : sum;
+      }, 0);
+  }
+
+  function formatQuantity(value: number) {
+    return String(Math.round(value * 100) / 100);
+  }
+
+  function scaleIngredient(item: string, ratio: number) {
+    if (ratio === 1) return item;
+
+    const quantityPattern =
+      String.raw`(?:\d+(?:\.\d+)?(?:\s+\d+\/\d+)?|\d+\/\d+)`;
+
+    const unitPattern =
+      "kg|g|mg|ml|mL|L|cc|컵|큰술|작은술|숟가락|스푼|티스푼|테이블스푼|개|알|장|쪽|대|줄기|줌|봉지|봉|캔|팩|공기|조각|토막|마리|근|꼬집|모";
+
+    const quantityWithUnit = new RegExp(
+      `(${quantityPattern})(?:\\s*([~～-])\\s*(${quantityPattern}))?(\\s*(?:${unitPattern}))`,
+      "gi",
+    );
+
+    return item.replace(
+      quantityWithUnit,
+      (
+        _match,
+        first: string,
+        separator: string | undefined,
+        second: string | undefined,
+        unit: string,
+      ) => {
+        const firstQuantity = formatQuantity(
+          parseQuantity(first) * ratio,
+        );
+
+        if (separator && second) {
+          const secondQuantity = formatQuantity(
+            parseQuantity(second) * ratio,
+          );
+
+          return `${firstQuantity}${separator}${secondQuantity}${unit}`;
+        }
+
+        return `${firstQuantity}${unit}`;
+      },
+    );
+  }
+
+  const scaledIngredientList = $derived(
+    ingredientList.map((item) =>
+      scaleIngredient(item, servings / initialServings),
+    ),
+  );
+
+  function scaleCookingTime(time: string | undefined, ratio: number) {
+    if (!time) return "—";
+
+    if (ratio === 1) return time;
+
+    return time.replace(/\d+(?:\.\d+)?/g, (value) => {
+      const scaled = Number(value) * ratio;
+      return String(Math.round(scaled));
+    });
+  }
+
+  let scaledCookingTime = $derived(
+    scaleCookingTime(
+      data.food.estimated_time,
+      servings / initialServings,
+    ),
+  );
+
+  // ============================================================
+  // 해본 요리(cooked) 기능
+  // ============================================================
+
+  let cooked = $state(false);
+  let cookedLoading = $state(true);
+  let cookedError = $state("");
+
+  async function loadCooked() {
+    if (!page.data.user) {
+      cooked = false;
+      cookedLoading = false;
+      return;
+    }
+
+    cookedLoading = true;
+    cookedError = "";
+
+    try {
+      const response = await fetch(appPath("/api/auth/cooked"));
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      const result = await response.json();
+
+      // API 응답: { ids: [15, 81] }
+      const cookedIds: number[] = Array.isArray(result)
+        ? result
+        : Array.isArray(result?.ids)
+          ? result.ids
+          : Array.isArray(result?.cooked)
+            ? result.cooked
+            : [];
+
+      cooked = cookedIds.includes(Number(data.food.id));
+    } catch (e) {
+      cookedError =
+        e instanceof Error
+          ? e.message
+          : "해본 요리 기록을 불러오지 못했습니다.";
+
+      cooked = false;
+    } finally {
+      cookedLoading = false;
+    }
+  }
+
+  // data.food.id 또는 로그인 상태가 변경되면 다시 확인
+  $effect(() => {
+    const recipeId = data.food.id;
+    const user = page.data.user;
+
+    // 의존성 추적
+    void recipeId;
+    void user;
+
+    loadCooked();
+  });
+
+  async function toggleCooked() {
+    if (!page.data.user || cookedLoading) {
+      return;
+    }
+
+    cookedLoading = true;
+    cookedError = "";
+
+    const nextCooked = !cooked;
+
+    try {
+      const response = await fetch(appPath("/api/auth/cooked"), {
+        method: "PUT",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          recipeId: Number(data.food.id),
+          cooked: nextCooked,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      cooked = nextCooked;
+    } catch (e) {
+      cookedError =
+        e instanceof Error
+          ? e.message
+          : "해본 요리 기록을 저장하지 못했습니다.";
+    } finally {
+      cookedLoading = false;
+    }
+  }
 </script>
 
 <svelte:head>
   <title>{data.food.name} | 요리위키</title>
-</svelte:head>
-<div style="max-width:900px;margin:auto;padding:0 24px"><RecipeActions food={data.food} /></div>
 
-<main>
-  <a href={appPath('/recipes')}>← 레시피 목록</a>
-  <h1>{data.food.name}</h1>
-  {#if data.food.metadata?.description}<p>{data.food.metadata.description}</p>{/if}
-  {#if data.food.metadata?.image_url}<img src={data.food.metadata.image_url.startsWith('/api/') ? appPath(data.food.metadata.image_url) : data.food.metadata.image_url} alt={data.food.name} style="max-width:100%;max-height:400px;object-fit:contain" />{/if}
-  <p>난이도: {data.food.metadata?.difficulty ?? '미등록'} / 10 · {data.food.metadata?.servings ?? '?'}인분</p>
-  <p>조리 시간: {data.food.estimated_time}</p>
-  <h2>재료</h2>
-  <p class="content">{data.food.ingredients}</p>
-  <h2>조리 방법</h2>
-  <p class="content">{data.food.recipe}</p>
-  {#if data.food.metadata?.tips}<h2>요리 팁</h2><p class="content">{data.food.metadata.tips}</p>{/if}
-  {#if data.food.metadata?.tags?.length}<p>{data.food.metadata.tags.map(tag => `#${tag}`).join(' ')}</p>{/if}
-{#key data.food.id}<RecipeSocial food={data.food} />{/key}
-</main>
+  <meta
+    name="description"
+    content={data.food.metadata?.description ||
+      `${data.food.name} 레시피 상세 정보`}
+  />
+</svelte:head>
+
+<div class="page">
+  <main>
+    <!-- 상단 브레드크럼 -->
+    <nav class="breadcrumb">
+      <a href={appPath("/recipes")}>레시피</a>
+
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 18l6-6-6-6" />
+      </svg>
+
+      <span>{data.food.name}</span>
+    </nav>
+
+    <!-- Hero -->
+    <section class="recipe-hero">
+      <div class="hero-image">
+        {#if data.food.metadata?.image_url}
+          <img
+            src={data.food.metadata.image_url.startsWith("/api/")
+              ? appPath(data.food.metadata.image_url)
+              : data.food.metadata.image_url}
+            alt={data.food.name}
+            style="width:100%;height:100%;object-fit:cover"
+          />
+        {:else}
+          <span>{data.food.name}</span>
+        {/if}
+      </div>
+
+      <div class="hero-content">
+        <div class="category">
+          {data.food.metadata?.category || "요리위키 레시피"}
+        </div>
+
+        <h1>{data.food.name}</h1>
+
+        <p class="description">
+          {data.food.metadata?.description ||
+            "맛있는 레시피 정보를 확인해보세요."}
+        </p>
+
+        <div class="author">
+          <div class="author-avatar">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="8" r="3" />
+              <path d="M5 20c.8-4 3-6 7-6s6.2 2 7 6" />
+            </svg>
+          </div>
+
+          <div>
+            <strong>{authorDisplay}</strong>
+            <span>{formatDate(createdAt)}</span>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          {#key data.food.id}
+            <LikesAndSave food={data.food} />
+          {/key}
+        </div>
+      </div>
+    </section>
+
+    <!-- 본문 + 사이드바 -->
+    <div class="content-layout">
+      <div class="main-content">
+
+        <!-- 재료 -->
+        <section class="content-section">
+          <div class="section-title">
+            <div>
+              <span class="num">01</span>
+              <h2>재료</h2>
+            </div>
+
+            <div class="servings">
+              <span>인분</span>
+
+              <button
+                type="button"
+                onclick={decreaseServings}
+                aria-label="인분 줄이기"
+              >
+                −
+              </button>
+
+              <strong>{servings}</strong>
+
+              <button
+                type="button"
+                onclick={increaseServings}
+                aria-label="인분 늘리기"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <div class="ingredient-list">
+            {#if scaledIngredientList.length > 0}
+              {#each scaledIngredientList as item}
+                <div class="ingredient-item">
+                  <span class="dot"></span>
+                  <span>{item}</span>
+                </div>
+              {/each}
+            {:else}
+              <div class="ingredient-item empty">
+                <span>등록된 재료 정보가 없습니다.</span>
+              </div>
+            {/if}
+          </div>
+        </section>
+
+        <!-- 조리 순서 -->
+        <section class="content-section">
+          <div class="section-title">
+            <div>
+              <span class="num">02</span>
+              <h2>조리 순서</h2>
+            </div>
+          </div>
+
+          {#if recipeSteps.length > 0}
+            <div class="recipe-steps">
+              {#each recipeSteps as step, index}
+                <div class="recipe-step">
+                  <div class="step-number">
+                    {index + 1}
+                  </div>
+
+                  <div class="step-content">
+                    {step}
+                  </div>
+                </div>
+              {/each}
+            </div>
+          {:else}
+            <div class="recipe-empty">
+              등록된 조리 방법이 없습니다.
+            </div>
+          {/if}
+        </section>
+
+        <!-- 댓글 -->
+        <section class="content-section last">
+          <div class="section-title">
+            <div>
+              <span class="num">03</span>
+              <h2>댓글</h2>
+            </div>
+          </div>
+
+          {#key data.food.id}
+            <RecipeComments food={data.food} />
+          {/key}
+        </section>
+      </div>
+
+      <!-- 우측 Sticky 사이드바 -->
+      <aside class="recipe-sidebar">
+
+        <!-- 요리 시작 -->
+        <a
+          href={appPath(`/recipes/${data.food.id}/cook`)}
+          class="cook-button"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 12h14" />
+            <path d="M12 5l7 7-7 7" />
+          </svg>
+
+          <span>요리 만들기 시작</span>
+        </a>
+
+        <!-- 해본 요리 기록 -->
+        <button
+          type="button"
+          class:recorded={cooked}
+          class="cooked-button"
+          disabled={!page.data.user || cookedLoading}
+          onclick={toggleCooked}
+        >
+          {#if cookedLoading}
+            <span>확인 중…</span>
+          {:else if cooked}
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12l4 4L19 6" />
+            </svg>
+
+            <span>해본 요리 기록 취소</span>
+          {:else}
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 5v14" />
+              <path d="M5 12h14" />
+            </svg>
+
+            <span>해본 요리로 기록</span>
+          {/if}
+        </button>
+
+        {#if !page.data.user}
+          <p class="cooked-login-notice">
+            해본 요리를 기록하려면 로그인해주세요.
+          </p>
+        {/if}
+
+        {#if cookedError}
+          <p class="cooked-error" role="alert">
+            {cookedError}
+          </p>
+        {/if}
+
+        <!-- 레시피 정보 -->
+        <div class="info-rows">
+          <div class="info-row">
+            <span>준비 시간</span>
+            <strong>
+              {data.food.metadata?.prep_time || "—"}
+            </strong>
+          </div>
+
+          <div class="info-row">
+            <span>조리 시간</span>
+            <strong>{scaledCookingTime}</strong>
+          </div>
+
+          <div class="info-row">
+            <span>난이도</span>
+            <strong>
+              {data.food.metadata?.difficulty != null
+                ? `${data.food.metadata?.difficulty}단계`
+                : "보통"}
+            </strong>
+          </div>
+
+          <div class="info-row">
+            <span>분량</span>
+            <strong>{servings}인분</strong>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <RecipeActions food={data.food} />
+  </main>
+</div>
 
 <style>
-  main { max-width: 900px; margin: 40px auto; padding: 24px; }
-  .content { white-space: pre-wrap; line-height: 1.8; overflow-wrap: anywhere; }
+  .page {
+    min-height: 100vh;
+    background: var(--background);
+    color: var(--text);
+  }
+
+  svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  main {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px 100px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 24px 0 18px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .breadcrumb a {
+    color: var(--text-subtle);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--accent);
+  }
+
+  .breadcrumb svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* Hero */
+  .recipe-hero {
+    display: grid;
+    grid-template-columns: 440px 1fr;
+    gap: 40px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-image {
+    min-height: 320px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    background: var(--surface-yellow);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-size: 16px;
+    font-weight: 700;
+    overflow: hidden;
+  }
+
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .category {
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .hero-content h1 {
+    margin: 10px 0 12px;
+    font-size: 36px;
+    letter-spacing: -0.05em;
+    color: var(--text);
+  }
+
+  .description {
+    margin: 0;
+    color: var(--text-subtle);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .author-avatar {
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--surface-green);
+    color: var(--accent);
+    width: 36px;
+    height: 36px;
+  }
+
+  .author-avatar svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .author strong {
+    display: block;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .author span {
+    display: block;
+    margin-top: 2px;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+  }
+
+  /* Content */
+  .content-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 48px;
+    margin-top: 40px;
+  }
+
+  .main-content {
+    min-width: 0;
+  }
+
+  .content-section {
+    padding-bottom: 40px;
+    margin-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .content-section.last {
+    border-bottom: none;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .section-title > div:first-child {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .section-title .num {
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .section-title h2 {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: -0.04em;
+    color: var(--text);
+  }
+
+  /* Servings */
+  .servings {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .servings button {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .servings button:hover {
+    border-color: var(--primary);
+    background: var(--surface-subtle);
+  }
+
+  .servings strong {
+    min-width: 16px;
+    color: var(--text);
+    text-align: center;
+  }
+
+  /* Ingredients */
+  .ingredient-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ingredient-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--border);
+    font-size: 14px;
+    color: var(--text-subtle);
+  }
+
+  .ingredient-item.empty {
+    border-bottom: none;
+    color: var(--text-muted);
+  }
+
+  .dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* Sidebar */
+  .recipe-sidebar {
+    position: sticky;
+    top: 96px;
+    align-self: start;
+  }
+
+  .cook-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 52px;
+    background: var(--primary);
+    color: #0f172a;
+    font-size: 16px;
+    font-weight: 800;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: background 0.15s ease;
+    box-sizing: border-box;
+  }
+
+  .cook-button:hover {
+    background: var(--accent);
+    color: var(--background);
+  }
+
+  .cook-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Cooked Button */
+  .cooked-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 48px;
+    margin-top: 10px;
+    padding: 0 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 750;
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+    box-sizing: border-box;
+  }
+
+  .cooked-button:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--surface-subtle);
+  }
+
+  .cooked-button.recorded {
+    border-color: var(--border-green);
+    background: var(--surface-green);
+    color: var(--accent);
+  }
+
+  .cooked-button.recorded:hover:not(:disabled) {
+    background: var(--surface);
+  }
+
+  .cooked-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .cooked-button svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .cooked-login-notice {
+    margin: 8px 0 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  .cooked-error {
+    margin: 8px 0 0;
+    color: #991b1b;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .info-rows {
+    margin-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+
+  .info-row span {
+    color: var(--text-muted);
+  }
+
+  .info-row strong {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* Recipe Steps */
+  .recipe-steps {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .recipe-step {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .recipe-step:last-child {
+    border-bottom: none;
+  }
+
+  .step-number {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: var(
+      --surface-green,
+      rgba(16, 185, 129, 0.1)
+    );
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-content {
+    color: var(--text-subtle);
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.65;
+    word-break: keep-all;
+  }
+
+  .recipe-empty {
+    padding: 24px 0;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .recipe-hero {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-image {
+      min-height: 260px;
+    }
+
+    .content-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .recipe-sidebar {
+      position: static;
+      order: -1;
+    }
+  }
+
+  @media (max-width: 600px) {
+    main {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .hero-content h1 {
+      font-size: 30px;
+    }
+
+    .content-layout {
+      gap: 30px;
+    }
+  }
 </style>

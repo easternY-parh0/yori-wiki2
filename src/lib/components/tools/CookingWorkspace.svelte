@@ -3,7 +3,7 @@
   import StopwatchTool from "$lib/components/tools/StopwatchTool.svelte";
   import ConverterTool from "$lib/components/tools/ConverterTool.svelte";
   import ScalerTool from "$lib/components/tools/ScalerTool.svelte";
-  import RiceCalculatorTool from "$lib/components/tools/RiceCalculatorTool.svelte"; //여기까지 완전 기능 분리 완료
+  import RiceCalculatorTool from "$lib/components/tools/RiceCalculatorTool.svelte";
   import TempGuideTool from "$lib/components/tools/TempGuideTool.svelte";
   import SubstitutionTool from "$lib/components/tools/SubstitutionTool.svelte";
   import CookingNoteTool from "$lib/components/tools/CookingNoteTool.svelte";
@@ -66,22 +66,20 @@
     };
   }
 
-  function getSpawnPosition(index: number) {
+  function getSpawnPosition() {
     const center = getViewportCenterWorld();
 
-    const angle = index * 0.9;
-    const ring = Math.floor(index / 6);
-    const radius = 100 + ring * 110;
+    const offsetX = (Math.random() - 0.5) * 240;
+    const offsetY = (Math.random() - 0.5) * 180;
 
     return {
-      x: center.x + Math.cos(angle) * radius - 160,
-
-      y: center.y + Math.sin(angle) * radius - 110,
+      x: center.x + offsetX - 160,
+      y: center.y + offsetY - 110,
     };
   }
 
   function addWorkspaceNode(type: ToolType, id: string) {
-    const position = getSpawnPosition(nodes.length);
+    const position = getSpawnPosition();
 
     highestZIndex += 1;
 
